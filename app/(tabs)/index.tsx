@@ -122,7 +122,7 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Próximas horas</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {hourly.slice(0, 12).map((hour) => (
+            {hourly.slice(hourly.findIndex(h => parseInt(h.time.substring(0, 2)) >= new Date().getHours()), hourly.findIndex(h => parseInt(h.time.substring(0, 2)) >= new Date().getHours()) + 12).map((hour) => (
               <View key={hour.time} style={styles.hourCard}>
                 <Text style={styles.hourTime}>
                   {hour.time.substring(0, 5)}
