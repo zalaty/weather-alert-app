@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,7 +9,6 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
 import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useWeatherStore } from '../../store/weatherStore';
 
@@ -81,6 +82,42 @@ export default function AlertsScreen() {
     temp_low: 5,
     temp_high: 35,
   });
+  const [loaded, setLoaded] = useState(false);
+
+  // Cargar al iniciar
+  useEffect(() => {
+    async function load() {
+      try {
+        const savedAlert = await AsyncStorage.getItem('activeAlert');
+        const savedThresholds = await AsyncStorage.getItem('thresholds');
+        if (savedAlert) setActiveAlert(savedAlert as AlertType);
+        if (savedThresholds) setThresholds(JSON.parse(savedThresholds));
+      } catch (e) {
+        console.error('Error loading alerts:', e);
+      } finally {
+        setLoaded(true);
+      }
+    }
+    load();
+  }, []);
+
+  // Guardar cuando cambian
+  useEffect(() => {
+    if (!loaded) return;
+    async function save() {
+      try {
+        if (activeAlert) {
+          await AsyncStorage.setItem('activeAlert', activeAlert);
+        } else {
+          await AsyncStorage.removeItem('activeAlert');
+        }
+        await AsyncStorage.setItem('thresholds', JSON.stringify(thresholds));
+      } catch (e) {
+        console.error('Error saving alerts:', e);
+      }
+    }
+    save();
+  }, [activeAlert, thresholds, loaded]);
 
   const isFreeTierFull = (type: AlertType) => {
     return activeAlert !== null && activeAlert !== type;
@@ -140,7 +177,6 @@ export default function AlertsScreen() {
                 isLocked && styles.alertCardLocked,
               ]}
             >
-              {/* Cabecera */}
               <View style={styles.alertHeader}>
                 <Text style={styles.alertEmoji}>{alert.emoji}</Text>
                 <View style={styles.alertInfo}>
@@ -163,7 +199,6 @@ export default function AlertsScreen() {
                 )}
               </View>
 
-              {/* Ajuste de umbral */}
               {isActive && (
                 <View style={styles.thresholdRow}>
                   <TouchableOpacity
@@ -184,7 +219,6 @@ export default function AlertsScreen() {
                 </View>
               )}
 
-              {/* Alerta disparada */}
               {isTriggered && (
                 <View style={styles.triggeredBanner}>
                   <Text style={styles.triggeredText}>
@@ -196,7 +230,6 @@ export default function AlertsScreen() {
           );
         })}
 
-        {/* Banner premium */}
         <View style={styles.premiumBanner}>
           <Text style={styles.premiumEmoji}>💎</Text>
           <View style={styles.premiumText}>
