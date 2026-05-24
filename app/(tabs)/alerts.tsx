@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useWeatherStore } from '../../store/weatherStore';
+import { scheduleWeatherAlert } from '../../services/notifications';
 
 type AlertType = 'rain' | 'wind' | 'temp_low' | 'temp_high';
 
@@ -123,13 +124,14 @@ export default function AlertsScreen() {
     return activeAlert !== null && activeAlert !== type;
   };
 
-  const toggleAlert = (type: AlertType) => {
-    if (activeAlert === type) {
-      setActiveAlert(null);
-    } else if (activeAlert === null) {
-      setActiveAlert(type);
-    }
-  };
+const toggleAlert = (type: AlertType) => {
+  if (activeAlert === type) {
+    setActiveAlert(null);
+  } else if (activeAlert === null) {
+    setActiveAlert(type);
+    triggerNotificationIfNeeded(type);
+  }
+};
 
   const adjustThreshold = (type: AlertType, delta: number) => {
     const alert = ALERT_TYPES.find((a) => a.id === type)!;
@@ -150,6 +152,39 @@ export default function AlertsScreen() {
       case 'temp_high': return current.temp >= threshold;
     }
   };
+
+const triggerNotificationIfNeeded = async (type: AlertType) => {
+  if (!weatherData) return;
+  const { current } = weatherData;
+  const threshold = thresholds[type];
+  const alert = ALERT_TYPES.find((a) => a.id === type)!;
+
+  let triggered = false;
+  let body = '';
+
+  switch (type) {
+    case 'rain':
+      triggered = current.precipProb >= threshold;
+      body = `Probabilidad de lluvia: ${current.precipProb}%`;
+      break;
+    case 'wind':
+      triggered = current.windSpeed >= threshold;
+      body = `Viento actual: ${current.windSpeed} km/h`;
+      break;
+    case 'temp_low':
+      triggered = current.temp <= threshold;
+      body = `Temperatura actual: ${current.temp}°C`;
+      break;
+    case 'temp_high':
+      triggered = current.temp >= threshold;
+      body = `Temperatura actual: ${current.temp}°C`;
+      break;
+  }
+
+  if (triggered) {
+    await scheduleWeatherAlert(`⚠️ Alerta: ${alert.label}`, body);
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>

@@ -1,9 +1,57 @@
 import { useEffect, useCallback } from 'react';
 import * as Location from 'expo-location';
-import { fetchWeather } from '../services/weatherApi';
+import { fetchWeather, WeatherData } from '../services/weatherApi';
 import { useWeatherStore } from '../store/weatherStore';
+import { scheduleWeatherAlert } from '../services/notifications';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutos
+
+async function checkAndNotify(data: WeatherData) {
+  try {
+    const savedAlert = await AsyncStorage.getItem('activeAlert');
+    const savedThresholds = await AsyncStorage.getItem('thresholds');
+    if (!savedAlert || !savedThresholds) return;
+
+    const type = savedAlert as 'rain' | 'wind' | 'temp_low' | 'temp_high';
+    const thresholds = JSON.parse(savedThresholds);
+    const threshold = thresholds[type];
+    const { current } = data;
+
+    let triggered = false;
+    let title = '';
+    let body = '';
+
+    switch (type) {
+      case 'rain':
+        triggered = current.precipProb >= threshold;
+        title = '⚠️ Alerta: Lluvia';
+        body = `Probabilidad de lluvia: ${current.precipProb}%`;
+        break;
+      case 'wind':
+        triggered = current.windSpeed >= threshold;
+        title = '⚠️ Alerta: Viento fuerte';
+        body = `Viento actual: ${current.windSpeed} km/h`;
+        break;
+      case 'temp_low':
+        triggered = current.temp <= threshold;
+        title = '⚠️ Alerta: Temperatura mínima';
+        body = `Temperatura actual: ${current.temp}°C`;
+        break;
+      case 'temp_high':
+        triggered = current.temp >= threshold;
+        title = '⚠️ Alerta: Temperatura máxima';
+        body = `Temperatura actual: ${current.temp}°C`;
+        break;
+    }
+
+    if (triggered) {
+      await scheduleWeatherAlert(title, body);
+    }
+  } catch (e) {
+    console.error('Error checking alert:', e);
+  }
+}
 
 export function useWeather() {
   const {
@@ -35,13 +83,11 @@ export function useWeather() {
 
   const loadWeather = useCallback(
     async (forceRefresh = false) => {
-      // Si hay caché válida y no forzamos refresco, no llamamos a la API
       if (!forceRefresh && isCacheValid() && weatherData) return;
 
       setLoading(true);
 
       try {
-        // Obtener ubicación
         const hasPermission = await requestLocationPermission();
         if (!hasPermission) return;
 
@@ -52,9 +98,9 @@ export function useWeather() {
         const { latitude, longitude } = coords.coords;
         setLocation({ latitude, longitude });
 
-        // Llamar a la API
         const data = await fetchWeather(latitude, longitude, units);
         setWeatherData(data);
+        await checkAndNotify(data);
       } catch (err) {
         setError('No se pudo obtener el tiempo. Comprueba tu conexión.');
         console.error('Weather fetch error:', err);
@@ -65,12 +111,10 @@ export function useWeather() {
     [isCacheValid, weatherData, units, setLoading, setLocation, setWeatherData, setError, requestLocationPermission]
   );
 
-  // Cargar al montar
   useEffect(() => {
     loadWeather();
   }, []);
 
-  // Recargar si cambian las unidades
   useEffect(() => {
     if (weatherData) loadWeather(true);
   }, [units]);
