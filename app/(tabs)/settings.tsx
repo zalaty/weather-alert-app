@@ -87,7 +87,7 @@ export default function SettingsScreen() {
           <Text style={styles.sectionTitle}>Acerca de</Text>
           <View style={styles.card}>
             <SettingRow
-              label="WeatherAlert"
+              label="Avisa"
               description="Versión 1.0.0"
               right={<Text style={styles.rowValue}>☀️</Text>}
             />
