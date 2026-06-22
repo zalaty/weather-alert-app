@@ -87,13 +87,3 @@ export const Radius = {
   xl: 28,
   full: 999,
 };
-
-export const LightTheme = {
-  // ...resto de colores
-  storm: '#6B48A3',
-};
-
-export const DarkTheme = {
-  // ...resto de colores
-  storm: '#8B6DC4',  // ligeramente más claro para contrastar en fondo oscuro
-};
