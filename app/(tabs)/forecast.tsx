@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWeather } from '../../hooks/useWeather';
 import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
+import { DailyWeather } from '../../services/weatherApi';
 
 function getWeatherEmoji(icon: string): string {
   const map: Record<string, string> = {
@@ -62,6 +65,67 @@ function getCurrentHourIndex(hours: any[]): number {
   });
 }
 
+function DayExpandable({ day, isToday }: { day: DailyWeather; isToday: boolean }) {
+  const [expanded, setExpanded] = useState(isToday);
+
+  const visibleHours = isToday
+    ? day.hours.slice(Math.max(0, getCurrentHourIndex(day.hours)))
+    : day.hours;
+
+  return (
+    <View style={styles.dayBlock}>
+      {/* Cabecera del día — siempre visible */}
+      <TouchableOpacity
+        style={styles.dayRow}
+        onPress={() => setExpanded((v) => !v)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.dayLeft}>
+          <Text style={styles.dayName}>{formatDay(day.date)}</Text>
+          <Text style={styles.windText}>
+            💨 {day.windSpeed} km/h {getWindDirection(day.windDir)}
+          </Text>
+        </View>
+        <Text style={styles.dayEmoji}>{getWeatherEmoji(day.icon)}</Text>
+        <View style={styles.dayRight}>
+          {day.precipProb > 20 && (
+            <Text style={styles.dayPrecip}>💧{day.precipProb}%</Text>
+          )}
+          <View style={styles.tempRange}>
+            <Text style={styles.tempMax}>{day.tempMax}°</Text>
+            <Text style={styles.tempMin}>{day.tempMin}°</Text>
+          </View>
+        </View>
+        <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
+      </TouchableOpacity>
+
+      {/* Horas desplegables */}
+      {expanded && (
+        <View style={styles.hoursContainer}>
+          {visibleHours.map((hour) => (
+            <View key={hour.time} style={styles.hourRow}>
+              <Text style={styles.hourTime}>{formatHour(hour.time)}</Text>
+              <Text style={styles.hourEmoji}>{getWeatherEmoji(hour.icon)}</Text>
+              <View style={styles.hourBar}>
+                {hour.precipProb > 20 && (
+                  <View style={styles.precipRow}>
+                    <Text style={styles.precipText}>🌂 {hour.precipProb}%</Text>
+                  </View>
+                )}
+                <Text style={styles.hourConditions}>{hour.conditions}</Text>
+                <Text style={styles.windText}>
+                  💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir)}
+                </Text>
+              </View>
+              <Text style={styles.hourTemp}>{hour.temp}°</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
 export default function ForecastScreen() {
   const { weatherData, isLoading } = useWeather();
 
@@ -75,11 +139,7 @@ export default function ForecastScreen() {
 
   if (!weatherData) return null;
 
-  const { hourly, daily } = weatherData;
-
-  // Mostrar desde la hora actual
-  const startIndex = getCurrentHourIndex(hourly);
-  const upcomingHours = hourly.slice(startIndex, startIndex + 24);
+  const { daily } = weatherData;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -87,57 +147,16 @@ export default function ForecastScreen() {
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Título */}
         <Text style={styles.screenTitle}>Previsión</Text>
 
-        {/* Previsión horaria */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Por horas</Text>
-          <View style={styles.hourlyList}>
-            {upcomingHours.map((hour) => (
-              <View key={hour.time} style={styles.hourRow}>
-                <Text style={styles.hourTime}>{formatHour(hour.time)}</Text>
-                <Text style={styles.hourEmoji}>{getWeatherEmoji(hour.icon)}</Text>
-                <View style={styles.hourBar}>
-                {hour.precipProb > 20 && (
-                    <View style={styles.precipRow}>
-                    <Text style={styles.precipText}>🌂 {hour.precipProb}%</Text>
-                    </View>
-                )}
-                <Text style={styles.hourConditions}>{hour.conditions}</Text>
-                <Text style={styles.windText}>💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir)}</Text>
-                </View>
-                <Text style={styles.hourTemp}>{hour.temp}°</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        {/* Previsión semanal */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Próximos días</Text>
           <View style={styles.dailyList}>
-            {daily.slice(0, 7).map((day) => (
-              <View key={day.date} style={styles.dayRow}>
-                <View style={styles.dayLeft}>
-                  <Text style={styles.dayName}>{formatDay(day.date)}</Text>
-                  <Text style={styles.windText}>💨 {day.windSpeed} km/h {getWindDirection(day.windDir)}</Text>
-                </View>
-                <Text style={styles.dayEmoji}>{getWeatherEmoji(day.icon)}</Text>
-                <View style={styles.dayRight}>
-                  {day.precipProb > 20 && (
-                    <Text style={styles.dayPrecip}>💧{day.precipProb}%</Text>
-                  )}
-                  <View style={styles.tempRange}>
-                    <Text style={styles.tempMax}>{day.tempMax}°</Text>
-                    <Text style={styles.tempMin}>{day.tempMin}°</Text>
-                  </View>
-                </View>
-              </View>
+            {daily.slice(0, 7).map((day, index) => (
+              <DayExpandable key={day.date} day={day} isToday={index === 0} />
             ))}
           </View>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -173,10 +192,75 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
-  hourlyList: {
+  dailyList: {
     backgroundColor: Colors.cardLight,
     borderRadius: Radius.lg,
     overflow: 'hidden',
+  },
+  dayBlock: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  dayRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    gap: Spacing.sm,
+  },
+  dayLeft: {
+    flex: 1,
+    gap: 2,
+  },
+  dayRight: {
+    alignItems: 'flex-end',
+    gap: 2,
+  },
+  dayName: {
+    fontSize: Typography.md,
+    fontWeight: Typography.medium,
+    color: Colors.textPrimary,
+    textTransform: 'capitalize',
+  },
+  dayEmoji: {
+    fontSize: Typography.lg,
+    width: 28,
+    textAlign: 'center',
+  },
+  dayPrecip: {
+    fontSize: Typography.xs,
+    color: Colors.rain,
+    fontWeight: Typography.medium,
+  },
+  tempRange: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    alignItems: 'center',
+    minWidth: 70,
+  },
+  tempMax: {
+    fontSize: Typography.md,
+    fontWeight: Typography.bold,
+    color: Colors.textPrimary,
+    width: 32,
+    textAlign: 'right',
+  },
+  tempMin: {
+    fontSize: Typography.md,
+    color: Colors.textSecondary,
+    width: 32,
+    textAlign: 'right',
+  },
+  chevron: {
+    fontSize: 10,
+    color: Colors.textSecondary,
+    width: 12,
+    textAlign: 'center',
+  },
+  hoursContainer: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    backgroundColor: Colors.backgroundLight,
   },
   hourRow: {
     flexDirection: 'row',
@@ -222,69 +306,9 @@ const styles = StyleSheet.create({
     width: 36,
     textAlign: 'right',
   },
-windText: {
-  fontSize: Typography.xs,
-  color: Colors.wind,
-  fontWeight: Typography.medium,
-},
-dayLeft: {
-  flex: 1,
-  gap: 2,
-},
-dayRight: {
-  alignItems: 'flex-end',
-  gap: 2,
-},
-  dailyList: {
-    backgroundColor: Colors.cardLight,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-  },
-  dayRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    gap: Spacing.sm,
-  },
-  dayName: {
-    fontSize: Typography.md,
-    fontWeight: Typography.medium,
-    color: Colors.textPrimary,
-    width: 90,
-    textTransform: 'capitalize',
-  },
-  dayEmoji: {
-    fontSize: Typography.lg,
-    width: 28,
-    textAlign: 'center',
-  },
-  dayPrecip: {
+  windText: {
     fontSize: Typography.xs,
-    color: Colors.rain,
+    color: Colors.wind,
     fontWeight: Typography.medium,
-    width: 48,
-    textAlign: 'center',
-  },
-tempRange: {
-  flexDirection: 'row',
-  gap: Spacing.sm,
-  alignItems: 'center',
-  minWidth: 70,
-},
-  tempMax: {
-    fontSize: Typography.md,
-    fontWeight: Typography.bold,
-    color: Colors.textPrimary,
-    width: 32,
-    textAlign: 'right',
-  },
-  tempMin: {
-    fontSize: Typography.md,
-    color: Colors.textSecondary,
-    width: 32,
-    textAlign: 'right',
   },
 });

@@ -25,7 +25,7 @@ export interface HourlyWeather {
   precipProb: number;
   precipAmount: number;
   windSpeed: number;
-  windDir: number; 
+  windDir: number;
   conditions: string;
   icon: string;
 }
@@ -41,6 +41,7 @@ export interface DailyWeather {
   conditions: string;
   icon: string;
   description: string;
+  hours: HourlyWeather[];
 }
 
 export interface WeatherData {
@@ -141,6 +142,17 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
       conditions: d.conditions,
       icon: d.icon,
       description: d.description ?? '',
+      hours: ((d.hours ?? []) as any[]).map((h) => ({
+        time: h.datetime,
+        temp: Math.round(h.temp),
+        feelsLike: Math.round(h.feelslike),
+        precipProb: h.precipprob ?? 0,
+        precipAmount: h.precip ?? 0,
+        windSpeed: Math.round(h.windspeed),
+        windDir: h.winddir ?? 0,
+        conditions: h.conditions,
+        icon: h.icon,
+      })),
     })),
   };
 }
