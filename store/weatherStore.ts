@@ -8,37 +8,37 @@ interface Location {
 }
 
 interface WeatherStore {
-  // Estado
   weatherData: WeatherData | null;
   location: Location | null;
   isLoading: boolean;
   error: string | null;
   units: 'metric' | 'us';
   lastUpdated: number | null;
+  isManualLocation: boolean;
 
-  // Acciones
   setWeatherData: (data: WeatherData) => void;
-  setLocation: (location: Location) => void;
+  setLocation: (location: Location, isManual?: boolean) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   toggleUnits: () => void;
   clearError: () => void;
+  resetToGPS: () => void;
 }
 
 export const useWeatherStore = create<WeatherStore>((set) => ({
-  // Estado inicial
   weatherData: null,
   location: null,
   isLoading: false,
   error: null,
   units: 'metric',
   lastUpdated: null,
+  isManualLocation: false,
 
-  // Acciones
   setWeatherData: (data) =>
     set({ weatherData: data, lastUpdated: Date.now(), error: null }),
 
-  setLocation: (location) => set({ location }),
+  setLocation: (location, isManual = false) =>
+    set({ location, isManualLocation: isManual }),
 
   setLoading: (loading) => set({ isLoading: loading }),
 
@@ -48,4 +48,7 @@ export const useWeatherStore = create<WeatherStore>((set) => ({
     set((state) => ({ units: state.units === 'metric' ? 'us' : 'metric' })),
 
   clearError: () => set({ error: null }),
+
+  resetToGPS: () =>
+    set({ isManualLocation: false, lastUpdated: null }),
 }));

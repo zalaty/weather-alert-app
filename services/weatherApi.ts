@@ -22,10 +22,12 @@ export interface HourlyWeather {
   time: string;
   temp: number;
   feelsLike: number;
+  humidity: number;
+  uvIndex: number;
   precipProb: number;
   precipAmount: number;
   windSpeed: number;
-  windDir: number; 
+  windDir: number;
   conditions: string;
   icon: string;
 }
@@ -34,6 +36,10 @@ export interface DailyWeather {
   date: string;
   tempMax: number;
   tempMin: number;
+  humidity: number;
+  uvIndex: number;
+  sunrise: string;
+  sunset: string;
   precipProb: number;
   precipAmount: number;
   windSpeed: number;
@@ -41,6 +47,7 @@ export interface DailyWeather {
   conditions: string;
   icon: string;
   description: string;
+  hours: HourlyWeather[];
 }
 
 export interface WeatherData {
@@ -72,6 +79,34 @@ async function reverseGeocode(latitude: number, longitude: number): Promise<stri
   }
 }
 
+export interface CityResult {
+  name: string;
+  latitude: number;
+  longitude: number;
+  country: string;
+  region: string;
+}
+
+export async function searchCities(query: string): Promise<CityResult[]> {
+  if (query.length < 2) return [];
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&accept-language=es&featuretype=city`,
+      { headers: { 'User-Agent': 'WeatherAlertApp/1.0' } }
+    );
+    const data = await response.json();
+    return (data as any[]).map((r) => ({
+      name: r.name,
+      latitude: parseFloat(r.lat),
+      longitude: parseFloat(r.lon),
+      country: r.address?.country ?? '',
+      region: r.address?.state ?? '',
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchWeather(
   latitude: number,
   longitude: number,
@@ -96,6 +131,20 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
   const current = raw.currentConditions;
   const today = raw.days[0];
 
+  const parseHour = (h: any): HourlyWeather => ({
+    time: h.datetime,
+    temp: Math.round(h.temp),
+    feelsLike: Math.round(h.feelslike),
+    humidity: Math.round(h.humidity ?? 0),
+    uvIndex: h.uvindex ?? 0,
+    precipProb: h.precipprob ?? 0,
+    precipAmount: h.precip ?? 0,
+    windSpeed: Math.round(h.windspeed),
+    windDir: h.winddir ?? 0,
+    conditions: h.conditions,
+    icon: h.icon,
+  });
+
   return {
     location: cityName,
     timezone: raw.timezone,
@@ -118,22 +167,16 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
       sunset: current.sunset,
     },
 
-    hourly: (today.hours as any[]).map((h) => ({
-      time: h.datetime,
-      temp: Math.round(h.temp),
-      feelsLike: Math.round(h.feelslike),
-      precipProb: h.precipprob ?? 0,
-      precipAmount: h.precip ?? 0,
-      windSpeed: Math.round(h.windspeed),
-      windDir: h.winddir ?? 0,
-      conditions: h.conditions,
-      icon: h.icon,
-    })),
+    hourly: (today.hours as any[]).map(parseHour),
 
     daily: (raw.days as any[]).map((d) => ({
       date: d.datetime,
       tempMax: Math.round(d.tempmax),
       tempMin: Math.round(d.tempmin),
+      humidity: Math.round(d.humidity ?? 0),
+      uvIndex: d.uvindex ?? 0,
+      sunrise: d.sunrise ?? '',
+      sunset: d.sunset ?? '',
       precipProb: d.precipprob ?? 0,
       precipAmount: d.precip ?? 0,
       windSpeed: Math.round(d.windspeed),
@@ -141,6 +184,7 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
       conditions: d.conditions,
       icon: d.icon,
       description: d.description ?? '',
+      hours: ((d.hours ?? []) as any[]).map(parseHour),
     })),
   };
 }

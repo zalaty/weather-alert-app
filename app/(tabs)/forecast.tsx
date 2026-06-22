@@ -1,35 +1,42 @@
+import { useState } from 'react';
 import {
   View,
   Text,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWeather } from '../../hooks/useWeather';
-import { Colors, Typography, Spacing, Radius } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
+import { DailyWeather } from '../../services/weatherApi';
 
 function getWeatherEmoji(icon: string): string {
   const map: Record<string, string> = {
-    'clear-day': '☀️',
-    'clear-night': '🌙',
-    'partly-cloudy-day': '⛅',
-    'partly-cloudy-night': '🌙',
-    cloudy: '☁️',
-    rain: '🌧️',
-    'showers-day': '🌦️',
-    'showers-night': '🌧️',
-    thunder: '⛈️',
-    'thunder-showers-day': '⛈️',
-    'thunder-showers-night': '⛈️',
-    snow: '❄️',
-    'snow-showers-day': '🌨️',
-    'snow-showers-night': '🌨️',
-    fog: '🌫️',
-    wind: '💨',
-    hail: '🌨️',
+    'clear-day': '☀️', 'clear-night': '🌙', 'partly-cloudy-day': '⛅',
+    'partly-cloudy-night': '🌙', cloudy: '☁️', rain: '🌧️',
+    'showers-day': '🌦️', 'showers-night': '🌧️', thunder: '⛈️',
+    'thunder-showers-day': '⛈️', 'thunder-showers-night': '⛈️',
+    snow: '❄️', 'snow-showers-day': '🌨️', 'snow-showers-night': '🌨️',
+    fog: '🌫️', wind: '💨', hail: '🌨️',
   };
   return map[icon] ?? '🌤️';
+}
+
+function translateCondition(condition: string): string {
+  const map: Record<string, string> = {
+    'Clear': 'Despejado', 'Partially cloudy': 'Parcialmente nublado',
+    'Overcast': 'Nublado', 'Rain': 'Lluvia',
+    'Rain, Partially cloudy': 'Lluvia y nubes', 'Rain, Overcast': 'Lluvia y nublado',
+    'Light Rain': 'Lluvia ligera', 'Heavy Rain': 'Lluvia intensa',
+    'Drizzle': 'Llovizna', 'Snow': 'Nieve', 'Fog': 'Niebla',
+    'Wind': 'Viento', 'Cloudy': 'Nublado', 'Thunder': 'Tormenta',
+    'Thunder, Rain': 'Tormenta con lluvia', 'Hail': 'Granizo',
+    'Ice': 'Hielo', 'Tornado': 'Tornado',
+  };
+  return map[condition] ?? condition;
 }
 
 function formatDay(dateStr: string): string {
@@ -37,10 +44,8 @@ function formatDay(dateStr: string): string {
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
-
   if (date.toDateString() === today.toDateString()) return 'Hoy';
   if (date.toDateString() === tomorrow.toDateString()) return 'Mañana';
-
   return date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' });
 }
 
@@ -49,242 +54,146 @@ function getWindDirection(degrees: number): string {
   return dirs[Math.round(degrees / 45) % 8];
 }
 
-function formatHour(timeStr: string): string {
-  return timeStr.substring(0, 5);
-}
+function formatHour(timeStr: string): string { return timeStr.substring(0, 5); }
+function formatSunTime(timeStr: string): string { return timeStr ? timeStr.substring(0, 5) : '--'; }
 
 function getCurrentHourIndex(hours: any[]): number {
-  const now = new Date();
-  const currentHour = now.getHours();
-  return hours.findIndex((h) => {
-    const hour = parseInt(h.time.substring(0, 2));
-    return hour >= currentHour;
-  });
+  const currentHour = new Date().getHours();
+  const idx = hours.findIndex((h) => parseInt(h.time.substring(0, 2)) >= currentHour);
+  return idx === -1 ? 0 : idx;
+}
+
+function DayExpandable({ day, isToday, theme }: { day: DailyWeather; isToday: boolean; theme: Theme }) {
+  const [expanded, setExpanded] = useState(isToday);
+  const s = makeStyles(theme);
+
+  const visibleHours = isToday
+    ? day.hours.slice(Math.max(0, getCurrentHourIndex(day.hours)))
+    : day.hours;
+
+  return (
+    <View style={s.dayBlock}>
+      <TouchableOpacity style={s.dayRow} onPress={() => setExpanded((v) => !v)} activeOpacity={0.7}>
+        <View style={s.dayLeft}>
+          <Text style={s.dayName}>{formatDay(day.date)}</Text>
+          <Text style={s.windText}>💨 {day.windSpeed} km/h {getWindDirection(day.windDir)}</Text>
+        </View>
+        <Text style={s.dayEmoji}>{getWeatherEmoji(day.icon)}</Text>
+        <View style={s.dayRight}>
+          {day.precipProb > 20 && <Text style={s.dayPrecip}>💧{day.precipProb}%</Text>}
+          <View style={s.tempRange}>
+            <Text style={s.tempMax}>{day.tempMax}°</Text>
+            <Text style={s.tempMin}>{day.tempMin}°</Text>
+          </View>
+        </View>
+        <Text style={s.chevron}>{expanded ? '▲' : '▼'}</Text>
+      </TouchableOpacity>
+
+      {expanded && (
+        <View style={s.daySummary}>
+          <View style={s.summaryRow}>
+            <Text style={s.summaryItem}>🌅 {formatSunTime(day.sunrise)}</Text>
+            <Text style={s.summaryItem}>🌇 {formatSunTime(day.sunset)}</Text>
+            <Text style={s.summaryItem}>💧 {day.humidity}%</Text>
+            <Text style={s.summaryItem}>☀️ UV {day.uvIndex}</Text>
+          </View>
+          {day.description ? <Text style={s.dayDescription}>{day.description}</Text> : null}
+        </View>
+      )}
+
+      {expanded && (
+        <View style={s.hoursContainer}>
+          {visibleHours.map((hour) => (
+            <View key={hour.time} style={s.hourRow}>
+              <Text style={s.hourTime}>{formatHour(hour.time)}</Text>
+              <Text style={s.hourEmoji}>{getWeatherEmoji(hour.icon)}</Text>
+              <View style={s.hourBar}>
+                <View style={s.hourMainRow}>
+                  <Text style={s.hourConditions}>{translateCondition(hour.conditions)}</Text>
+                  {hour.precipProb > 20 && <Text style={s.precipText}>🌂 {hour.precipProb}%</Text>}
+                </View>
+                <View style={s.hourDetailRow}>
+                  <Text style={s.windText}>💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir)}</Text>
+                  <Text style={s.detailText}>🌡️ ST {hour.feelsLike}°</Text>
+                  <Text style={s.detailText}>💧 {hour.humidity}%</Text>
+                </View>
+              </View>
+              <Text style={s.hourTemp}>{hour.temp}°</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
 }
 
 export default function ForecastScreen() {
   const { weatherData, isLoading } = useWeather();
+  const { theme } = useTheme();
+  const s = makeStyles(theme);
 
   if (isLoading && !weatherData) {
     return (
-      <SafeAreaView style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.accent} />
+      <SafeAreaView style={s.centered}>
+        <ActivityIndicator size="large" color={theme.accent} />
       </SafeAreaView>
     );
   }
 
   if (!weatherData) return null;
 
-  const { hourly, daily } = weatherData;
-
-  // Mostrar desde la hora actual
-  const startIndex = getCurrentHourIndex(hourly);
-  const upcomingHours = hourly.slice(startIndex, startIndex + 24);
-
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Título */}
-        <Text style={styles.screenTitle}>Previsión</Text>
-
-        {/* Previsión horaria */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Por horas</Text>
-          <View style={styles.hourlyList}>
-            {upcomingHours.map((hour) => (
-              <View key={hour.time} style={styles.hourRow}>
-                <Text style={styles.hourTime}>{formatHour(hour.time)}</Text>
-                <Text style={styles.hourEmoji}>{getWeatherEmoji(hour.icon)}</Text>
-                <View style={styles.hourBar}>
-                {hour.precipProb > 20 && (
-                    <View style={styles.precipRow}>
-                    <Text style={styles.precipText}>🌂 {hour.precipProb}%</Text>
-                    </View>
-                )}
-                <Text style={styles.hourConditions}>{hour.conditions}</Text>
-                <Text style={styles.windText}>💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir)}</Text>
-                </View>
-                <Text style={styles.hourTemp}>{hour.temp}°</Text>
-              </View>
+    <SafeAreaView style={s.container}>
+      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+        <Text style={s.screenTitle}>Previsión</Text>
+        <View style={s.section}>
+          <Text style={s.sectionTitle}>Próximos días</Text>
+          <View style={s.dailyList}>
+            {weatherData.daily.slice(0, 7).map((day, index) => (
+              <DayExpandable key={day.date} day={day} isToday={index === 0} theme={theme} />
             ))}
           </View>
         </View>
-
-        {/* Previsión semanal */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Próximos días</Text>
-          <View style={styles.dailyList}>
-            {daily.slice(0, 7).map((day) => (
-              <View key={day.date} style={styles.dayRow}>
-                <View style={styles.dayLeft}>
-                  <Text style={styles.dayName}>{formatDay(day.date)}</Text>
-                  <Text style={styles.windText}>💨 {day.windSpeed} km/h {getWindDirection(day.windDir)}</Text>
-                </View>
-                <Text style={styles.dayEmoji}>{getWeatherEmoji(day.icon)}</Text>
-                <View style={styles.dayRight}>
-                  {day.precipProb > 20 && (
-                    <Text style={styles.dayPrecip}>💧{day.precipProb}%</Text>
-                  )}
-                  <View style={styles.tempRange}>
-                    <Text style={styles.tempMax}>{day.tempMax}°</Text>
-                    <Text style={styles.tempMin}>{day.tempMin}°</Text>
-                  </View>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.backgroundLight,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.backgroundLight,
-  },
-  scroll: {
-    padding: Spacing.md,
-    gap: Spacing.lg,
-  },
-  screenTitle: {
-    fontSize: Typography.xxl,
-    fontWeight: Typography.bold,
-    color: Colors.textPrimary,
-  },
-  section: {
-    gap: Spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: Typography.md,
-    fontWeight: Typography.semibold,
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-  },
-  hourlyList: {
-    backgroundColor: Colors.cardLight,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-  },
-  hourRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    gap: Spacing.sm,
-  },
-  hourTime: {
-    fontSize: Typography.sm,
-    color: Colors.textSecondary,
-    fontWeight: Typography.medium,
-    width: 44,
-  },
-  hourEmoji: {
-    fontSize: Typography.lg,
-    width: 28,
-    textAlign: 'center',
-  },
-  hourBar: {
-    flex: 1,
-    gap: 2,
-  },
-  precipRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  precipText: {
-    fontSize: Typography.xs,
-    color: Colors.rain,
-    fontWeight: Typography.medium,
-  },
-  hourConditions: {
-    fontSize: Typography.xs,
-    color: Colors.textSecondary,
-  },
-  hourTemp: {
-    fontSize: Typography.md,
-    fontWeight: Typography.bold,
-    color: Colors.textPrimary,
-    width: 36,
-    textAlign: 'right',
-  },
-windText: {
-  fontSize: Typography.xs,
-  color: Colors.wind,
-  fontWeight: Typography.medium,
-},
-dayLeft: {
-  flex: 1,
-  gap: 2,
-},
-dayRight: {
-  alignItems: 'flex-end',
-  gap: 2,
-},
-  dailyList: {
-    backgroundColor: Colors.cardLight,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-  },
-  dayRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    gap: Spacing.sm,
-  },
-  dayName: {
-    fontSize: Typography.md,
-    fontWeight: Typography.medium,
-    color: Colors.textPrimary,
-    width: 90,
-    textTransform: 'capitalize',
-  },
-  dayEmoji: {
-    fontSize: Typography.lg,
-    width: 28,
-    textAlign: 'center',
-  },
-  dayPrecip: {
-    fontSize: Typography.xs,
-    color: Colors.rain,
-    fontWeight: Typography.medium,
-    width: 48,
-    textAlign: 'center',
-  },
-tempRange: {
-  flexDirection: 'row',
-  gap: Spacing.sm,
-  alignItems: 'center',
-  minWidth: 70,
-},
-  tempMax: {
-    fontSize: Typography.md,
-    fontWeight: Typography.bold,
-    color: Colors.textPrimary,
-    width: 32,
-    textAlign: 'right',
-  },
-  tempMin: {
-    fontSize: Typography.md,
-    color: Colors.textSecondary,
-    width: 32,
-    textAlign: 'right',
-  },
-});
+function makeStyles(theme: Theme) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: theme.background },
+    centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background },
+    scroll: { padding: Spacing.md, gap: Spacing.lg },
+    screenTitle: { fontSize: Typography.xxl, fontWeight: Typography.bold, color: theme.textPrimary },
+    section: { gap: Spacing.sm },
+    sectionTitle: { fontSize: Typography.md, fontWeight: Typography.semibold, color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.8 },
+    dailyList: { backgroundColor: theme.card, borderRadius: Radius.lg, overflow: 'hidden' },
+    dayBlock: { borderBottomWidth: 1, borderBottomColor: theme.border },
+    dayRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.md, gap: Spacing.sm },
+    dayLeft: { flex: 1, gap: 2 },
+    dayRight: { alignItems: 'flex-end', gap: 2 },
+    dayName: { fontSize: Typography.md, fontWeight: Typography.medium, color: theme.textPrimary, textTransform: 'capitalize' },
+    dayEmoji: { fontSize: Typography.lg, width: 28, textAlign: 'center' },
+    dayPrecip: { fontSize: Typography.xs, color: theme.rain, fontWeight: Typography.medium },
+    tempRange: { flexDirection: 'row', gap: Spacing.sm, alignItems: 'center', minWidth: 70 },
+    tempMax: { fontSize: Typography.md, fontWeight: Typography.bold, color: theme.textPrimary, width: 32, textAlign: 'right' },
+    tempMin: { fontSize: Typography.md, color: theme.textSecondary, width: 32, textAlign: 'right' },
+    chevron: { fontSize: 10, color: theme.textSecondary, width: 12, textAlign: 'center' },
+    daySummary: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, backgroundColor: theme.background, borderTopWidth: 1, borderTopColor: theme.border, gap: Spacing.xs },
+    summaryRow: { flexDirection: 'row', gap: Spacing.md, flexWrap: 'wrap' },
+    summaryItem: { fontSize: Typography.xs, color: theme.textSecondary, fontWeight: Typography.medium },
+    dayDescription: { fontSize: Typography.xs, color: theme.textSecondary, fontStyle: 'italic', lineHeight: 16 },
+    hoursContainer: { borderTopWidth: 1, borderTopColor: theme.border, backgroundColor: theme.background },
+    hourRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderBottomWidth: 1, borderBottomColor: theme.border, gap: Spacing.sm },
+    hourTime: { fontSize: Typography.sm, color: theme.textSecondary, fontWeight: Typography.medium, width: 44 },
+    hourEmoji: { fontSize: Typography.lg, width: 28, textAlign: 'center' },
+    hourBar: { flex: 1, gap: 3 },
+    hourMainRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+    hourDetailRow: { flexDirection: 'row', gap: Spacing.sm, alignItems: 'center' },
+    precipText: { fontSize: Typography.xs, color: theme.rain, fontWeight: Typography.medium },
+    hourConditions: { fontSize: Typography.xs, color: theme.textSecondary, flex: 1 },
+    hourTemp: { fontSize: Typography.md, fontWeight: Typography.bold, color: theme.textPrimary, width: 36, textAlign: 'right' },
+    windText: { fontSize: Typography.xs, color: theme.wind, fontWeight: Typography.medium },
+    detailText: { fontSize: Typography.xs, color: theme.textSecondary },
+  });
+}
