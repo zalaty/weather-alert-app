@@ -79,6 +79,34 @@ async function reverseGeocode(latitude: number, longitude: number): Promise<stri
   }
 }
 
+export interface CityResult {
+  name: string;
+  latitude: number;
+  longitude: number;
+  country: string;
+  region: string;
+}
+
+export async function searchCities(query: string): Promise<CityResult[]> {
+  if (query.length < 2) return [];
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&accept-language=es&featuretype=city`,
+      { headers: { 'User-Agent': 'WeatherAlertApp/1.0' } }
+    );
+    const data = await response.json();
+    return (data as any[]).map((r) => ({
+      name: r.name,
+      latitude: parseFloat(r.lat),
+      longitude: parseFloat(r.lon),
+      country: r.address?.country ?? '',
+      region: r.address?.state ?? '',
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function fetchWeather(
   latitude: number,
   longitude: number,

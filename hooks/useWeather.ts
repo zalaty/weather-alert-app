@@ -5,7 +5,7 @@ import { useWeatherStore } from '../store/weatherStore';
 import { scheduleWeatherAlert } from '../services/notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutos
+const CACHE_DURATION = 30 * 60 * 1000;
 
 async function checkAndNotify(data: WeatherData) {
   try {
@@ -61,10 +61,12 @@ export function useWeather() {
     error,
     units,
     lastUpdated,
+    isManualLocation,
     setWeatherData,
     setLocation,
     setLoading,
     setError,
+    resetToGPS,
   } = useWeatherStore();
 
   const isCacheValid = useCallback(() => {
@@ -88,15 +90,25 @@ export function useWeather() {
       setLoading(true);
 
       try {
-        const hasPermission = await requestLocationPermission();
-        if (!hasPermission) return;
+        let latitude: number;
+        let longitude: number;
 
-        const coords = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
+        if (isManualLocation && location) {
+          // Usar coordenadas de la ciudad seleccionada manualmente
+          latitude = location.latitude;
+          longitude = location.longitude;
+        } else {
+          // Usar GPS
+          const hasPermission = await requestLocationPermission();
+          if (!hasPermission) return;
 
-        const { latitude, longitude } = coords.coords;
-        setLocation({ latitude, longitude });
+          const coords = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+          latitude = coords.coords.latitude;
+          longitude = coords.coords.longitude;
+          setLocation({ latitude, longitude });
+        }
 
         const data = await fetchWeather(latitude, longitude, units);
         setWeatherData(data);
@@ -108,8 +120,28 @@ export function useWeather() {
         setLoading(false);
       }
     },
-    [isCacheValid, weatherData, units, setLoading, setLocation, setWeatherData, setError, requestLocationPermission]
+    [isCacheValid, weatherData, units, isManualLocation, location, setLoading, setLocation, setWeatherData, setError, requestLocationPermission]
   );
+
+  const searchAndLoadCity = useCallback(
+    async (cityLatitude: number, cityLongitude: number, cityName: string) => {
+      setLoading(true);
+      try {
+        setLocation({ latitude: cityLatitude, longitude: cityLongitude, name: cityName }, true);
+        const data = await fetchWeather(cityLatitude, cityLongitude, units);
+        setWeatherData(data);
+      } catch (err) {
+        setError('No se pudo obtener el tiempo para esa ciudad.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [units, setLoading, setLocation, setWeatherData, setError]
+  );
+
+  const backToGPS = useCallback(async () => {
+    resetToGPS();
+  }, [resetToGPS]);
 
   useEffect(() => {
     loadWeather();
@@ -125,6 +157,9 @@ export function useWeather() {
     isLoading,
     error,
     units,
+    isManualLocation,
     refresh: () => loadWeather(true),
+    searchAndLoadCity,
+    backToGPS,
   };
 }
