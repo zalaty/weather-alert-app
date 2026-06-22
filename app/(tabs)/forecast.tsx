@@ -35,6 +35,33 @@ function getWeatherEmoji(icon: string): string {
   return map[icon] ?? '🌤️';
 }
 
+function translateCondition(condition: string): string {
+  const map: Record<string, string> = {
+    'Clear': 'Despejado',
+    'Partially cloudy': 'Parcialmente nublado',
+    'Overcast': 'Nublado',
+    'Rain': 'Lluvia',
+    'Rain, Partially cloudy': 'Lluvia y nubes',
+    'Rain, Overcast': 'Lluvia y nublado',
+    'Light Rain': 'Lluvia ligera',
+    'Heavy Rain': 'Lluvia intensa',
+    'Drizzle': 'Llovizna',
+    'Snow': 'Nieve',
+    'Fog': 'Niebla',
+    'Wind': 'Viento',
+    'Cloudy': 'Nublado',
+    'Thunder': 'Tormenta',
+    'Thunder, Rain': 'Tormenta con lluvia',
+    'Snow, Freezing Drizzle/Freezing Rain': 'Nieve y aguanieve',
+    'Freezing Drizzle/Freezing Rain': 'Aguanieve',
+    'Ice': 'Hielo',
+    'Hail': 'Granizo',
+    'Dust storms': 'Tormenta de polvo',
+    'Tornado': 'Tornado',
+  };
+  return map[condition] ?? condition;
+}
+
 function formatDay(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00');
   const today = new Date();
@@ -126,7 +153,7 @@ function DayExpandable({ day, isToday }: { day: DailyWeather; isToday: boolean }
               <Text style={styles.hourEmoji}>{getWeatherEmoji(hour.icon)}</Text>
               <View style={styles.hourBar}>
                 <View style={styles.hourMainRow}>
-                  <Text style={styles.hourConditions}>{hour.conditions}</Text>
+                  <Text style={styles.hourConditions}>{translateCondition(hour.conditions)}</Text>
                   {hour.precipProb > 20 && (
                     <Text style={styles.precipText}>🌂 {hour.precipProb}%</Text>
                   )}
@@ -337,11 +364,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.sm,
   },
-  hourDetailRow: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-    flexWrap: 'wrap',
-  },
+hourDetailRow: {
+  flexDirection: 'row',
+  gap: Spacing.sm,
+  alignItems: 'center',
+  // quita flexWrap: 'wrap'
+},
   precipText: {
     fontSize: Typography.xs,
     color: Colors.rain,
