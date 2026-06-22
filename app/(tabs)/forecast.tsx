@@ -56,13 +56,16 @@ function formatHour(timeStr: string): string {
   return timeStr.substring(0, 5);
 }
 
+function formatSunTime(timeStr: string): string {
+  if (!timeStr) return '--';
+  return timeStr.substring(0, 5);
+}
+
 function getCurrentHourIndex(hours: any[]): number {
   const now = new Date();
   const currentHour = now.getHours();
-  return hours.findIndex((h) => {
-    const hour = parseInt(h.time.substring(0, 2));
-    return hour >= currentHour;
-  });
+  const idx = hours.findIndex((h) => parseInt(h.time.substring(0, 2)) >= currentHour);
+  return idx === -1 ? 0 : idx;
 }
 
 function DayExpandable({ day, isToday }: { day: DailyWeather; isToday: boolean }) {
@@ -74,7 +77,7 @@ function DayExpandable({ day, isToday }: { day: DailyWeather; isToday: boolean }
 
   return (
     <View style={styles.dayBlock}>
-      {/* Cabecera del día — siempre visible */}
+      {/* Cabecera del día */}
       <TouchableOpacity
         style={styles.dayRow}
         onPress={() => setExpanded((v) => !v)}
@@ -99,6 +102,21 @@ function DayExpandable({ day, isToday }: { day: DailyWeather; isToday: boolean }
         <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
       </TouchableOpacity>
 
+      {/* Resumen del día al expandir */}
+      {expanded && (
+        <View style={styles.daySummary}>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryItem}>🌅 {formatSunTime(day.sunrise)}</Text>
+            <Text style={styles.summaryItem}>🌇 {formatSunTime(day.sunset)}</Text>
+            <Text style={styles.summaryItem}>💧 {day.humidity}%</Text>
+            <Text style={styles.summaryItem}>☀️ UV {day.uvIndex}</Text>
+          </View>
+          {day.description ? (
+            <Text style={styles.dayDescription}>{day.description}</Text>
+          ) : null}
+        </View>
+      )}
+
       {/* Horas desplegables */}
       {expanded && (
         <View style={styles.hoursContainer}>
@@ -107,15 +125,19 @@ function DayExpandable({ day, isToday }: { day: DailyWeather; isToday: boolean }
               <Text style={styles.hourTime}>{formatHour(hour.time)}</Text>
               <Text style={styles.hourEmoji}>{getWeatherEmoji(hour.icon)}</Text>
               <View style={styles.hourBar}>
-                {hour.precipProb > 20 && (
-                  <View style={styles.precipRow}>
+                <View style={styles.hourMainRow}>
+                  <Text style={styles.hourConditions}>{hour.conditions}</Text>
+                  {hour.precipProb > 20 && (
                     <Text style={styles.precipText}>🌂 {hour.precipProb}%</Text>
-                  </View>
-                )}
-                <Text style={styles.hourConditions}>{hour.conditions}</Text>
-                <Text style={styles.windText}>
-                  💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir)}
-                </Text>
+                  )}
+                </View>
+                <View style={styles.hourDetailRow}>
+                  <Text style={styles.windText}>
+                    💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir)}
+                  </Text>
+                  <Text style={styles.detailText}>🌡️ ST {hour.feelsLike}°</Text>
+                  <Text style={styles.detailText}>💧 {hour.humidity}%</Text>
+                </View>
               </View>
               <Text style={styles.hourTemp}>{hour.temp}°</Text>
             </View>
@@ -257,6 +279,30 @@ const styles = StyleSheet.create({
     width: 12,
     textAlign: 'center',
   },
+  daySummary: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.backgroundLight,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    gap: Spacing.xs,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    flexWrap: 'wrap',
+  },
+  summaryItem: {
+    fontSize: Typography.xs,
+    color: Colors.textSecondary,
+    fontWeight: Typography.medium,
+  },
+  dayDescription: {
+    fontSize: Typography.xs,
+    color: Colors.textSecondary,
+    fontStyle: 'italic',
+    lineHeight: 16,
+  },
   hoursContainer: {
     borderTopWidth: 1,
     borderTopColor: Colors.border,
@@ -284,11 +330,17 @@ const styles = StyleSheet.create({
   },
   hourBar: {
     flex: 1,
-    gap: 2,
+    gap: 3,
   },
-  precipRow: {
+  hourMainRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  hourDetailRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    flexWrap: 'wrap',
   },
   precipText: {
     fontSize: Typography.xs,
@@ -298,6 +350,7 @@ const styles = StyleSheet.create({
   hourConditions: {
     fontSize: Typography.xs,
     color: Colors.textSecondary,
+    flex: 1,
   },
   hourTemp: {
     fontSize: Typography.md,
@@ -310,5 +363,9 @@ const styles = StyleSheet.create({
     fontSize: Typography.xs,
     color: Colors.wind,
     fontWeight: Typography.medium,
+  },
+  detailText: {
+    fontSize: Typography.xs,
+    color: Colors.textSecondary,
   },
 });
