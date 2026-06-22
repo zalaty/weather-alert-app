@@ -25,8 +25,37 @@ export const Colors = {
   borderDark: '#30363D',
 };
 
+export const LightTheme = {
+  background: '#F0F4FF',
+  card: '#FFFFFF',
+  border: '#E5E7EB',
+  textPrimary: '#1A1A2E',
+  textSecondary: '#6B7280',
+  textLight: '#FFFFFF',
+  accent: '#4A90E2',
+  rain: '#5B8DB8',
+  sun: '#F5A623',
+  storm: '#6B48A3',
+  wind: '#7EC8C8',
+};
+
+export const DarkTheme = {
+  background: '#0D1117',
+  card: '#161B22',
+  border: '#30363D',
+  textPrimary: '#E6EDF3',
+  textSecondary: '#8B949E',
+  textLight: '#FFFFFF',
+  accent: '#4A90E2',
+  rain: '#5B8DB8',
+  sun: '#F5A623',
+  storm: '#6B48A3',
+  wind: '#7EC8C8',
+};
+
+export type Theme = typeof LightTheme;
+
 export const Typography = {
-  // Tamaños
   xs: 11,
   sm: 13,
   md: 15,
@@ -36,7 +65,6 @@ export const Typography = {
   xxxl: 48,
   huge: 72,
 
-  // Pesos
   regular: '400' as const,
   medium: '500' as const,
   semibold: '600' as const,
@@ -58,4 +86,14 @@ export const Radius = {
   lg: 20,
   xl: 28,
   full: 999,
+};
+
+export const LightTheme = {
+  // ...resto de colores
+  storm: '#6B48A3',
+};
+
+export const DarkTheme = {
+  // ...resto de colores
+  storm: '#8B6DC4',  // ligeramente más claro para contrastar en fondo oscuro
 };
