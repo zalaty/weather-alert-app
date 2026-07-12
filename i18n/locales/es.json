@@ -1,0 +1,109 @@
+{
+  "common": {
+    "cancel": "Cancelar"
+  },
+  "tabs": {
+    "home": "Inicio",
+    "forecast": "Previsión",
+    "alerts": "Alertas",
+    "settings": "Ajustes"
+  },
+  "home": {
+    "loading": "Obteniendo el tiempo...",
+    "searchPlaceholder": "Buscar ciudad...",
+    "useMyLocation": "Usar mi ubicación",
+    "feelsLike": "Sensación {{value}}{{unit}}",
+    "upcomingHours": "Próximas horas",
+    "sunrise": "Amanecer",
+    "sunset": "Atardecer",
+    "stats": {
+      "humidity": "Humedad",
+      "wind": "Viento",
+      "rain": "Lluvia",
+      "uv": "UV"
+    }
+  },
+  "forecast": {
+    "title": "Previsión",
+    "upcomingDays": "Próximos días",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "feelsLikeAbbr": "ST"
+  },
+  "alerts": {
+    "title": "Alertas",
+    "freeTierSubtitle": "Versión gratuita: 1 alerta activa",
+    "conditionActive": "⚠️ Condición activa ahora mismo",
+    "types": {
+      "rain": { "label": "Lluvia", "description": "Avísame si la probabilidad de lluvia supera" },
+      "wind": { "label": "Viento fuerte", "description": "Avísame si el viento supera" },
+      "temp_low": { "label": "Temperatura mínima", "description": "Avísame si la temperatura baja de" },
+      "temp_high": { "label": "Temperatura máxima", "description": "Avísame si la temperatura sube de" }
+    },
+    "premium": {
+      "title": "Alertas ilimitadas",
+      "description": "Activa todas las alertas y personaliza los umbrales con Premium",
+      "price": "2,99€/mes"
+    },
+    "notifications": {
+      "title": "⚠️ Alerta: {{label}}",
+      "rainBody": "Probabilidad de lluvia: {{value}}%",
+      "windBody": "Viento actual: {{value}} km/h",
+      "tempLowBody": "Temperatura actual: {{value}}°C",
+      "tempHighBody": "Temperatura actual: {{value}}°C"
+    }
+  },
+  "settings": {
+    "title": "Ajustes",
+    "units": {
+      "sectionTitle": "Unidades",
+      "metricLabel": "Sistema métrico"
+    },
+    "temperature": {
+      "sectionTitle": "Temperatura",
+      "celsius": "°C — Celsius",
+      "fahrenheit": "°F — Fahrenheit"
+    },
+    "language": {
+      "sectionTitle": "Idioma"
+    },
+    "about": {
+      "sectionTitle": "Acerca de",
+      "appLabel": "Avisa",
+      "version": "Versión {{version}}",
+      "weatherDataLabel": "Datos meteorológicos",
+      "weatherDataProvider": "Visual Crossing Weather API",
+      "autoUpdateLabel": "Actualización automática",
+      "autoUpdateDescription": "Cada 30 minutos"
+    }
+  },
+  "errors": {
+    "locationPermissionDenied": "Permiso de ubicación denegado. Actívalo en ajustes.",
+    "weatherFetchFailed": "No se pudo obtener el tiempo. Comprueba tu conexión.",
+    "weatherFetchFailedCity": "No se pudo obtener el tiempo para esa ciudad."
+  },
+  "weather": {
+    "defaultLocation": "Tu ubicación",
+    "windDirections": ["N", "NE", "E", "SE", "S", "SO", "O", "NO"],
+    "conditions": {
+      "clear": "Despejado",
+      "partiallyCloudy": "Parcialmente nublado",
+      "overcast": "Nublado",
+      "rain": "Lluvia",
+      "rainPartiallyCloudy": "Lluvia y nubes",
+      "rainOvercast": "Lluvia y nublado",
+      "lightRain": "Lluvia ligera",
+      "heavyRain": "Lluvia intensa",
+      "drizzle": "Llovizna",
+      "snow": "Nieve",
+      "fog": "Niebla",
+      "wind": "Viento",
+      "cloudy": "Nublado",
+      "thunder": "Tormenta",
+      "thunderRain": "Tormenta con lluvia",
+      "hail": "Granizo",
+      "ice": "Hielo",
+      "tornado": "Tornado"
+    }
+  }
+}

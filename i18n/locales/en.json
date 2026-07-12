@@ -1,0 +1,109 @@
+{
+  "common": {
+    "cancel": "Cancel"
+  },
+  "tabs": {
+    "home": "Home",
+    "forecast": "Forecast",
+    "alerts": "Alerts",
+    "settings": "Settings"
+  },
+  "home": {
+    "loading": "Getting the weather...",
+    "searchPlaceholder": "Search city...",
+    "useMyLocation": "Use my location",
+    "feelsLike": "Feels like {{value}}{{unit}}",
+    "upcomingHours": "Upcoming hours",
+    "sunrise": "Sunrise",
+    "sunset": "Sunset",
+    "stats": {
+      "humidity": "Humidity",
+      "wind": "Wind",
+      "rain": "Rain",
+      "uv": "UV"
+    }
+  },
+  "forecast": {
+    "title": "Forecast",
+    "upcomingDays": "Upcoming days",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "feelsLikeAbbr": "FL"
+  },
+  "alerts": {
+    "title": "Alerts",
+    "freeTierSubtitle": "Free tier: 1 active alert",
+    "conditionActive": "⚠️ Condition currently active",
+    "types": {
+      "rain": { "label": "Rain", "description": "Notify me if rain probability exceeds" },
+      "wind": { "label": "Strong wind", "description": "Notify me if wind exceeds" },
+      "temp_low": { "label": "Low temperature", "description": "Notify me if temperature drops below" },
+      "temp_high": { "label": "High temperature", "description": "Notify me if temperature rises above" }
+    },
+    "premium": {
+      "title": "Unlimited alerts",
+      "description": "Activate all alerts and customize thresholds with Premium",
+      "price": "€2.99/mo"
+    },
+    "notifications": {
+      "title": "⚠️ Alert: {{label}}",
+      "rainBody": "Rain probability: {{value}}%",
+      "windBody": "Current wind: {{value}} km/h",
+      "tempLowBody": "Current temperature: {{value}}°C",
+      "tempHighBody": "Current temperature: {{value}}°C"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "units": {
+      "sectionTitle": "Units",
+      "metricLabel": "Metric system"
+    },
+    "temperature": {
+      "sectionTitle": "Temperature",
+      "celsius": "°C — Celsius",
+      "fahrenheit": "°F — Fahrenheit"
+    },
+    "language": {
+      "sectionTitle": "Language"
+    },
+    "about": {
+      "sectionTitle": "About",
+      "appLabel": "Avisa",
+      "version": "Version {{version}}",
+      "weatherDataLabel": "Weather data",
+      "weatherDataProvider": "Visual Crossing Weather API",
+      "autoUpdateLabel": "Auto refresh",
+      "autoUpdateDescription": "Every 30 minutes"
+    }
+  },
+  "errors": {
+    "locationPermissionDenied": "Location permission denied. Enable it in settings.",
+    "weatherFetchFailed": "Couldn't fetch the weather. Check your connection.",
+    "weatherFetchFailedCity": "Couldn't fetch the weather for that city."
+  },
+  "weather": {
+    "defaultLocation": "Your location",
+    "windDirections": ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
+    "conditions": {
+      "clear": "Clear",
+      "partiallyCloudy": "Partly cloudy",
+      "overcast": "Overcast",
+      "rain": "Rain",
+      "rainPartiallyCloudy": "Rain, partly cloudy",
+      "rainOvercast": "Rain, overcast",
+      "lightRain": "Light rain",
+      "heavyRain": "Heavy rain",
+      "drizzle": "Drizzle",
+      "snow": "Snow",
+      "fog": "Fog",
+      "wind": "Wind",
+      "cloudy": "Cloudy",
+      "thunder": "Thunderstorm",
+      "thunderRain": "Thunderstorm with rain",
+      "hail": "Hail",
+      "ice": "Ice",
+      "tornado": "Tornado"
+    }
+  }
+}
