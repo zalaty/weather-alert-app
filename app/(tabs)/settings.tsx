@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
@@ -41,7 +41,7 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={s.container}>
-      <View style={s.content}>
+      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <Text style={s.screenTitle}>{t('settings.title')}</Text>
 
         <View style={s.section}>
@@ -113,7 +113,7 @@ export default function SettingsScreen() {
             <SettingRow theme={theme} label={t('settings.about.autoUpdateLabel')} description={t('settings.about.autoUpdateDescription')} right={<Text style={s.rowValue}>🔄</Text>} />
           </View>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -121,7 +121,7 @@ export default function SettingsScreen() {
 function makeStyles(theme: Theme) {
   return StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.background },
-    content: { flex: 1, padding: Spacing.md, gap: Spacing.lg },
+    content: { flexGrow: 1, padding: Spacing.md, gap: Spacing.lg },
     screenTitle: { fontSize: Typography.xxl, fontWeight: Typography.bold, color: theme.textPrimary },
     section: { gap: Spacing.sm },
     sectionTitle: { fontSize: Typography.sm, fontWeight: Typography.semibold, color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: 0.8, paddingHorizontal: Spacing.xs },

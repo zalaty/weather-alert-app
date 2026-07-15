@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { fetchWeather, WeatherData } from '../services/weatherApi';
 import { useWeatherStore } from '../store/weatherStore';
 import { scheduleWeatherAlert } from '../services/notifications';
+import { trackEvent } from '../services/analytics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import i18n from '../i18n';
@@ -47,6 +48,7 @@ async function checkAndNotify(data: WeatherData) {
       const label = i18n.t(`alerts.types.${type}.label`);
       const title = i18n.t('alerts.notifications.title', { label });
       await scheduleWeatherAlert(title, body);
+      trackEvent('alert_triggered', { alert_type: type, threshold });
     }
   } catch (e) {
     console.error('Error checking alert:', e);

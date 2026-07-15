@@ -18,6 +18,10 @@ There is no test runner, lint script, or CI check beyond the build below — `ts
 only automated verification available. When adding Expo-specific packages, use
 `npx expo install <pkg>` (not plain npm) so the version matches the installed SDK.
 
+After any `npx expo install` or other dependency change, run `rm -rf .expo` before the next
+`npx expo start` — otherwise Metro can throw a false `Asset not found: assets/images/icon.png`
+error from a stale `.expo` cache.
+
 EAS build (Android, production) runs on push to `master` via
 `.github/workflows/eas-build.yml`, using `npm install --legacy-peer-deps` and
 `eas build --platform android --profile production`.

@@ -10,6 +10,7 @@ import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
 import { useWeatherStore } from '../../store/weatherStore';
 import { scheduleWeatherAlert } from '../../services/notifications';
+import { trackEvent } from '../../services/analytics';
 
 type AlertType = 'rain' | 'wind' | 'temp_low' | 'temp_high';
 
@@ -86,7 +87,10 @@ export default function AlertsScreen() {
       setActiveAlert(null);
     } else if (activeAlert === null) {
       setActiveAlert(type);
+      trackEvent('alert_created', { alert_type: type, threshold: thresholds[type] });
       triggerNotificationIfNeeded(type);
+    } else {
+      trackEvent('alert_limit_reached', { attempted_alert_type: type });
     }
   };
 
@@ -125,6 +129,7 @@ export default function AlertsScreen() {
     if (triggered) {
       const title = t('alerts.notifications.title', { label: alertLabel(type, t) });
       await scheduleWeatherAlert(title, body);
+      trackEvent('alert_triggered', { alert_type: type, threshold });
     }
   };
 
@@ -152,7 +157,9 @@ export default function AlertsScreen() {
                   </Text>
                 </View>
                 {isLocked ? (
-                  <Text style={s.lockIcon}>🔒</Text>
+                  <TouchableOpacity onPress={() => toggleAlert(alert.id)}>
+                    <Text style={s.lockIcon}>🔒</Text>
+                  </TouchableOpacity>
                 ) : (
                   <Switch
                     value={isActive}
