@@ -3,19 +3,20 @@ import { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView,
 } from 'react-native';
+import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
 import { useWeatherStore } from '../../store/weatherStore';
 import { scheduleWeatherAlert } from '../../services/notifications';
+import { trackEvent } from '../../services/analytics';
 
 type AlertType = 'rain' | 'wind' | 'temp_low' | 'temp_high';
 
 interface Alert {
   id: AlertType;
-  label: string;
   emoji: string;
-  description: string;
   unit: string;
   defaultThreshold: number;
   min: number;
@@ -24,15 +25,24 @@ interface Alert {
 }
 
 const ALERT_TYPES: Alert[] = [
-  { id: 'rain', label: 'Lluvia', emoji: '🌧️', description: 'Avísame si la probabilidad de lluvia supera', unit: '%', defaultThreshold: 70, min: 10, max: 100, step: 10 },
-  { id: 'wind', label: 'Viento fuerte', emoji: '💨', description: 'Avísame si el viento supera', unit: 'km/h', defaultThreshold: 40, min: 10, max: 120, step: 10 },
-  { id: 'temp_low', label: 'Temperatura mínima', emoji: '🥶', description: 'Avísame si la temperatura baja de', unit: '°C', defaultThreshold: 5, min: -10, max: 20, step: 1 },
-  { id: 'temp_high', label: 'Temperatura máxima', emoji: '🥵', description: 'Avísame si la temperatura sube de', unit: '°C', defaultThreshold: 35, min: 25, max: 50, step: 1 },
+  { id: 'rain', emoji: '🌧️', unit: '%', defaultThreshold: 70, min: 10, max: 100, step: 10 },
+  { id: 'wind', emoji: '💨', unit: 'km/h', defaultThreshold: 40, min: 10, max: 120, step: 10 },
+  { id: 'temp_low', emoji: '🥶', unit: '°C', defaultThreshold: 5, min: -10, max: 20, step: 1 },
+  { id: 'temp_high', emoji: '🥵', unit: '°C', defaultThreshold: 35, min: 25, max: 50, step: 1 },
 ];
+
+function alertLabel(id: AlertType, t: TFunction): string {
+  return t(`alerts.types.${id}.label`);
+}
+
+function alertDescription(id: AlertType, t: TFunction): string {
+  return t(`alerts.types.${id}.description`);
+}
 
 export default function AlertsScreen() {
   const { weatherData } = useWeatherStore();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [activeAlert, setActiveAlert] = useState<AlertType | null>(null);
   const [thresholds, setThresholds] = useState<Record<AlertType, number>>({ rain: 70, wind: 40, temp_low: 5, temp_high: 35 });
   const [loaded, setLoaded] = useState(false);
@@ -77,7 +87,10 @@ export default function AlertsScreen() {
       setActiveAlert(null);
     } else if (activeAlert === null) {
       setActiveAlert(type);
+      trackEvent('alert_created', { alert_type: type, threshold: thresholds[type] });
       triggerNotificationIfNeeded(type);
+    } else {
+      trackEvent('alert_limit_reached', { attempted_alert_type: type });
     }
   };
 
@@ -105,16 +118,19 @@ export default function AlertsScreen() {
     if (!weatherData) return;
     const { current } = weatherData;
     const threshold = thresholds[type];
-    const alert = ALERT_TYPES.find((a) => a.id === type)!;
     let triggered = false;
     let body = '';
     switch (type) {
-      case 'rain': triggered = current.precipProb >= threshold; body = `Probabilidad de lluvia: ${current.precipProb}%`; break;
-      case 'wind': triggered = current.windSpeed >= threshold; body = `Viento actual: ${current.windSpeed} km/h`; break;
-      case 'temp_low': triggered = current.temp <= threshold; body = `Temperatura actual: ${current.temp}°C`; break;
-      case 'temp_high': triggered = current.temp >= threshold; body = `Temperatura actual: ${current.temp}°C`; break;
+      case 'rain': triggered = current.precipProb >= threshold; body = t('alerts.notifications.rainBody', { value: current.precipProb }); break;
+      case 'wind': triggered = current.windSpeed >= threshold; body = t('alerts.notifications.windBody', { value: current.windSpeed }); break;
+      case 'temp_low': triggered = current.temp <= threshold; body = t('alerts.notifications.tempLowBody', { value: current.temp }); break;
+      case 'temp_high': triggered = current.temp >= threshold; body = t('alerts.notifications.tempHighBody', { value: current.temp }); break;
     }
-    if (triggered) await scheduleWeatherAlert(`⚠️ Alerta: ${alert.label}`, body);
+    if (triggered) {
+      const title = t('alerts.notifications.title', { label: alertLabel(type, t) });
+      await scheduleWeatherAlert(title, body);
+      trackEvent('alert_triggered', { alert_type: type, threshold });
+    }
   };
 
   const s = makeStyles(theme);
@@ -122,8 +138,8 @@ export default function AlertsScreen() {
   return (
     <SafeAreaView style={s.container}>
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={s.screenTitle}>Alertas</Text>
-        <Text style={s.subtitle}>Versión gratuita: 1 alerta activa</Text>
+        <Text style={s.screenTitle}>{t('alerts.title')}</Text>
+        <Text style={s.subtitle}>{t('alerts.freeTierSubtitle')}</Text>
 
         {ALERT_TYPES.map((alert) => {
           const isActive = activeAlert === alert.id;
@@ -135,13 +151,15 @@ export default function AlertsScreen() {
               <View style={s.alertHeader}>
                 <Text style={s.alertEmoji}>{alert.emoji}</Text>
                 <View style={s.alertInfo}>
-                  <Text style={[s.alertLabel, isLocked && s.textLocked]}>{alert.label}</Text>
+                  <Text style={[s.alertLabel, isLocked && s.textLocked]}>{alertLabel(alert.id, t)}</Text>
                   <Text style={[s.alertDescription, isLocked && s.textLocked]}>
-                    {alert.description} {thresholds[alert.id]}{alert.unit}
+                    {alertDescription(alert.id, t)} {thresholds[alert.id]}{alert.unit}
                   </Text>
                 </View>
                 {isLocked ? (
-                  <Text style={s.lockIcon}>🔒</Text>
+                  <TouchableOpacity onPress={() => toggleAlert(alert.id)}>
+                    <Text style={s.lockIcon}>🔒</Text>
+                  </TouchableOpacity>
                 ) : (
                   <Switch
                     value={isActive}
@@ -166,7 +184,7 @@ export default function AlertsScreen() {
 
               {isTriggered && (
                 <View style={s.triggeredBanner}>
-                  <Text style={s.triggeredText}>⚠️ Condición activa ahora mismo</Text>
+                  <Text style={s.triggeredText}>{t('alerts.conditionActive')}</Text>
                 </View>
               )}
             </View>
@@ -176,11 +194,11 @@ export default function AlertsScreen() {
         <View style={s.premiumBanner}>
           <Text style={s.premiumEmoji}>💎</Text>
           <View style={s.premiumText}>
-            <Text style={s.premiumTitle}>Alertas ilimitadas</Text>
-            <Text style={s.premiumDescription}>Activa todas las alertas y personaliza los umbrales con Premium</Text>
+            <Text style={s.premiumTitle}>{t('alerts.premium.title')}</Text>
+            <Text style={s.premiumDescription}>{t('alerts.premium.description')}</Text>
           </View>
           <TouchableOpacity style={s.premiumBtn}>
-            <Text style={s.premiumBtnText}>2,99€/mes</Text>
+            <Text style={s.premiumBtnText}>{t('alerts.premium.price')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

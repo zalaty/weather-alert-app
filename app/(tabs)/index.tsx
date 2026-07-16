@@ -11,6 +11,7 @@ import {
   FlatList,
   Keyboard,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWeather } from '../../hooks/useWeather';
 import { useTheme } from '../../hooks/useTheme';
@@ -43,6 +44,7 @@ function getWeatherEmoji(icon: string): string {
 export default function HomeScreen() {
   const { weatherData, isLoading, error, refresh, units, isManualLocation, searchAndLoadCity, backToGPS } = useWeather();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<CityResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -83,7 +85,7 @@ export default function HomeScreen() {
     return (
       <SafeAreaView style={s.centered}>
         <ActivityIndicator size="large" color={theme.accent} />
-        <Text style={s.loadingText}>Obteniendo el tiempo...</Text>
+        <Text style={s.loadingText}>{t('home.loading')}</Text>
       </SafeAreaView>
     );
   }
@@ -108,7 +110,7 @@ export default function HomeScreen() {
           <View style={s.searchRow}>
             <TextInput
               style={s.searchInput}
-              placeholder="Buscar ciudad..."
+              placeholder={t('home.searchPlaceholder')}
               placeholderTextColor={theme.textSecondary}
               value={searchQuery}
               onChangeText={handleSearchChange}
@@ -119,7 +121,7 @@ export default function HomeScreen() {
               onPress={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]); Keyboard.dismiss(); }}
               style={s.cancelButton}
             >
-              <Text style={s.cancelText}>Cancelar</Text>
+              <Text style={s.cancelText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
           </View>
           {isSearching && <ActivityIndicator size="small" color={theme.accent} style={{ marginTop: Spacing.sm }} />}
@@ -151,7 +153,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
             {isManualLocation && (
               <TouchableOpacity onPress={handleBackToGPS} style={s.gpsButton}>
-                <Text style={s.gpsButtonText}>Usar mi ubicación</Text>
+                <Text style={s.gpsButtonText}>{t('home.useMyLocation')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -160,16 +162,16 @@ export default function HomeScreen() {
             <Text style={s.weatherEmoji}>{getWeatherEmoji(current.icon)}</Text>
             <Text style={s.tempText}>{current.temp}{unitLabel}</Text>
             <Text style={s.conditionsText}>{current.conditions}</Text>
-            <Text style={s.feelsLikeText}>Sensación {current.feelsLike}{unitLabel}</Text>
+            <Text style={s.feelsLikeText}>{t('home.feelsLike', { value: current.feelsLike, unit: unitLabel })}</Text>
             <Text style={s.descriptionText}>{current.description}</Text>
           </View>
 
           <View style={s.statsRow}>
             {[
-              { emoji: '💧', value: `${current.humidity}%`, label: 'Humedad' },
-              { emoji: '💨', value: `${current.windSpeed} ${windLabel}`, label: 'Viento' },
-              { emoji: '🌂', value: `${current.precipProb}%`, label: 'Lluvia' },
-              { emoji: '🔆', value: `${current.uvIndex}`, label: 'UV' },
+              { emoji: '💧', value: `${current.humidity}%`, label: t('home.stats.humidity') },
+              { emoji: '💨', value: `${current.windSpeed} ${windLabel}`, label: t('home.stats.wind') },
+              { emoji: '🌂', value: `${current.precipProb}%`, label: t('home.stats.rain') },
+              { emoji: '🔆', value: `${current.uvIndex}`, label: t('home.stats.uv') },
             ].map((stat) => (
               <View key={stat.label} style={s.statCard}>
                 <Text style={s.statEmoji}>{stat.emoji}</Text>
@@ -180,7 +182,7 @@ export default function HomeScreen() {
           </View>
 
           <View style={s.section}>
-            <Text style={s.sectionTitle}>Próximas horas</Text>
+            <Text style={s.sectionTitle}>{t('home.upcomingHours')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {hourly
                 .slice(
@@ -201,12 +203,12 @@ export default function HomeScreen() {
           <View style={s.sunRow}>
             <View style={s.sunCard}>
               <Text style={s.sunEmoji}>🌅</Text>
-              <Text style={s.sunLabel}>Amanecer</Text>
+              <Text style={s.sunLabel}>{t('home.sunrise')}</Text>
               <Text style={s.sunTime}>{current.sunrise}</Text>
             </View>
             <View style={s.sunCard}>
               <Text style={s.sunEmoji}>🌇</Text>
-              <Text style={s.sunLabel}>Atardecer</Text>
+              <Text style={s.sunLabel}>{t('home.sunset')}</Text>
               <Text style={s.sunTime}>{current.sunset}</Text>
             </View>
           </View>

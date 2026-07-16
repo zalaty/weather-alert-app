@@ -7,11 +7,14 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
+import { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWeather } from '../../hooks/useWeather';
 import { useTheme } from '../../hooks/useTheme';
 import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
 import { DailyWeather } from '../../services/weatherApi';
+import { getIntlLocale } from '../../i18n';
 
 function getWeatherEmoji(icon: string): string {
   const map: Record<string, string> = {
@@ -25,32 +28,33 @@ function getWeatherEmoji(icon: string): string {
   return map[icon] ?? '🌤️';
 }
 
-function translateCondition(condition: string): string {
-  const map: Record<string, string> = {
-    'Clear': 'Despejado', 'Partially cloudy': 'Parcialmente nublado',
-    'Overcast': 'Nublado', 'Rain': 'Lluvia',
-    'Rain, Partially cloudy': 'Lluvia y nubes', 'Rain, Overcast': 'Lluvia y nublado',
-    'Light Rain': 'Lluvia ligera', 'Heavy Rain': 'Lluvia intensa',
-    'Drizzle': 'Llovizna', 'Snow': 'Nieve', 'Fog': 'Niebla',
-    'Wind': 'Viento', 'Cloudy': 'Nublado', 'Thunder': 'Tormenta',
-    'Thunder, Rain': 'Tormenta con lluvia', 'Hail': 'Granizo',
-    'Ice': 'Hielo', 'Tornado': 'Tornado',
-  };
-  return map[condition] ?? condition;
+const CONDITION_KEYS: Record<string, string> = {
+  'Clear': 'clear', 'Partially cloudy': 'partiallyCloudy',
+  'Overcast': 'overcast', 'Rain': 'rain',
+  'Rain, Partially cloudy': 'rainPartiallyCloudy', 'Rain, Overcast': 'rainOvercast',
+  'Light Rain': 'lightRain', 'Heavy Rain': 'heavyRain',
+  'Drizzle': 'drizzle', 'Snow': 'snow', 'Fog': 'fog',
+  'Wind': 'wind', 'Cloudy': 'cloudy', 'Thunder': 'thunder',
+  'Thunder, Rain': 'thunderRain', 'Hail': 'hail',
+  'Ice': 'ice', 'Tornado': 'tornado',
+};
+
+function translateCondition(condition: string, t: TFunction): string {
+  const key = CONDITION_KEYS[condition];
+  return key ? t(`weather.conditions.${key}`) : condition;
 }
 
-function formatDay(dateStr: string): string {
+function formatDay(dateStr: string, t: TFunction, language: string): string {
   const date = new Date(dateStr + 'T00:00:00');
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
-  if (date.toDateString() === today.toDateString()) return 'Hoy';
-  if (date.toDateString() === tomorrow.toDateString()) return 'Mañana';
-  return date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' });
+  if (date.toDateString() === today.toDateString()) return t('forecast.today');
+  if (date.toDateString() === tomorrow.toDateString()) return t('forecast.tomorrow');
+  return date.toLocaleDateString(getIntlLocale(language), { weekday: 'long', day: 'numeric' });
 }
 
-function getWindDirection(degrees: number): string {
-  const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'];
+function getWindDirection(degrees: number, dirs: string[]): string {
   return dirs[Math.round(degrees / 45) % 8];
 }
 
@@ -65,7 +69,10 @@ function getCurrentHourIndex(hours: any[]): number {
 
 function DayExpandable({ day, isToday, theme }: { day: DailyWeather; isToday: boolean; theme: Theme }) {
   const [expanded, setExpanded] = useState(isToday);
+  const { t, i18n } = useTranslation();
   const s = makeStyles(theme);
+  const windDirs = t('weather.windDirections', { returnObjects: true }) as string[];
+  const feelsLikeAbbr = t('forecast.feelsLikeAbbr');
 
   const visibleHours = isToday
     ? day.hours.slice(Math.max(0, getCurrentHourIndex(day.hours)))
@@ -75,8 +82,8 @@ function DayExpandable({ day, isToday, theme }: { day: DailyWeather; isToday: bo
     <View style={s.dayBlock}>
       <TouchableOpacity style={s.dayRow} onPress={() => setExpanded((v) => !v)} activeOpacity={0.7}>
         <View style={s.dayLeft}>
-          <Text style={s.dayName}>{formatDay(day.date)}</Text>
-          <Text style={s.windText}>💨 {day.windSpeed} km/h {getWindDirection(day.windDir)}</Text>
+          <Text style={s.dayName}>{formatDay(day.date, t, i18n.language)}</Text>
+          <Text style={s.windText}>💨 {day.windSpeed} km/h {getWindDirection(day.windDir, windDirs)}</Text>
         </View>
         <Text style={s.dayEmoji}>{getWeatherEmoji(day.icon)}</Text>
         <View style={s.dayRight}>
@@ -109,12 +116,12 @@ function DayExpandable({ day, isToday, theme }: { day: DailyWeather; isToday: bo
               <Text style={s.hourEmoji}>{getWeatherEmoji(hour.icon)}</Text>
               <View style={s.hourBar}>
                 <View style={s.hourMainRow}>
-                  <Text style={s.hourConditions}>{translateCondition(hour.conditions)}</Text>
+                  <Text style={s.hourConditions}>{translateCondition(hour.conditions, t)}</Text>
                   {hour.precipProb > 20 && <Text style={s.precipText}>🌂 {hour.precipProb}%</Text>}
                 </View>
                 <View style={s.hourDetailRow}>
-                  <Text style={s.windText}>💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir)}</Text>
-                  <Text style={s.detailText}>🌡️ ST {hour.feelsLike}°</Text>
+                  <Text style={s.windText}>💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir, windDirs)}</Text>
+                  <Text style={s.detailText}>🌡️ {feelsLikeAbbr} {hour.feelsLike}°</Text>
                   <Text style={s.detailText}>💧 {hour.humidity}%</Text>
                 </View>
               </View>
@@ -130,6 +137,7 @@ function DayExpandable({ day, isToday, theme }: { day: DailyWeather; isToday: bo
 export default function ForecastScreen() {
   const { weatherData, isLoading } = useWeather();
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const s = makeStyles(theme);
 
   if (isLoading && !weatherData) {
@@ -145,9 +153,9 @@ export default function ForecastScreen() {
   return (
     <SafeAreaView style={s.container}>
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={s.screenTitle}>Previsión</Text>
+        <Text style={s.screenTitle}>{t('forecast.title')}</Text>
         <View style={s.section}>
-          <Text style={s.sectionTitle}>Próximos días</Text>
+          <Text style={s.sectionTitle}>{t('forecast.upcomingDays')}</Text>
           <View style={s.dailyList}>
             {weatherData.daily.slice(0, 7).map((day, index) => (
               <DayExpandable key={day.date} day={day} isToday={index === 0} theme={theme} />

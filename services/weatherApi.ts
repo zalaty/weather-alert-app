@@ -1,3 +1,5 @@
+import i18n, { toApiLanguage } from '../i18n';
+
 const API_KEY = process.env.EXPO_PUBLIC_WEATHER_API_KEY ?? '';
 const BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline';
 
@@ -60,9 +62,10 @@ export interface WeatherData {
 }
 
 async function reverseGeocode(latitude: number, longitude: number): Promise<string> {
+  const lang = toApiLanguage(i18n.language);
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=es`,
+      `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=${lang}`,
       { headers: { 'User-Agent': 'WeatherAlertApp/1.0' } }
     );
     const data = await response.json();
@@ -72,10 +75,10 @@ async function reverseGeocode(latitude: number, longitude: number): Promise<stri
       data.address?.village ||
       data.address?.municipality ||
       data.address?.county ||
-      'Tu ubicación'
+      i18n.t('weather.defaultLocation')
     );
   } catch {
-    return 'Tu ubicación';
+    return i18n.t('weather.defaultLocation');
   }
 }
 
@@ -89,9 +92,10 @@ export interface CityResult {
 
 export async function searchCities(query: string): Promise<CityResult[]> {
   if (query.length < 2) return [];
+  const lang = toApiLanguage(i18n.language);
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&accept-language=es&featuretype=city`,
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&accept-language=${lang}&featuretype=city`,
       { headers: { 'User-Agent': 'WeatherAlertApp/1.0' } }
     );
     const data = await response.json();
@@ -112,7 +116,8 @@ export async function fetchWeather(
   longitude: number,
   unitGroup: 'metric' | 'us' = 'metric'
 ): Promise<WeatherData> {
-  const url = `${BASE_URL}/${latitude},${longitude}?unitGroup=${unitGroup}&include=current,hours,days&key=${API_KEY}&contentType=json`;
+  const lang = toApiLanguage(i18n.language);
+  const url = `${BASE_URL}/${latitude},${longitude}?unitGroup=${unitGroup}&include=current,hours,days&key=${API_KEY}&contentType=json&lang=${lang}`;
 
   const [weatherResponse, cityName] = await Promise.all([
     fetch(url),
