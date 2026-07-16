@@ -5,6 +5,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { initI18n } from '../i18n';
 import { trackEvent } from '../services/analytics';
+import { initPurchases } from '../services/purchases';
 
 // Mapea el pathname de expo-router (sin el grupo (tabs)) al nombre de pantalla trackeado.
 const SCREEN_NAMES: Record<string, string> = {
@@ -32,6 +33,7 @@ export default function RootLayout() {
     initI18n().then(() => {
       setI18nReady(true);
       trackEvent('app_opened');
+      initPurchases();
     });
   }, []);
 
