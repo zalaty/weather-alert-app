@@ -87,7 +87,7 @@ export function useWeather() {
   }, [setError, t]);
 
   const loadWeather = useCallback(
-    async (forceRefresh = false) => {
+    async (forceRefresh = false, forceGPS = false) => {
       if (!forceRefresh && isCacheValid() && weatherData) return;
 
       setLoading(true);
@@ -96,7 +96,7 @@ export function useWeather() {
         let latitude: number;
         let longitude: number;
 
-        if (isManualLocation && location) {
+        if (!forceGPS && isManualLocation && location) {
           // Usar coordenadas de la ciudad seleccionada manualmente
           latitude = location.latitude;
           longitude = location.longitude;
@@ -126,6 +126,11 @@ export function useWeather() {
     [isCacheValid, weatherData, units, isManualLocation, location, setLoading, setLocation, setWeatherData, setError, requestLocationPermission, t]
   );
 
+  const backToGPS = useCallback(async () => {
+    resetToGPS();
+    await loadWeather(true, true);
+  }, [resetToGPS, loadWeather]);
+
   const searchAndLoadCity = useCallback(
     async (cityLatitude: number, cityLongitude: number, cityName: string) => {
       setLoading(true);
@@ -141,10 +146,6 @@ export function useWeather() {
     },
     [units, setLoading, setLocation, setWeatherData, setError, t]
   );
-
-  const backToGPS = useCallback(async () => {
-    resetToGPS();
-  }, [resetToGPS]);
 
   useEffect(() => {
     loadWeather();

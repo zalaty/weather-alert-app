@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import Constants from 'expo-constants';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
@@ -106,7 +107,7 @@ export default function SettingsScreen() {
         <View style={s.section}>
           <Text style={s.sectionTitle}>{t('settings.about.sectionTitle')}</Text>
           <View style={s.card}>
-            <SettingRow theme={theme} label={t('settings.about.appLabel')} description={t('settings.about.version', { version: '1.0.0' })} right={<Text style={s.rowValue}>☀️</Text>} />
+            <SettingRow theme={theme} label={t('settings.about.appLabel')} description={t('settings.about.version', { version: Constants.expoConfig?.version })} right={<Text style={s.rowValue}>☀️</Text>} />
             <View style={s.divider} />
             <SettingRow theme={theme} label={t('settings.about.weatherDataLabel')} description={t('settings.about.weatherDataProvider')} right={<Text style={s.rowValue}>🔌</Text>} />
             <View style={s.divider} />
