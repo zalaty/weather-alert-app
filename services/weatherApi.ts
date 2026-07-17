@@ -95,17 +95,27 @@ export async function searchCities(query: string): Promise<CityResult[]> {
   const lang = toApiLanguage(i18n.language);
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&accept-language=${lang}&featuretype=city`,
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=8&addressdetails=1&accept-language=${lang}&featuretype=city`,
       { headers: { 'User-Agent': 'WeatherAlertApp/1.0' } }
     );
     const data = await response.json();
-    return (data as any[]).map((r) => ({
-      name: r.name,
-      latitude: parseFloat(r.lat),
-      longitude: parseFloat(r.lon),
-      country: r.address?.country ?? '',
-      region: r.address?.state ?? '',
-    }));
+    const seen = new Set<string>();
+    const results: CityResult[] = [];
+    for (const r of data as any[]) {
+      const city: CityResult = {
+        name: r.name,
+        latitude: parseFloat(r.lat),
+        longitude: parseFloat(r.lon),
+        country: r.address?.country ?? '',
+        region: r.address?.state ?? '',
+      };
+      const key = `${city.name}|${city.region}|${city.country}`.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      results.push(city);
+      if (results.length === 5) break;
+    }
+    return results;
   } catch {
     return [];
   }

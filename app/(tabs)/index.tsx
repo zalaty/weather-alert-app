@@ -76,8 +76,7 @@ export default function HomeScreen() {
 
   const handleBackToGPS = useCallback(async () => {
     await backToGPS();
-    refresh();
-  }, [backToGPS, refresh]);
+  }, [backToGPS]);
 
   const s = makeStyles(theme);
 
