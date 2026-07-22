@@ -8,11 +8,12 @@ import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
+import { useIsPremium } from '../../hooks/useIsPremium';
 import { useWeatherStore } from '../../store/weatherStore';
 import { scheduleWeatherAlert } from '../../services/notifications';
 import { trackEvent } from '../../services/analytics';
-
-type AlertType = 'rain' | 'wind' | 'temp_low' | 'temp_high';
+import { AlertType, loadActiveAlerts, saveActiveAlerts } from '../../services/alertsStorage';
+import Paywall from '../../components/Paywall';
 
 interface Alert {
   id: AlertType;
@@ -43,16 +44,18 @@ export default function AlertsScreen() {
   const { weatherData } = useWeatherStore();
   const { theme } = useTheme();
   const { t } = useTranslation();
-  const [activeAlert, setActiveAlert] = useState<AlertType | null>(null);
+  const isPremium = useIsPremium();
+  const [activeAlerts, setActiveAlerts] = useState<AlertType[]>([]);
   const [thresholds, setThresholds] = useState<Record<AlertType, number>>({ rain: 70, wind: 40, temp_low: 5, temp_high: 35 });
   const [loaded, setLoaded] = useState(false);
+  const [paywallVisible, setPaywallVisible] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const savedAlert = await AsyncStorage.getItem('activeAlert');
+        const savedAlerts = await loadActiveAlerts();
         const savedThresholds = await AsyncStorage.getItem('thresholds');
-        if (savedAlert) setActiveAlert(savedAlert as AlertType);
+        setActiveAlerts(savedAlerts);
         if (savedThresholds) setThresholds(JSON.parse(savedThresholds));
       } catch (e) {
         console.error('Error loading alerts:', e);
@@ -67,31 +70,32 @@ export default function AlertsScreen() {
     if (!loaded) return;
     async function save() {
       try {
-        if (activeAlert) {
-          await AsyncStorage.setItem('activeAlert', activeAlert);
-        } else {
-          await AsyncStorage.removeItem('activeAlert');
-        }
+        await saveActiveAlerts(activeAlerts);
         await AsyncStorage.setItem('thresholds', JSON.stringify(thresholds));
       } catch (e) {
         console.error('Error saving alerts:', e);
       }
     }
     save();
-  }, [activeAlert, thresholds, loaded]);
+  }, [activeAlerts, thresholds, loaded]);
 
-  const isFreeTierFull = (type: AlertType) => activeAlert !== null && activeAlert !== type;
+  // Free tier: solo 1 alerta activa a la vez. Con Premium no hay límite.
+  const isFreeTierFull = (type: AlertType) =>
+    !isPremium && activeAlerts.length > 0 && !activeAlerts.includes(type);
 
   const toggleAlert = (type: AlertType) => {
-    if (activeAlert === type) {
-      setActiveAlert(null);
-    } else if (activeAlert === null) {
-      setActiveAlert(type);
-      trackEvent('alert_created', { alert_type: type, threshold: thresholds[type] });
-      triggerNotificationIfNeeded(type);
-    } else {
-      trackEvent('alert_limit_reached', { attempted_alert_type: type });
+    if (activeAlerts.includes(type)) {
+      setActiveAlerts((prev) => prev.filter((t) => t !== type));
+      return;
     }
+    if (!isPremium && activeAlerts.length >= 1) {
+      trackEvent('alert_limit_reached', { attempted_alert_type: type });
+      setPaywallVisible(true);
+      return;
+    }
+    setActiveAlerts((prev) => [...prev, type]);
+    trackEvent('alert_created', { alert_type: type, threshold: thresholds[type] });
+    triggerNotificationIfNeeded(type);
   };
 
   const adjustThreshold = (type: AlertType, delta: number) => {
@@ -103,7 +107,7 @@ export default function AlertsScreen() {
   };
 
   const checkAlert = (type: AlertType): boolean => {
-    if (!weatherData || activeAlert !== type) return false;
+    if (!weatherData || !activeAlerts.includes(type)) return false;
     const { current } = weatherData;
     const threshold = thresholds[type];
     switch (type) {
@@ -139,10 +143,10 @@ export default function AlertsScreen() {
     <SafeAreaView style={s.container}>
       <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
         <Text style={s.screenTitle}>{t('alerts.title')}</Text>
-        <Text style={s.subtitle}>{t('alerts.freeTierSubtitle')}</Text>
+        <Text style={s.subtitle}>{isPremium ? t('alerts.premiumTierSubtitle') : t('alerts.freeTierSubtitle')}</Text>
 
         {ALERT_TYPES.map((alert) => {
-          const isActive = activeAlert === alert.id;
+          const isActive = activeAlerts.includes(alert.id);
           const isLocked = isFreeTierFull(alert.id);
           const isTriggered = checkAlert(alert.id);
 
@@ -191,17 +195,21 @@ export default function AlertsScreen() {
           );
         })}
 
-        <View style={s.premiumBanner}>
-          <Text style={s.premiumEmoji}>💎</Text>
-          <View style={s.premiumText}>
-            <Text style={s.premiumTitle}>{t('alerts.premium.title')}</Text>
-            <Text style={s.premiumDescription}>{t('alerts.premium.description')}</Text>
+        {!isPremium && (
+          <View style={s.premiumBanner}>
+            <Text style={s.premiumEmoji}>💎</Text>
+            <View style={s.premiumText}>
+              <Text style={s.premiumTitle}>{t('alerts.premium.title')}</Text>
+              <Text style={s.premiumDescription}>{t('alerts.premium.description')}</Text>
+            </View>
+            <TouchableOpacity style={s.premiumBtn} onPress={() => setPaywallVisible(true)}>
+              <Text style={s.premiumBtnText}>{t('alerts.premium.price')}</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={s.premiumBtn}>
-            <Text style={s.premiumBtnText}>{t('alerts.premium.price')}</Text>
-          </TouchableOpacity>
-        </View>
+        )}
       </ScrollView>
+
+      <Paywall visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
     </SafeAreaView>
   );
 }

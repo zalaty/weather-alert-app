@@ -1,11 +1,16 @@
-import { View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import Constants from 'expo-constants';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
+import { useIsPremium } from '../../hooks/useIsPremium';
 import { useWeatherStore } from '../../store/weatherStore';
 import { setAppLanguage, SUPPORTED_LANGUAGES, SupportedLanguage } from '../../i18n';
+import { restorePurchases } from '../../services/purchases';
+import { trackEvent } from '../../services/analytics';
+import Paywall from '../../components/Paywall';
 
 const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
   es: 'Español',
@@ -37,13 +42,54 @@ export default function SettingsScreen() {
   const { units, toggleUnits } = useWeatherStore();
   const { theme } = useTheme();
   const { t, i18n } = useTranslation();
+  const isPremium = useIsPremium();
+  const [paywallVisible, setPaywallVisible] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const isMetric = units === 'metric';
   const s = makeStyles(theme);
+
+  const handleRestore = async () => {
+    setRestoring(true);
+    const result = await restorePurchases();
+    setRestoring(false);
+
+    if (result.status === 'success') {
+      trackEvent('purchases_restored', { found_active: result.isPremium });
+      if (result.isPremium) {
+        Alert.alert(t('settings.premiumBanner.restoreSuccessTitle'), t('settings.premiumBanner.restoreSuccessBody'));
+      } else {
+        Alert.alert(t('settings.premiumBanner.restoreNoneTitle'), t('settings.premiumBanner.restoreNoneBody'));
+      }
+    } else {
+      Alert.alert(t('settings.premiumBanner.restoreErrorTitle'), t('settings.premiumBanner.restoreErrorBody'));
+    }
+  };
 
   return (
     <SafeAreaView style={s.container}>
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <Text style={s.screenTitle}>{t('settings.title')}</Text>
+
+        {!isPremium && (
+          <TouchableOpacity style={s.premiumBanner} onPress={() => setPaywallVisible(true)}>
+            <Text style={s.premiumEmoji}>💎</Text>
+            <View style={s.premiumText}>
+              <Text style={s.premiumTitle}>{t('settings.premiumBanner.title')}</Text>
+              <Text style={s.premiumDescription}>{t('settings.premiumBanner.description')}</Text>
+            </View>
+            <Text style={s.premiumCta}>{t('settings.premiumBanner.cta')}</Text>
+          </TouchableOpacity>
+        )}
+
+        {!isPremium && (
+          <TouchableOpacity style={s.restoreBtn} onPress={handleRestore} disabled={restoring}>
+            {restoring ? (
+              <ActivityIndicator size="small" color={theme.textSecondary} />
+            ) : (
+              <Text style={s.restoreBtnText}>{t('settings.premiumBanner.restoreCta')}</Text>
+            )}
+          </TouchableOpacity>
+        )}
 
         <View style={s.section}>
           <Text style={s.sectionTitle}>{t('settings.units.sectionTitle')}</Text>
@@ -115,6 +161,8 @@ export default function SettingsScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <Paywall visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
     </SafeAreaView>
   );
 }
@@ -138,5 +186,13 @@ function makeStyles(theme: Theme) {
     segmentActive: { backgroundColor: `${theme.accent}15` },
     segmentText: { fontSize: Typography.md, color: theme.textSecondary, fontWeight: Typography.medium },
     segmentTextActive: { color: theme.accent, fontWeight: Typography.semibold },
+    premiumBanner: { backgroundColor: theme.card, borderRadius: Radius.lg, padding: Spacing.md, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, borderWidth: 1, borderColor: theme.storm },
+    premiumEmoji: { fontSize: Typography.xxl },
+    premiumText: { flex: 1, gap: 2 },
+    premiumTitle: { fontSize: Typography.md, fontWeight: Typography.semibold, color: theme.textPrimary },
+    premiumDescription: { fontSize: Typography.xs, color: theme.textSecondary },
+    premiumCta: { fontSize: Typography.sm, fontWeight: Typography.bold, color: theme.storm },
+    restoreBtn: { alignItems: 'center', paddingVertical: Spacing.xs },
+    restoreBtnText: { fontSize: Typography.sm, color: theme.textSecondary, fontWeight: Typography.medium },
   });
 }
