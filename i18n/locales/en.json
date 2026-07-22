@@ -33,6 +33,7 @@
   "alerts": {
     "title": "Alerts",
     "freeTierSubtitle": "Free tier: 1 active alert",
+    "premiumTierSubtitle": "Premium: unlimited alerts",
     "conditionActive": "⚠️ Condition currently active",
     "types": {
       "rain": { "label": "Rain", "description": "Notify me if rain probability exceeds" },
@@ -75,7 +76,30 @@
       "weatherDataProvider": "Visual Crossing Weather API",
       "autoUpdateLabel": "Auto refresh",
       "autoUpdateDescription": "Every 30 minutes"
+    },
+    "premiumBanner": {
+      "title": "Go Premium",
+      "description": "Unlimited alerts and custom thresholds",
+      "cta": "View plans",
+      "restoreCta": "Restore purchases",
+      "restoreSuccessTitle": "Purchase restored!",
+      "restoreSuccessBody": "Your Premium subscription has been restored successfully.",
+      "restoreNoneTitle": "Nothing to restore",
+      "restoreNoneBody": "No previous purchases were found.",
+      "restoreErrorTitle": "Couldn't restore purchases",
+      "restoreErrorBody": "Something went wrong restoring your purchases. Please try again."
     }
+  },
+  "paywall": {
+    "title": "Unlock Premium",
+    "subtitle": "Unlimited alerts, custom thresholds, and much more",
+    "unavailable": "No plans available right now. Please try again later.",
+    "savings": "Save {{percent}}%",
+    "disclaimer": "Subscription renews automatically. You can cancel anytime from Google Play.",
+    "successTitle": "You're Premium now!",
+    "successBody": "Your subscription was activated successfully.",
+    "errorTitle": "Couldn't complete the purchase",
+    "errorBody": "Something went wrong processing the payment. Please try again."
   },
   "errors": {
     "locationPermissionDenied": "Location permission denied. Enable it in settings.",

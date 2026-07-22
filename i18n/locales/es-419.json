@@ -33,6 +33,7 @@
   "alerts": {
     "title": "Alertas",
     "freeTierSubtitle": "Versión gratuita: 1 alerta activa",
+    "premiumTierSubtitle": "Premium: alertas ilimitadas",
     "conditionActive": "⚠️ Condición activa ahora mismo",
     "types": {
       "rain": { "label": "Lluvia", "description": "Avísame si la probabilidad de lluvia supera" },
@@ -75,7 +76,30 @@
       "weatherDataProvider": "Visual Crossing Weather API",
       "autoUpdateLabel": "Actualización automática",
       "autoUpdateDescription": "Cada 30 minutos"
+    },
+    "premiumBanner": {
+      "title": "Hazte Premium",
+      "description": "Alertas ilimitadas y umbrales personalizados",
+      "cta": "Ver planes",
+      "restoreCta": "Restaurar compras",
+      "restoreSuccessTitle": "¡Compra restaurada!",
+      "restoreSuccessBody": "Tu suscripción Premium se ha restaurado correctamente.",
+      "restoreNoneTitle": "Nada que restaurar",
+      "restoreNoneBody": "No se encontraron compras anteriores.",
+      "restoreErrorTitle": "No se pudo restaurar",
+      "restoreErrorBody": "Ha ocurrido un error al restaurar tus compras. Inténtalo de nuevo."
     }
+  },
+  "paywall": {
+    "title": "Desbloquea Premium",
+    "subtitle": "Alertas ilimitadas, umbrales personalizados y mucho más",
+    "unavailable": "No hay planes disponibles en este momento. Inténtalo más tarde.",
+    "savings": "Ahorra {{percent}}%",
+    "disclaimer": "La suscripción se renueva automáticamente. Puedes cancelarla cuando quieras desde Google Play.",
+    "successTitle": "¡Ya eres Premium!",
+    "successBody": "Tu suscripción se ha activado correctamente.",
+    "errorTitle": "No se pudo completar la compra",
+    "errorBody": "Ha ocurrido un error al procesar el pago. Inténtalo de nuevo."
   },
   "errors": {
     "locationPermissionDenied": "Permiso de ubicación denegado. Actívalo en configuración.",
