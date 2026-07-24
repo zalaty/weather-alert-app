@@ -265,6 +265,14 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
   - i18n: claves nuevas bajo `paywall.*` y `settings.premiumBanner.*` en los 3 idiomas
   - Verificado: `tsc --noEmit` limpio y bundle compila sin errores
 - **Pendiente antes de dar la Fase 3 por cerrada**: probar el flujo completo (compra mensual, compra anual, cancelación, restauración con y sin compra previa) en un build real de EAS — no se puede probar en Expo Go. Cuenta de Google (`david.salfor@gmail.com`) ya configurada como **License Tester** en Play Console (Settings → License testing, License response: RESPOND_NORMALLY) para poder probar compras sin cargos reales — nota: License testing no soporta Play Integrity API/protección automática, tenerlo en cuenta si el build de producción tiene esa protección activada
+- **Bug de configuración encontrado y resuelto (2026-07-24)**: la lista de License Testing tenía el checkbox de la lista de emails sin marcar (aunque el email ya estuviera añadido dentro de la lista) — causaba que Play Store mostrara el flujo de compra real (tarjeta real, sin banner de "compra de prueba") en vez del modo test. Al marcar el checkbox y guardar en Settings → License testing, apareció correctamente el banner "Tarjeta de prueba: siempre se aprueba"
+- **✅ FASE 3 VERIFICADA COMPLETA en build de Internal Testing (2026-07-24)**: probado en dispositivo real con compra de prueba (sin cargo real, confirmado por Google Play)
+  - Compra del plan mensual completada sin error, con banner de "suscripción de prueba" visible
+  - Desbloqueo real confirmado: tras comprar, se pueden crear múltiples alertas (antes limitado a 1), y las notificaciones se disparan correctamente para todas las alertas activas simultáneamente
+  - Evento `purchase_completed` verificado en PostHog con todas las propiedades esperadas: `package_id: $rc_monthly`, `product_id: avisa_premium_monthly:monthly`, `price: 2.99`, `currency: EUR`
+  - Botón "Restaurar compras" verificado correctamente oculto mientras el usuario es premium, y visible tras cancelar la suscripción de prueba
+  - Camino "nada que restaurar" verificado: tras expirar la suscripción de prueba, restaurar compras devuelve correctamente el mensaje de que no hay compra activa (sin marcarlo como error)
+  - **Siguiente paso**: promocionar este build de Internal Testing a producción (o generar uno nuevo si se han acumulado más cambios), y decidir cómo abordar Fase 4 (múltiples ubicaciones)
 
 ### Fase 4 — Múltiples ubicaciones
 - Feature core de mayor valor pendiente; toca Zustand store + Settings + Home
