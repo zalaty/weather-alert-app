@@ -16,6 +16,9 @@ const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
   es: 'Español',
   'es-419': 'Español (Latinoamérica)',
   en: 'English',
+  'pt-BR': 'Português (Brasil)',
+  fr: 'Français',
+  de: 'Deutsch',
 };
 
 interface SettingRowProps {

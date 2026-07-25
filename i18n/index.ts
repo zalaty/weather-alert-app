@@ -4,11 +4,14 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { trackEvent } from '../services/analytics';
 
+import de from './locales/de.json';
 import en from './locales/en.json';
 import es419 from './locales/es-419.json';
 import es from './locales/es.json';
+import fr from './locales/fr.json';
+import ptBR from './locales/pt-BR.json';
 
-export const SUPPORTED_LANGUAGES = ['es', 'es-419', 'en'] as const;
+export const SUPPORTED_LANGUAGES = ['es', 'es-419', 'en', 'pt-BR', 'fr', 'de'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'es';
 
@@ -25,6 +28,9 @@ const INTL_LOCALES: Record<SupportedLanguage, string> = {
   es: 'es-ES',
   'es-419': 'es-419',
   en: 'en-US',
+  'pt-BR': 'pt-BR',
+  fr: 'fr-FR',
+  de: 'de-DE',
 };
 
 export function isSupportedLanguage(value: string | null | undefined): value is SupportedLanguage {
@@ -35,6 +41,9 @@ export function resolveDeviceLanguage(): SupportedLanguage {
   const [locale] = getLocales();
   if (!locale) return DEFAULT_LANGUAGE;
   if (locale.languageCode === 'en') return 'en';
+  if (locale.languageCode === 'pt') return 'pt-BR';
+  if (locale.languageCode === 'fr') return 'fr';
+  if (locale.languageCode === 'de') return 'de';
   if (locale.languageCode === 'es') {
     return locale.regionCode && LATAM_REGIONS.has(locale.regionCode) ? 'es-419' : 'es';
   }
@@ -45,9 +54,25 @@ export function getIntlLocale(language: string): string {
   return INTL_LOCALES[language as SupportedLanguage] ?? INTL_LOCALES[DEFAULT_LANGUAGE];
 }
 
-// Los proveedores externos (Visual Crossing, Nominatim) sólo distinguen es/en.
-export function toApiLanguage(language: string): 'es' | 'en' {
-  return language.startsWith('es') ? 'es' : 'en';
+export type ApiLanguage = 'es' | 'en' | 'pt' | 'fr' | 'de';
+
+// Los proveedores externos (Visual Crossing, Nominatim) no distinguen variantes
+// regionales (es-419 → es, pt-BR → pt), así que cada SupportedLanguage se mapea
+// explícitamente a su código de idioma base. Al ser un Record<SupportedLanguage, ...>
+// (no una cadena de if/startsWith con fallback), TypeScript obliga a añadir esta
+// entrada en cuanto se registre un idioma nuevo en SUPPORTED_LANGUAGES — no puede
+// quedar ninguno cayendo en silencio al valor por defecto.
+const API_LANGUAGES: Record<SupportedLanguage, ApiLanguage> = {
+  es: 'es',
+  'es-419': 'es',
+  en: 'en',
+  'pt-BR': 'pt',
+  fr: 'fr',
+  de: 'de',
+};
+
+export function toApiLanguage(language: string): ApiLanguage {
+  return isSupportedLanguage(language) ? API_LANGUAGES[language] : API_LANGUAGES[DEFAULT_LANGUAGE];
 }
 
 let initPromise: Promise<void> | null = null;
@@ -68,6 +93,9 @@ export function initI18n(): Promise<void> {
           es: { translation: es },
           'es-419': { translation: es419 },
           en: { translation: en },
+          'pt-BR': { translation: ptBR },
+          fr: { translation: fr },
+          de: { translation: de },
         },
         lng: language,
         fallbackLng: DEFAULT_LANGUAGE,
