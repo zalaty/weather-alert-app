@@ -9,9 +9,12 @@ import en from './locales/en.json';
 import es419 from './locales/es-419.json';
 import es from './locales/es.json';
 import fr from './locales/fr.json';
+import it from './locales/it.json';
+import pl from './locales/pl.json';
 import ptBR from './locales/pt-BR.json';
+import tr from './locales/tr.json';
 
-export const SUPPORTED_LANGUAGES = ['es', 'es-419', 'en', 'pt-BR', 'fr', 'de'] as const;
+export const SUPPORTED_LANGUAGES = ['es', 'es-419', 'en', 'pt-BR', 'fr', 'de', 'it', 'pl', 'tr'] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'es';
 
@@ -31,6 +34,9 @@ const INTL_LOCALES: Record<SupportedLanguage, string> = {
   'pt-BR': 'pt-BR',
   fr: 'fr-FR',
   de: 'de-DE',
+  it: 'it-IT',
+  pl: 'pl-PL',
+  tr: 'tr-TR',
 };
 
 export function isSupportedLanguage(value: string | null | undefined): value is SupportedLanguage {
@@ -44,6 +50,9 @@ export function resolveDeviceLanguage(): SupportedLanguage {
   if (locale.languageCode === 'pt') return 'pt-BR';
   if (locale.languageCode === 'fr') return 'fr';
   if (locale.languageCode === 'de') return 'de';
+  if (locale.languageCode === 'it') return 'it';
+  if (locale.languageCode === 'pl') return 'pl';
+  if (locale.languageCode === 'tr') return 'tr';
   if (locale.languageCode === 'es') {
     return locale.regionCode && LATAM_REGIONS.has(locale.regionCode) ? 'es-419' : 'es';
   }
@@ -54,7 +63,7 @@ export function getIntlLocale(language: string): string {
   return INTL_LOCALES[language as SupportedLanguage] ?? INTL_LOCALES[DEFAULT_LANGUAGE];
 }
 
-export type ApiLanguage = 'es' | 'en' | 'pt' | 'fr' | 'de';
+export type ApiLanguage = 'es' | 'en' | 'pt' | 'fr' | 'de' | 'it' | 'pl' | 'tr';
 
 // Los proveedores externos (Visual Crossing, Nominatim) no distinguen variantes
 // regionales (es-419 → es, pt-BR → pt), así que cada SupportedLanguage se mapea
@@ -69,6 +78,9 @@ const API_LANGUAGES: Record<SupportedLanguage, ApiLanguage> = {
   'pt-BR': 'pt',
   fr: 'fr',
   de: 'de',
+  it: 'it',
+  pl: 'pl',
+  tr: 'tr',
 };
 
 export function toApiLanguage(language: string): ApiLanguage {
@@ -96,6 +108,9 @@ export function initI18n(): Promise<void> {
           'pt-BR': { translation: ptBR },
           fr: { translation: fr },
           de: { translation: de },
+          it: { translation: it },
+          pl: { translation: pl },
+          tr: { translation: tr },
         },
         lng: language,
         fallbackLng: DEFAULT_LANGUAGE,

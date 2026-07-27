@@ -1,0 +1,133 @@
+{
+  "common": {
+    "cancel": "İptal"
+  },
+  "tabs": {
+    "home": "Ana Sayfa",
+    "forecast": "Tahmin",
+    "alerts": "Uyarılar",
+    "settings": "Ayarlar"
+  },
+  "home": {
+    "loading": "Hava durumu alınıyor...",
+    "searchPlaceholder": "Şehir ara...",
+    "useMyLocation": "Konumumu kullan",
+    "feelsLike": "Hissedilen {{value}}{{unit}}",
+    "upcomingHours": "Sonraki saatler",
+    "sunrise": "Gün doğumu",
+    "sunset": "Gün batımı",
+    "stats": {
+      "humidity": "Nem",
+      "wind": "Rüzgâr",
+      "rain": "Yağmur",
+      "uv": "UV"
+    }
+  },
+  "forecast": {
+    "title": "Tahmin",
+    "upcomingDays": "Sonraki günler",
+    "today": "Bugün",
+    "tomorrow": "Yarın",
+    "feelsLikeAbbr": "HS"
+  },
+  "alerts": {
+    "title": "Uyarılar",
+    "freeTierSubtitle": "Ücretsiz sürüm: 1 aktif uyarı",
+    "premiumTierSubtitle": "Premium: sınırsız uyarı",
+    "conditionActive": "⚠️ Koşul şu anda aktif",
+    "types": {
+      "rain": { "label": "Yağmur", "description": "Yağmur olasılığı eşiği:" },
+      "wind": { "label": "Kuvvetli rüzgâr", "description": "Rüzgâr eşiği:" },
+      "temp_low": { "label": "Minimum sıcaklık", "description": "Minimum sıcaklık eşiği:" },
+      "temp_high": { "label": "Maksimum sıcaklık", "description": "Maksimum sıcaklık eşiği:" }
+    },
+    "premium": {
+      "title": "Sınırsız uyarı",
+      "description": "Premium ile tüm uyarıları etkinleştir ve eşikleri özelleştir",
+      "price": "2,99 €/ay"
+    },
+    "notifications": {
+      "title": "⚠️ Uyarı: {{label}}",
+      "rainBody": "Yağmur olasılığı: %{{value}}",
+      "windBody": "Güncel rüzgâr: {{value}} km/h",
+      "tempLowBody": "Güncel sıcaklık: {{value}}°C",
+      "tempHighBody": "Güncel sıcaklık: {{value}}°C"
+    }
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "units": {
+      "sectionTitle": "Birimler",
+      "metricLabel": "Metrik sistem"
+    },
+    "temperature": {
+      "sectionTitle": "Sıcaklık",
+      "celsius": "°C — Celsius",
+      "fahrenheit": "°F — Fahrenheit"
+    },
+    "language": {
+      "sectionTitle": "Dil"
+    },
+    "about": {
+      "sectionTitle": "Hakkında",
+      "appLabel": "Avisa",
+      "version": "Sürüm {{version}}",
+      "weatherDataLabel": "Hava durumu verileri",
+      "weatherDataProvider": "Visual Crossing Weather API",
+      "autoUpdateLabel": "Otomatik güncelleme",
+      "autoUpdateDescription": "Her 30 dakikada bir"
+    },
+    "premiumBanner": {
+      "title": "Premium'a geçin",
+      "description": "Sınırsız uyarı ve özelleştirilmiş eşikler",
+      "cta": "Planları görüntüle",
+      "restoreCta": "Satın almaları geri yükle",
+      "restoreSuccessTitle": "Satın alma geri yüklendi!",
+      "restoreSuccessBody": "Premium aboneliğiniz başarıyla geri yüklendi.",
+      "restoreNoneTitle": "Geri yüklenecek bir şey yok",
+      "restoreNoneBody": "Önceki bir satın alma bulunamadı.",
+      "restoreErrorTitle": "Satın almalar geri yüklenemedi",
+      "restoreErrorBody": "Satın almalarınızı geri yüklerken bir hata oluştu. Lütfen tekrar deneyin."
+    }
+  },
+  "paywall": {
+    "title": "Premium'un kilidini açın",
+    "subtitle": "Sınırsız uyarı, özelleştirilmiş eşikler ve çok daha fazlası",
+    "unavailable": "Şu anda kullanılabilir plan yok. Lütfen daha sonra tekrar deneyin.",
+    "savings": "%{{percent}} tasarruf edin",
+    "disclaimer": "Abonelik otomatik olarak yenilenir. İstediğiniz zaman Google Play üzerinden iptal edebilirsiniz.",
+    "successTitle": "Artık Premium'sunuz!",
+    "successBody": "Aboneliğiniz başarıyla etkinleştirildi.",
+    "errorTitle": "Satın alma tamamlanamadı",
+    "errorBody": "Ödeme işlenirken bir hata oluştu. Lütfen tekrar deneyin."
+  },
+  "errors": {
+    "locationPermissionDenied": "Konum izni reddedildi. Ayarlardan etkinleştirin.",
+    "weatherFetchFailed": "Hava durumu alınamadı. Bağlantınızı kontrol edin.",
+    "weatherFetchFailedCity": "Bu şehir için hava durumu alınamadı."
+  },
+  "weather": {
+    "defaultLocation": "Konumunuz",
+    "windDirections": ["K", "KD", "D", "GD", "G", "GB", "B", "KB"],
+    "conditions": {
+      "clear": "Açık",
+      "partiallyCloudy": "Parçalı bulutlu",
+      "overcast": "Kapalı",
+      "rain": "Yağmur",
+      "rainPartiallyCloudy": "Yağmur ve parçalı bulutlu",
+      "rainOvercast": "Yağmur ve kapalı",
+      "lightRain": "Hafif yağmur",
+      "heavyRain": "Kuvvetli yağmur",
+      "drizzle": "Çiseleme",
+      "snow": "Kar",
+      "fog": "Sis",
+      "wind": "Rüzgâr",
+      "cloudy": "Bulutlu",
+      "thunder": "Gök gürültülü fırtına",
+      "thunderRain": "Gök gürültülü sağanak yağış",
+      "hail": "Dolu",
+      "ice": "Buzlanma",
+      "tornado": "Hortum"
+    }
+  }
+}
