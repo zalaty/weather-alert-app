@@ -54,6 +54,12 @@
       "tempHighBody": "Aktualna temperatura: {{value}}°C"
     }
   },
+  "savedLocations": {
+    "title": "Zapisane lokalizacje",
+    "saveCurrent": "Zapisz {{name}}",
+    "maxReached": "Osiągnięto limit {{max}} lokalizacji",
+    "empty": "Nie masz jeszcze zapisanych lokalizacji"
+  },
   "settings": {
     "title": "Ustawienia",
     "units": {

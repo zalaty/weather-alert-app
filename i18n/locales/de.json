@@ -54,6 +54,12 @@
       "tempHighBody": "Aktuelle Temperatur: {{value}}°C"
     }
   },
+  "savedLocations": {
+    "title": "Gespeicherte Orte",
+    "saveCurrent": "{{name}} speichern",
+    "maxReached": "Maximal {{max}} Orte erreicht",
+    "empty": "Du hast noch keine Orte gespeichert"
+  },
   "settings": {
     "title": "Einstellungen",
     "units": {

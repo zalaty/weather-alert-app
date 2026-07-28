@@ -54,6 +54,12 @@
       "tempHighBody": "Güncel sıcaklık: {{value}}°C"
     }
   },
+  "savedLocations": {
+    "title": "Kayıtlı konumlar",
+    "saveCurrent": "{{name}} konumunu kaydet",
+    "maxReached": "En fazla {{max}} konum kaydedilebilir",
+    "empty": "Henüz kayıtlı konumunuz yok"
+  },
   "settings": {
     "title": "Ayarlar",
     "units": {
