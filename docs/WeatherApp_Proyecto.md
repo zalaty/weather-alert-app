@@ -274,9 +274,14 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
   - Camino "nada que restaurar" verificado: tras expirar la suscripción de prueba, restaurar compras devuelve correctamente el mensaje de que no hay compra activa (sin marcarlo como error)
   - **Siguiente paso**: promocionar este build de Internal Testing a producción (o generar uno nuevo si se han acumulado más cambios), y decidir cómo abordar Fase 4 (múltiples ubicaciones)
 
-### Fase 4 — Múltiples ubicaciones
-- Feature core de mayor valor pendiente; toca Zustand store + Settings + Home
-- Primer caso real para validar el paywall end-to-end
+### Fase 4 — Ubicaciones guardadas (alcance reducido) 🔶 EN PROGRESO (iniciada 2026-07-27)
+- **Decisión de alcance (2026-07-27)**: planteada la duda de si "múltiples ubicaciones con alertas independientes" (alcance original) tiene demanda real — la gente suele consultar el tiempo de otro sitio puntualmente, pero no necesariamente quiere gestionar alertas activas en varias zonas. Dado el cuello de botella actual (muy pocas descargas, no falta de features), se decide **simplificar**: guardar y cambiar entre ubicaciones queda, pero las alertas se quedan fuera del alcance
+- Especificación final:
+  - Usuarios gratuitos: sin cambios (ubicación GPS o búsqueda puntual de ciudad, sin guardar lista)
+  - Usuarios premium: hasta 5 ubicaciones guardadas (reutilizando el buscador de Nominatim ya existente), con selector desplegable en Home para cambiar entre ellas
+  - **Las alertas siguen atadas únicamente a la ubicación GPS actual** — sin cambios en `alertsStorage.ts`/`useWeather.ts`, evitando tocar el sistema ya verificado en Fase 3
+  - Gate premium con el mismo patrón que alertas: `useIsPremium()` + paywall al intentar guardar una 2ª ubicación siendo free
+- Primer caso real para validar el paywall end-to-end con una feature premium distinta al límite de alertas
 
 ### Fase 5 — Alertas mejoradas
 - Alerta de lluvia inminente (15 min antes)
