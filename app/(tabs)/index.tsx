@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,8 +15,18 @@ import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWeather } from '../../hooks/useWeather';
 import { useTheme } from '../../hooks/useTheme';
+import { useIsPremium } from '../../hooks/useIsPremium';
 import { Typography, Spacing, Radius } from '../../constants/theme';
 import { searchCities, CityResult } from '../../services/weatherApi';
+import {
+  SavedLocation,
+  loadSavedLocations,
+  saveSavedLocations,
+  makeSavedLocationId,
+} from '../../services/savedLocationsStorage';
+import { trackEvent } from '../../services/analytics';
+import SavedLocationsSheet from '../../components/SavedLocationsSheet';
+import Paywall from '../../components/Paywall';
 
 function getWeatherEmoji(icon: string): string {
   const map: Record<string, string> = {
@@ -42,14 +52,41 @@ function getWeatherEmoji(icon: string): string {
 }
 
 export default function HomeScreen() {
-  const { weatherData, isLoading, error, refresh, units, isManualLocation, searchAndLoadCity, backToGPS } = useWeather();
+  const {
+    weatherData,
+    isLoading,
+    error,
+    refresh,
+    units,
+    isManualLocation,
+    searchAndLoadCity,
+    backToGPS,
+    location: currentCoords,
+  } = useWeather();
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const isPremium = useIsPremium();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<CityResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [savedLocations, setSavedLocations] = useState<SavedLocation[]>([]);
+  const [savedLocationsLoaded, setSavedLocationsLoaded] = useState(false);
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const [paywallVisible, setPaywallVisible] = useState(false);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    loadSavedLocations().then((locs) => {
+      setSavedLocations(locs);
+      setSavedLocationsLoaded(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!savedLocationsLoaded) return;
+    saveSavedLocations(savedLocations);
+  }, [savedLocations, savedLocationsLoaded]);
 
   const unitLabel = units === 'metric' ? '°C' : '°F';
   const windLabel = units === 'metric' ? 'km/h' : 'mph';
@@ -77,6 +114,34 @@ export default function HomeScreen() {
   const handleBackToGPS = useCallback(async () => {
     await backToGPS();
   }, [backToGPS]);
+
+  const handleSelectSavedLocation = useCallback(async (loc: SavedLocation) => {
+    setSheetVisible(false);
+    await searchAndLoadCity(loc.lat, loc.lon, loc.name);
+  }, [searchAndLoadCity]);
+
+  const handleSaveCurrentLocation = useCallback(() => {
+    if (!currentCoords || !weatherData) return;
+    if (!isPremium && savedLocations.length >= 1) {
+      trackEvent('location_limit_reached');
+      setSheetVisible(false);
+      setPaywallVisible(true);
+      return;
+    }
+    const newLocation: SavedLocation = {
+      id: makeSavedLocationId(currentCoords.latitude, currentCoords.longitude),
+      name: weatherData.location,
+      lat: currentCoords.latitude,
+      lon: currentCoords.longitude,
+    };
+    setSavedLocations((prev) => [...prev, newLocation]);
+    trackEvent('location_saved', { count: savedLocations.length + 1 });
+  }, [currentCoords, weatherData, isPremium, savedLocations]);
+
+  const handleRemoveSavedLocation = useCallback((id: string) => {
+    setSavedLocations((prev) => prev.filter((loc) => loc.id !== id));
+    trackEvent('location_removed');
+  }, []);
 
   const s = makeStyles(theme);
 
@@ -146,10 +211,15 @@ export default function HomeScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={s.header}>
-            <TouchableOpacity onPress={() => setShowSearch(true)} style={s.locationRow}>
-              <Text style={s.locationText}>📍 {location}</Text>
-              <Text style={s.searchIcon}>🔍</Text>
-            </TouchableOpacity>
+            <View style={s.headerRow}>
+              <TouchableOpacity onPress={() => setShowSearch(true)} style={s.locationRow}>
+                <Text style={s.locationText}>📍 {location}</Text>
+                <Text style={s.searchIcon}>🔍</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setSheetVisible(true)} style={s.savedLocationsBtn} hitSlop={8}>
+                <Text style={s.savedLocationsIcon}>📌</Text>
+              </TouchableOpacity>
+            </View>
             {isManualLocation && (
               <TouchableOpacity onPress={handleBackToGPS} style={s.gpsButton}>
                 <Text style={s.gpsButtonText}>{t('home.useMyLocation')}</Text>
@@ -213,6 +283,18 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
       )}
+
+      <SavedLocationsSheet
+        visible={sheetVisible}
+        onClose={() => setSheetVisible(false)}
+        savedLocations={savedLocations}
+        currentLocation={currentCoords ? { name: location, lat: currentCoords.latitude, lon: currentCoords.longitude } : null}
+        isPremium={isPremium}
+        onSelect={handleSelectSavedLocation}
+        onSaveCurrent={handleSaveCurrentLocation}
+        onRemove={handleRemoveSavedLocation}
+      />
+      <Paywall visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
     </SafeAreaView>
   );
 }
@@ -223,9 +305,12 @@ function makeStyles(theme: ReturnType<typeof import('../../hooks/useTheme').useT
     centered: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background, gap: Spacing.md },
     scroll: { padding: Spacing.md, gap: Spacing.md },
     header: { alignItems: 'center', paddingVertical: Spacing.sm, gap: Spacing.xs },
+    headerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
     locationRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
     locationText: { fontSize: Typography.md, color: theme.textSecondary, fontWeight: Typography.medium },
     searchIcon: { fontSize: Typography.md },
+    savedLocationsBtn: { padding: Spacing.xs },
+    savedLocationsIcon: { fontSize: Typography.md },
     gpsButton: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, backgroundColor: theme.accent, borderRadius: Radius.full },
     gpsButtonText: { fontSize: Typography.xs, color: theme.textLight, fontWeight: Typography.medium },
     searchContainer: { flex: 1, padding: Spacing.md },

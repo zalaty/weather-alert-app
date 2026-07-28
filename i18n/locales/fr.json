@@ -54,6 +54,12 @@
       "tempHighBody": "Température actuelle : {{value}}°C"
     }
   },
+  "savedLocations": {
+    "title": "Lieux enregistrés",
+    "saveCurrent": "Enregistrer {{name}}",
+    "maxReached": "Limite de {{max}} lieux atteinte",
+    "empty": "Vous n'avez pas encore enregistré de lieu"
+  },
   "settings": {
     "title": "Paramètres",
     "units": {
