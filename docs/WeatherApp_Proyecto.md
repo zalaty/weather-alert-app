@@ -330,6 +330,12 @@ Trabajo en curso, en paralelo a las fases numeradas del roadmap — orden decidi
 
 ## 💭 Consideraciones futuras (no priorizadas aún)
 
+**Fichas de Play Store en los 6 idiomas nuevos (pt-BR, fr, de, it, pl, tr)**
+- Planteado 2026-07-27: la app ya soporta 9 idiomas, pero Play Store solo tiene fichas de tienda (Store Listing) en `es-ES` y `en-US` — usuarios de los otros 6 mercados ven la ficha en español/inglés al buscar en Play Store, independientemente del idioma que hable la app
+- Importante: esto no es solo traducir el texto ya existente — para que aporte descargas reales hace falta investigar palabras clave por mercado (mismo enfoque que la distinción "Tiempo" vs "Clima" entre es/es-419), no una traducción literal
+- Motivación explícita de David: volumen de descargas actual muy bajo, así que mejorar ASO en más mercados es palanca directa para crecimiento, no solo "cobertura por cobertura"
+- Decisión: no priorizado todavía, pero marcado como candidato de alto valor a revisar pronto dado el bajo volumen actual — no confundir con "ya está hecho" solo porque la app esté traducida
+
 **API propia como proxy/caché sobre Visual Crossing (y otras APIs futuras)**
 - Idea planteada 2026-07-14: montar un pequeño backend propio (en el hosting de Hostinger que ya tiene David) que actúe de intermediario entre la app y Visual Crossing (y futuras APIs como AQI/radar de lluvia)
 - Beneficio 1 — caché compartida real: hoy cada dispositivo cachea 30-60 min en su propio AsyncStorage; un backend propio podría cachear por ubicación y servir a todos los usuarios que consulten la misma zona en la misma ventana de tiempo, reduciendo drásticamente las llamadas reales a Visual Crossing según crezca la base de usuarios
