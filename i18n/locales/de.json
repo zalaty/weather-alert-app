@@ -1,0 +1,133 @@
+{
+  "common": {
+    "cancel": "Abbrechen"
+  },
+  "tabs": {
+    "home": "Start",
+    "forecast": "Vorhersage",
+    "alerts": "Warnungen",
+    "settings": "Einstellungen"
+  },
+  "home": {
+    "loading": "Wetter wird abgerufen...",
+    "searchPlaceholder": "Stadt suchen...",
+    "useMyLocation": "Meinen Standort verwenden",
+    "feelsLike": "Gefühlt {{value}}{{unit}}",
+    "upcomingHours": "Nächste Stunden",
+    "sunrise": "Sonnenaufgang",
+    "sunset": "Sonnenuntergang",
+    "stats": {
+      "humidity": "Luftfeuchtigkeit",
+      "wind": "Wind",
+      "rain": "Regen",
+      "uv": "UV"
+    }
+  },
+  "forecast": {
+    "title": "Vorhersage",
+    "upcomingDays": "Nächste Tage",
+    "today": "Heute",
+    "tomorrow": "Morgen",
+    "feelsLikeAbbr": "GT"
+  },
+  "alerts": {
+    "title": "Warnungen",
+    "freeTierSubtitle": "Kostenlose Version: 1 aktive Warnung",
+    "premiumTierSubtitle": "Premium: unbegrenzte Warnungen",
+    "conditionActive": "⚠️ Bedingung derzeit aktiv",
+    "types": {
+      "rain": { "label": "Regen", "description": "Benachrichtigung bei Regenwahrscheinlichkeit über" },
+      "wind": { "label": "Starker Wind", "description": "Benachrichtigung bei Wind über" },
+      "temp_low": { "label": "Mindesttemperatur", "description": "Benachrichtigung bei Temperatur unter" },
+      "temp_high": { "label": "Höchsttemperatur", "description": "Benachrichtigung bei Temperatur über" }
+    },
+    "premium": {
+      "title": "Unbegrenzte Warnungen",
+      "description": "Aktiviere alle Warnungen und passe die Schwellenwerte mit Premium an",
+      "price": "2,99 €/Monat"
+    },
+    "notifications": {
+      "title": "⚠️ Warnung: {{label}}",
+      "rainBody": "Regenwahrscheinlichkeit: {{value}}%",
+      "windBody": "Aktueller Wind: {{value}} km/h",
+      "tempLowBody": "Aktuelle Temperatur: {{value}}°C",
+      "tempHighBody": "Aktuelle Temperatur: {{value}}°C"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "units": {
+      "sectionTitle": "Einheiten",
+      "metricLabel": "Metrisches System"
+    },
+    "temperature": {
+      "sectionTitle": "Temperatur",
+      "celsius": "°C — Celsius",
+      "fahrenheit": "°F — Fahrenheit"
+    },
+    "language": {
+      "sectionTitle": "Sprache"
+    },
+    "about": {
+      "sectionTitle": "Info",
+      "appLabel": "Avisa",
+      "version": "Version {{version}}",
+      "weatherDataLabel": "Wetterdaten",
+      "weatherDataProvider": "Visual Crossing Weather API",
+      "autoUpdateLabel": "Automatische Aktualisierung",
+      "autoUpdateDescription": "Alle 30 Minuten"
+    },
+    "premiumBanner": {
+      "title": "Werde Premium",
+      "description": "Unbegrenzte Warnungen und individuelle Schwellenwerte",
+      "cta": "Pläne ansehen",
+      "restoreCta": "Käufe wiederherstellen",
+      "restoreSuccessTitle": "Kauf wiederhergestellt!",
+      "restoreSuccessBody": "Dein Premium-Abo wurde erfolgreich wiederhergestellt.",
+      "restoreNoneTitle": "Nichts wiederherzustellen",
+      "restoreNoneBody": "Es wurden keine früheren Käufe gefunden.",
+      "restoreErrorTitle": "Käufe konnten nicht wiederhergestellt werden",
+      "restoreErrorBody": "Beim Wiederherstellen deiner Käufe ist ein Fehler aufgetreten. Bitte versuche es erneut."
+    }
+  },
+  "paywall": {
+    "title": "Premium freischalten",
+    "subtitle": "Unbegrenzte Warnungen, individuelle Schwellenwerte und vieles mehr",
+    "unavailable": "Derzeit sind keine Pläne verfügbar. Bitte versuche es später erneut.",
+    "savings": "Spare {{percent}} %",
+    "disclaimer": "Das Abo verlängert sich automatisch. Du kannst es jederzeit über Google Play kündigen.",
+    "successTitle": "Du bist jetzt Premium!",
+    "successBody": "Dein Abo wurde erfolgreich aktiviert.",
+    "errorTitle": "Kauf konnte nicht abgeschlossen werden",
+    "errorBody": "Bei der Zahlungsabwicklung ist ein Fehler aufgetreten. Bitte versuche es erneut."
+  },
+  "errors": {
+    "locationPermissionDenied": "Standortzugriff verweigert. Aktiviere ihn in den Einstellungen.",
+    "weatherFetchFailed": "Wetter konnte nicht abgerufen werden. Überprüfe deine Verbindung.",
+    "weatherFetchFailedCity": "Wetter für diese Stadt konnte nicht abgerufen werden."
+  },
+  "weather": {
+    "defaultLocation": "Dein Standort",
+    "windDirections": ["N", "NO", "O", "SO", "S", "SW", "W", "NW"],
+    "conditions": {
+      "clear": "Klar",
+      "partiallyCloudy": "Teilweise bewölkt",
+      "overcast": "Bedeckt",
+      "rain": "Regen",
+      "rainPartiallyCloudy": "Regen und Wolken",
+      "rainOvercast": "Regen und bedeckt",
+      "lightRain": "Leichter Regen",
+      "heavyRain": "Starker Regen",
+      "drizzle": "Nieselregen",
+      "snow": "Schnee",
+      "fog": "Nebel",
+      "wind": "Wind",
+      "cloudy": "Bewölkt",
+      "thunder": "Gewitter",
+      "thunderRain": "Gewitter mit Regen",
+      "hail": "Hagel",
+      "ice": "Glatteis",
+      "tornado": "Tornado"
+    }
+  }
+}

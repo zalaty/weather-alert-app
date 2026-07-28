@@ -1,0 +1,133 @@
+{
+  "common": {
+    "cancel": "Anuluj"
+  },
+  "tabs": {
+    "home": "Start",
+    "forecast": "Prognoza",
+    "alerts": "Alerty",
+    "settings": "Ustawienia"
+  },
+  "home": {
+    "loading": "Pobieranie pogody...",
+    "searchPlaceholder": "Szukaj miasta...",
+    "useMyLocation": "Użyj mojej lokalizacji",
+    "feelsLike": "Odczuwalna {{value}}{{unit}}",
+    "upcomingHours": "Najbliższe godziny",
+    "sunrise": "Wschód słońca",
+    "sunset": "Zachód słońca",
+    "stats": {
+      "humidity": "Wilgotność",
+      "wind": "Wiatr",
+      "rain": "Deszcz",
+      "uv": "UV"
+    }
+  },
+  "forecast": {
+    "title": "Prognoza",
+    "upcomingDays": "Najbliższe dni",
+    "today": "Dziś",
+    "tomorrow": "Jutro",
+    "feelsLikeAbbr": "TO"
+  },
+  "alerts": {
+    "title": "Alerty",
+    "freeTierSubtitle": "Wersja bezpłatna: 1 aktywny alert",
+    "premiumTierSubtitle": "Premium: nieograniczona liczba alertów",
+    "conditionActive": "⚠️ Warunek obecnie aktywny",
+    "types": {
+      "rain": { "label": "Deszcz", "description": "Powiadom mnie, gdy prawdopodobieństwo deszczu przekroczy" },
+      "wind": { "label": "Silny wiatr", "description": "Powiadom mnie, gdy wiatr przekroczy" },
+      "temp_low": { "label": "Minimalna temperatura", "description": "Powiadom mnie, gdy temperatura spadnie poniżej" },
+      "temp_high": { "label": "Maksymalna temperatura", "description": "Powiadom mnie, gdy temperatura przekroczy" }
+    },
+    "premium": {
+      "title": "Nieograniczone alerty",
+      "description": "Aktywuj wszystkie alerty i dostosuj progi z Premium",
+      "price": "2,99 €/mies."
+    },
+    "notifications": {
+      "title": "⚠️ Alert: {{label}}",
+      "rainBody": "Prawdopodobieństwo deszczu: {{value}}%",
+      "windBody": "Aktualny wiatr: {{value}} km/h",
+      "tempLowBody": "Aktualna temperatura: {{value}}°C",
+      "tempHighBody": "Aktualna temperatura: {{value}}°C"
+    }
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "units": {
+      "sectionTitle": "Jednostki",
+      "metricLabel": "System metryczny"
+    },
+    "temperature": {
+      "sectionTitle": "Temperatura",
+      "celsius": "°C — Celsjusza",
+      "fahrenheit": "°F — Fahrenheita"
+    },
+    "language": {
+      "sectionTitle": "Język"
+    },
+    "about": {
+      "sectionTitle": "Informacje",
+      "appLabel": "Avisa",
+      "version": "Wersja {{version}}",
+      "weatherDataLabel": "Dane pogodowe",
+      "weatherDataProvider": "Visual Crossing Weather API",
+      "autoUpdateLabel": "Automatyczna aktualizacja",
+      "autoUpdateDescription": "Co 30 minut"
+    },
+    "premiumBanner": {
+      "title": "Przejdź na Premium",
+      "description": "Nieograniczone alerty i spersonalizowane progi",
+      "cta": "Zobacz plany",
+      "restoreCta": "Przywróć zakupy",
+      "restoreSuccessTitle": "Zakup przywrócony!",
+      "restoreSuccessBody": "Twoja subskrypcja Premium została pomyślnie przywrócona.",
+      "restoreNoneTitle": "Brak zakupów do przywrócenia",
+      "restoreNoneBody": "Nie znaleziono żadnych wcześniejszych zakupów.",
+      "restoreErrorTitle": "Nie udało się przywrócić zakupów",
+      "restoreErrorBody": "Wystąpił błąd podczas przywracania zakupów. Spróbuj ponownie."
+    }
+  },
+  "paywall": {
+    "title": "Odblokuj Premium",
+    "subtitle": "Nieograniczone alerty, spersonalizowane progi i wiele więcej",
+    "unavailable": "Obecnie brak dostępnych planów. Spróbuj ponownie później.",
+    "savings": "Oszczędź {{percent}}%",
+    "disclaimer": "Subskrypcja odnawia się automatycznie. Możesz ją anulować w dowolnym momencie w Google Play.",
+    "successTitle": "Jesteś teraz Premium!",
+    "successBody": "Twoja subskrypcja została pomyślnie aktywowana.",
+    "errorTitle": "Nie udało się zrealizować zakupu",
+    "errorBody": "Wystąpił błąd podczas przetwarzania płatności. Spróbuj ponownie."
+  },
+  "errors": {
+    "locationPermissionDenied": "Odmówiono dostępu do lokalizacji. Włącz go w ustawieniach.",
+    "weatherFetchFailed": "Nie udało się pobrać pogody. Sprawdź swoje połączenie.",
+    "weatherFetchFailedCity": "Nie udało się pobrać pogody dla tego miasta."
+  },
+  "weather": {
+    "defaultLocation": "Twoja lokalizacja",
+    "windDirections": ["N", "NE", "E", "SE", "S", "SW", "W", "NW"],
+    "conditions": {
+      "clear": "Bezchmurnie",
+      "partiallyCloudy": "Częściowo pochmurno",
+      "overcast": "Pochmurno",
+      "rain": "Deszcz",
+      "rainPartiallyCloudy": "Deszcz i częściowo pochmurno",
+      "rainOvercast": "Deszcz i pochmurno",
+      "lightRain": "Słaby deszcz",
+      "heavyRain": "Silny deszcz",
+      "drizzle": "Mżawka",
+      "snow": "Śnieg",
+      "fog": "Mgła",
+      "wind": "Wiatr",
+      "cloudy": "Pochmurno",
+      "thunder": "Burza",
+      "thunderRain": "Burza z deszczem",
+      "hail": "Grad",
+      "ice": "Gołoledź",
+      "tornado": "Tornado"
+    }
+  }
+}

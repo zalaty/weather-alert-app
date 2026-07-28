@@ -1,0 +1,133 @@
+{
+  "common": {
+    "cancel": "Cancelar"
+  },
+  "tabs": {
+    "home": "Início",
+    "forecast": "Previsão",
+    "alerts": "Alertas",
+    "settings": "Configurações"
+  },
+  "home": {
+    "loading": "Obtendo o tempo...",
+    "searchPlaceholder": "Buscar cidade...",
+    "useMyLocation": "Usar minha localização",
+    "feelsLike": "Sensação {{value}}{{unit}}",
+    "upcomingHours": "Próximas horas",
+    "sunrise": "Amanhecer",
+    "sunset": "Pôr do sol",
+    "stats": {
+      "humidity": "Umidade",
+      "wind": "Vento",
+      "rain": "Chuva",
+      "uv": "UV"
+    }
+  },
+  "forecast": {
+    "title": "Previsão",
+    "upcomingDays": "Próximos dias",
+    "today": "Hoje",
+    "tomorrow": "Amanhã",
+    "feelsLikeAbbr": "ST"
+  },
+  "alerts": {
+    "title": "Alertas",
+    "freeTierSubtitle": "Versão gratuita: 1 alerta ativo",
+    "premiumTierSubtitle": "Premium: alertas ilimitados",
+    "conditionActive": "⚠️ Condição ativa agora",
+    "types": {
+      "rain": { "label": "Chuva", "description": "Avise-me se a probabilidade de chuva ultrapassar" },
+      "wind": { "label": "Vento forte", "description": "Avise-me se o vento ultrapassar" },
+      "temp_low": { "label": "Temperatura mínima", "description": "Avise-me se a temperatura cair abaixo de" },
+      "temp_high": { "label": "Temperatura máxima", "description": "Avise-me se a temperatura subir acima de" }
+    },
+    "premium": {
+      "title": "Alertas ilimitados",
+      "description": "Ative todos os alertas e personalize os limites com o Premium",
+      "price": "€2,99/mês"
+    },
+    "notifications": {
+      "title": "⚠️ Alerta: {{label}}",
+      "rainBody": "Probabilidade de chuva: {{value}}%",
+      "windBody": "Vento atual: {{value}} km/h",
+      "tempLowBody": "Temperatura atual: {{value}}°C",
+      "tempHighBody": "Temperatura atual: {{value}}°C"
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "units": {
+      "sectionTitle": "Unidades",
+      "metricLabel": "Sistema métrico"
+    },
+    "temperature": {
+      "sectionTitle": "Temperatura",
+      "celsius": "°C — Celsius",
+      "fahrenheit": "°F — Fahrenheit"
+    },
+    "language": {
+      "sectionTitle": "Idioma"
+    },
+    "about": {
+      "sectionTitle": "Sobre",
+      "appLabel": "Avisa",
+      "version": "Versão {{version}}",
+      "weatherDataLabel": "Dados meteorológicos",
+      "weatherDataProvider": "Visual Crossing Weather API",
+      "autoUpdateLabel": "Atualização automática",
+      "autoUpdateDescription": "A cada 30 minutos"
+    },
+    "premiumBanner": {
+      "title": "Seja Premium",
+      "description": "Alertas ilimitados e limites personalizados",
+      "cta": "Ver planos",
+      "restoreCta": "Restaurar compras",
+      "restoreSuccessTitle": "Compra restaurada!",
+      "restoreSuccessBody": "Sua assinatura Premium foi restaurada com sucesso.",
+      "restoreNoneTitle": "Nada para restaurar",
+      "restoreNoneBody": "Nenhuma compra anterior foi encontrada.",
+      "restoreErrorTitle": "Não foi possível restaurar",
+      "restoreErrorBody": "Ocorreu um erro ao restaurar suas compras. Tente novamente."
+    }
+  },
+  "paywall": {
+    "title": "Desbloqueie o Premium",
+    "subtitle": "Alertas ilimitados, limites personalizados e muito mais",
+    "unavailable": "Nenhum plano disponível no momento. Tente novamente mais tarde.",
+    "savings": "Economize {{percent}}%",
+    "disclaimer": "A assinatura é renovada automaticamente. Você pode cancelá-la quando quiser pela Google Play.",
+    "successTitle": "Agora você é Premium!",
+    "successBody": "Sua assinatura foi ativada com sucesso.",
+    "errorTitle": "Não foi possível concluir a compra",
+    "errorBody": "Ocorreu um erro ao processar o pagamento. Tente novamente."
+  },
+  "errors": {
+    "locationPermissionDenied": "Permissão de localização negada. Ative-a nas configurações.",
+    "weatherFetchFailed": "Não foi possível obter o tempo. Verifique sua conexão.",
+    "weatherFetchFailedCity": "Não foi possível obter o tempo para essa cidade."
+  },
+  "weather": {
+    "defaultLocation": "Sua localização",
+    "windDirections": ["N", "NE", "E", "SE", "S", "SO", "O", "NO"],
+    "conditions": {
+      "clear": "Céu limpo",
+      "partiallyCloudy": "Parcialmente nublado",
+      "overcast": "Nublado",
+      "rain": "Chuva",
+      "rainPartiallyCloudy": "Chuva e nuvens",
+      "rainOvercast": "Chuva e nublado",
+      "lightRain": "Chuva fraca",
+      "heavyRain": "Chuva forte",
+      "drizzle": "Garoa",
+      "snow": "Neve",
+      "fog": "Neblina",
+      "wind": "Vento",
+      "cloudy": "Nublado",
+      "thunder": "Tempestade",
+      "thunderRain": "Tempestade com chuva",
+      "hail": "Granizo",
+      "ice": "Gelo",
+      "tornado": "Tornado"
+    }
+  }
+}
