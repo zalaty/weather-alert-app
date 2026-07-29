@@ -282,6 +282,13 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
   - **Las alertas siguen atadas únicamente a la ubicación GPS actual** — sin cambios en `alertsStorage.ts`/`useWeather.ts`, evitando tocar el sistema ya verificado en Fase 3
   - Gate premium con el mismo patrón que alertas: `useIsPremium()` + paywall al intentar guardar una 2ª ubicación siendo free
 - Primer caso real para validar el paywall end-to-end con una feature premium distinta al límite de alertas
+- **Implementado (2026-07-28)**: `services/savedLocationsStorage.ts` (AsyncStorage, mismo patrón que `alertsStorage.ts`), `components/SavedLocationsSheet.tsx` (modal con lista, guardar ubicación actual, eliminar), icono 📌 en Home junto al buscador. Cambiar de ubicación reutiliza `searchAndLoadCity()` de `useWeather.ts` sin modificarlo, así que Forecast se sincroniza automáticamente. Claves i18n añadidas en los 9 idiomas de una sola pasada
+- **Dos bugs encontrados y corregidos durante las pruebas**:
+  1. Gating no abría el Paywall al alcanzar el límite free (1 ubicación) — se quedaba sin feedback. Causa: `SavedLocationsSheet` y `Paywall` llegaban a estar ambos `visible=true` simultáneamente
+  2. Cambiar de ubicación guardada y visitar Forecast dejaba la app completamente congelada — mismo origen que el bug anterior (dos `Modal` nativos de Android compitiendo por el layer de renderizado). Fix: cerrar el sheet (`setSheetVisible(false)`) antes de abrir el paywall, en el mismo handler síncrono, para que React batchee ambas actualizaciones sin llegar a montar los dos modales visibles a la vez
+- **✅ FASE 4 VERIFICADA COMPLETA en build de Internal Testing (build 18, 2026-07-28)**: gating free→premium funcionando (paywall se abre correctamente), límite de 5 ubicaciones premium respetado, cambio entre ubicaciones + Forecast sin congelarse, eliminar ubicación, y persistencia tras cerrar/reabrir la app — todo confirmado en dispositivo real
+- **Nota sobre el aviso de R8 en Play Console**: se investigó por qué seguía apareciendo pese a haberlo activado — resultó que el build 12 (el que llegó a producción) nunca tuvo R8, ya que el commit de activación se hizo 3.5h después de generarlo; el primer build con R8 real fue el 15. Play Console evalúa la release pública en Producción, no los builds de Internal Testing, así que el aviso es correcto hasta que se promocione un build con R8 a producción
+- **Siguiente paso**: promocionar el build 18 (Fase 4 + fixes + R8 real) a Producción — resuelve el roadmap de Fase 4 y el aviso de R8 a la vez
 
 ### Fase 5 — Alertas mejoradas
 - Alerta de lluvia inminente (15 min antes)
