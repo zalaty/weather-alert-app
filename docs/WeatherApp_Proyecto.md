@@ -282,6 +282,13 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
   - **Las alertas siguen atadas únicamente a la ubicación GPS actual** — sin cambios en `alertsStorage.ts`/`useWeather.ts`, evitando tocar el sistema ya verificado en Fase 3
   - Gate premium con el mismo patrón que alertas: `useIsPremium()` + paywall al intentar guardar una 2ª ubicación siendo free
 - Primer caso real para validar el paywall end-to-end con una feature premium distinta al límite de alertas
+- **Implementado (2026-07-28)**: `services/savedLocationsStorage.ts` (AsyncStorage, mismo patrón que `alertsStorage.ts`), `components/SavedLocationsSheet.tsx` (modal con lista, guardar ubicación actual, eliminar), icono 📌 en Home junto al buscador. Cambiar de ubicación reutiliza `searchAndLoadCity()` de `useWeather.ts` sin modificarlo, así que Forecast se sincroniza automáticamente. Claves i18n añadidas en los 9 idiomas de una sola pasada
+- **Dos bugs encontrados y corregidos durante las pruebas**:
+  1. Gating no abría el Paywall al alcanzar el límite free (1 ubicación) — se quedaba sin feedback. Causa: `SavedLocationsSheet` y `Paywall` llegaban a estar ambos `visible=true` simultáneamente
+  2. Cambiar de ubicación guardada y visitar Forecast dejaba la app completamente congelada — mismo origen que el bug anterior (dos `Modal` nativos de Android compitiendo por el layer de renderizado). Fix: cerrar el sheet (`setSheetVisible(false)`) antes de abrir el paywall, en el mismo handler síncrono, para que React batchee ambas actualizaciones sin llegar a montar los dos modales visibles a la vez
+- **✅ FASE 4 VERIFICADA COMPLETA en build de Internal Testing (build 18, 2026-07-28)**: gating free→premium funcionando (paywall se abre correctamente), límite de 5 ubicaciones premium respetado, cambio entre ubicaciones + Forecast sin congelarse, eliminar ubicación, y persistencia tras cerrar/reabrir la app — todo confirmado en dispositivo real
+- **Nota sobre el aviso de R8 en Play Console**: se investigó por qué seguía apareciendo pese a haberlo activado — resultó que el build 12 (el que llegó a producción) nunca tuvo R8, ya que el commit de activación se hizo 3.5h después de generarlo; el primer build con R8 real fue el 15. Play Console evalúa la release pública en Producción, no los builds de Internal Testing, así que el aviso es correcto hasta que se promocione un build con R8 a producción
+- **Siguiente paso**: promocionar el build 18 (Fase 4 + fixes + R8 real) a Producción — resuelve el roadmap de Fase 4 y el aviso de R8 a la vez
 
 ### Fase 5 — Alertas mejoradas
 - Alerta de lluvia inminente (15 min antes)
@@ -334,6 +341,17 @@ Trabajo en curso, en paralelo a las fases numeradas del roadmap — orden decidi
 - Nota: cada nuevo idioma en la app es independiente de la ficha de Play Store en ese idioma (ASO) — ver sección de Consideraciones futuras para el seguimiento de fichas de tienda por idioma
 
 ## 💭 Consideraciones futuras (no priorizadas aún)
+
+**Comportamiento al perder premium: alertas/ubicaciones existentes por encima del límite gratuito**
+- Detectado 2026-07-29 durante pruebas: al cancelar la suscripción de prueba, el usuario conserva las alertas/ubicaciones creadas de más (por encima del límite free de 1), ya que el gate de `useIsPremium()` solo bloquea *crear* nuevas, no revisa el estado de las existentes al perder premium
+- **Decisión consciente (2026-07-29)**: se mantiene así por ahora ("Opción A" — grandfathering, sin cambios de código) por ser lo menos agresivo y de coste cero, coherente con la filosofía de "sin agresividad" del proyecto, y porque con el volumen de usuarios actual (7) el riesgo de abuso (suscribirse un día, configurar todo, cancelar, disfrutar gratis indefinidamente) es insignificante
+- **Riesgo aceptado, no ignorado**: si el volumen de usuarios crece (sobre todo con cualquier campaña de marketing/ASO agresiva), este agujero de monetización deja de ser insignificante. Revisar entonces si conviene implementar "Opción B": bloquear (no borrar) automáticamente el exceso al perder premium, reactivable sin pérdida de datos si el usuario vuelve a suscribirse
+- Trigger para revisar esta decisión: antes de cualquier campaña de crecimiento pagado, o al superar un volumen de usuarios significativo
+
+**Icono y splash screen rediseñados**
+- 2026-07-29: nueva versión del icono (sol + nube) diseñada sin marco de forma propio, pensada para vivir como capa foreground del sistema de adaptive icon de Android (dejando que `backgroundColor` controle el fondo en vez de "hornear" una forma dentro de la imagen) — el diseño anterior llevaba un octágono con bordes angulosos "horneado" en el propio archivo, lo que chocaba con el sistema de máscaras del launcher
+- Archivos generados y sustituidos en `assets/`: `icon.png`, `splash-icon.png`, `android-icon-foreground.png`, `android-icon-background.png`, `android-icon-monochrome.png`, `favicon.png` — mismos nombres, cero cambios necesarios en `app.json`
+- Pendiente de verificar en build real (no visible en Expo Go): icono en pantalla de inicio, splash al abrir la app, y opcionalmente el "themed icon" de Android 13+ con la versión monocromática
 
 **Fichas de Play Store en los 6 idiomas nuevos (pt-BR, fr, de, it, pl, tr)**
 - Planteado 2026-07-27: la app ya soporta 9 idiomas, pero Play Store solo tiene fichas de tienda (Store Listing) en `es-ES` y `en-US` — usuarios de los otros 6 mercados ven la ficha en español/inglés al buscar en Play Store, independientemente del idioma que hable la app
