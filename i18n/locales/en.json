@@ -48,10 +48,25 @@
     },
     "notifications": {
       "title": "⚠️ Alert: {{label}}",
+      "groupedTitle": "⚠️ {{count}} alerts triggered",
       "rainBody": "Rain probability: {{value}}%",
       "windBody": "Current wind: {{value}} km/h",
       "tempLowBody": "Current temperature: {{value}}°C",
       "tempHighBody": "Current temperature: {{value}}°C"
+    },
+    "doNotDisturb": {
+      "sectionTitle": "Do Not Disturb",
+      "description": "Don't send notifications during these hours",
+      "from": "From",
+      "to": "To"
+    },
+    "history": {
+      "viewButton": "View history",
+      "title": "Alert history",
+      "empty": "No alerts have been triggered yet",
+      "thresholdLabel": "Threshold",
+      "silencedTag": "🔕 Do Not Disturb",
+      "limitedNotice": "Showing the last {{count}}. Go Premium to see the full history."
     }
   },
   "savedLocations": {

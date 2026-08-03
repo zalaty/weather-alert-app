@@ -48,10 +48,25 @@
     },
     "notifications": {
       "title": "⚠️ Alerta: {{label}}",
+      "groupedTitle": "⚠️ {{count}} alertas disparados",
       "rainBody": "Probabilidade de chuva: {{value}}%",
       "windBody": "Vento atual: {{value}} km/h",
       "tempLowBody": "Temperatura atual: {{value}}°C",
       "tempHighBody": "Temperatura atual: {{value}}°C"
+    },
+    "doNotDisturb": {
+      "sectionTitle": "Não perturbe",
+      "description": "Não enviar notificações durante este horário",
+      "from": "De",
+      "to": "Até"
+    },
+    "history": {
+      "viewButton": "Ver histórico",
+      "title": "Histórico de alertas",
+      "empty": "Nenhum alerta foi disparado ainda",
+      "thresholdLabel": "Limite",
+      "silencedTag": "🔕 Não perturbe",
+      "limitedNotice": "Mostrando os últimos {{count}}. Seja Premium para ver o histórico completo."
     }
   },
   "savedLocations": {

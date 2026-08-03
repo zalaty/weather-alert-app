@@ -3,46 +3,11 @@ import * as Location from 'expo-location';
 import { useTranslation } from 'react-i18next';
 import { fetchWeather, WeatherData } from '../services/weatherApi';
 import { useWeatherStore } from '../store/weatherStore';
-import { scheduleWeatherAlert } from '../services/notifications';
-import { trackEvent } from '../services/analytics';
-import { AlertType, loadActiveAlerts } from '../services/alertsStorage';
+import { loadActiveAlerts } from '../services/alertsStorage';
+import { evaluateAlert, notifyTriggeredAlerts } from '../services/alertEngine';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import i18n from '../i18n';
-
 const CACHE_DURATION = 30 * 60 * 1000;
-
-async function checkAlertAndNotify(type: AlertType, threshold: number, data: WeatherData) {
-  const { current } = data;
-  let triggered = false;
-  let body = '';
-
-  switch (type) {
-    case 'rain':
-      triggered = current.precipProb >= threshold;
-      body = i18n.t('alerts.notifications.rainBody', { value: current.precipProb });
-      break;
-    case 'wind':
-      triggered = current.windSpeed >= threshold;
-      body = i18n.t('alerts.notifications.windBody', { value: current.windSpeed });
-      break;
-    case 'temp_low':
-      triggered = current.temp <= threshold;
-      body = i18n.t('alerts.notifications.tempLowBody', { value: current.temp });
-      break;
-    case 'temp_high':
-      triggered = current.temp >= threshold;
-      body = i18n.t('alerts.notifications.tempHighBody', { value: current.temp });
-      break;
-  }
-
-  if (triggered) {
-    const label = i18n.t(`alerts.types.${type}.label`);
-    const title = i18n.t('alerts.notifications.title', { label });
-    await scheduleWeatherAlert(title, body);
-    trackEvent('alert_triggered', { alert_type: type, threshold });
-  }
-}
 
 async function checkAndNotify(data: WeatherData) {
   try {
@@ -51,9 +16,11 @@ async function checkAndNotify(data: WeatherData) {
     if (activeAlerts.length === 0 || !savedThresholds) return;
 
     const thresholds = JSON.parse(savedThresholds);
-    for (const type of activeAlerts) {
-      await checkAlertAndNotify(type, thresholds[type], data);
-    }
+    const triggered = activeAlerts
+      .map((type) => evaluateAlert(type, thresholds[type], data.current))
+      .filter((e) => e.triggered);
+
+    await notifyTriggeredAlerts(triggered, { respectDoNotDisturb: true });
   } catch (e) {
     console.error('Error checking alert:', e);
   }

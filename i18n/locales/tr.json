@@ -48,10 +48,25 @@
     },
     "notifications": {
       "title": "⚠️ Uyarı: {{label}}",
+      "groupedTitle": "⚠️ {{count}} uyarı tetiklendi",
       "rainBody": "Yağmur olasılığı: %{{value}}",
       "windBody": "Güncel rüzgâr: {{value}} km/h",
       "tempLowBody": "Güncel sıcaklık: {{value}}°C",
       "tempHighBody": "Güncel sıcaklık: {{value}}°C"
+    },
+    "doNotDisturb": {
+      "sectionTitle": "Rahatsız Etme",
+      "description": "Bu saatler arasında bildirim gönderilmesin",
+      "from": "Başlangıç",
+      "to": "Bitiş"
+    },
+    "history": {
+      "viewButton": "Geçmişi görüntüle",
+      "title": "Uyarı geçmişi",
+      "empty": "Henüz hiçbir uyarı tetiklenmedi",
+      "thresholdLabel": "Eşik",
+      "silencedTag": "🔕 Rahatsız Etme",
+      "limitedNotice": "Son {{count}} gösteriliyor. Tüm geçmişi görmek için Premium'a geçin."
     }
   },
   "savedLocations": {
