@@ -290,13 +290,18 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - **Nota sobre el aviso de R8 en Play Console**: se investigó por qué seguía apareciendo pese a haberlo activado — resultó que el build 12 (el que llegó a producción) nunca tuvo R8, ya que el commit de activación se hizo 3.5h después de generarlo; el primer build con R8 real fue el 15. Play Console evalúa la release pública en Producción, no los builds de Internal Testing, así que el aviso es correcto hasta que se promocione un build con R8 a producción
 - **Siguiente paso**: promocionar el build 18 (Fase 4 + fixes + R8 real) a Producción — resuelve el roadmap de Fase 4 y el aviso de R8 a la vez
 
-### Fase 5 — Alertas mejoradas
-- Alerta de lluvia inminente (15 min antes)
-- Alertas por franja horaria (ej. "solo entre 7h y 22h")
-- Agrupación de notificaciones cuando hay varias alertas activas
-- Historial de alertas disparadas
-- Agrupadas porque tocan el mismo módulo (`notifications.ts` + pantalla Alerts)
-- Nota técnica (detectada en Fase 1): hoy todas las notificaciones usan `trigger: null` (disparo inmediato); las alertas programadas/por franja horaria requerirán trabajar con triggers reales de `expo-notifications`
+### Fase 5 — Alertas mejoradas 🔶 EN PROGRESO (iniciada 2026-07-30)
+- Alcance original: alerta de lluvia inminente (15 min antes), alertas por franja horaria, agrupación de notificaciones, historial de alertas disparadas
+- **Auditoría previa (2026-07-30)**: antes de implementar, se auditó el estado real del proyecto. Hallazgos clave:
+  - `checkAndNotify` es 100% foreground — no existe ningún mecanismo de background fetch (`expo-background-fetch`/`expo-task-manager`), nada se comprueba con la app cerrada
+  - `weatherApi.ts` pide `include=current,hours,days` a Visual Crossing, sin `minutely` — la granularidad de minuto existe en la API pero no se está usando, y no está confirmado si el plan free la cubre sin coste adicional en registros
+- **Decisión de alcance**: dado que "lluvia inminente" requeriría background fetch (módulo nativo nuevo, build de EAS, comportamiento no garantizado por Doze/App Standby de Android) *y* resolver el coste/disponibilidad de `minutely` en Visual Crossing — dos inversiones grandes e inciertas — se decide **posponerla** y construir primero las 3 sub-features que no dependen de ninguna capacidad nueva
+- **✅ Completado (2026-07-30)**: agrupación de notificaciones, historial de alertas disparadas (gate premium: 5 entradas para free, 100 para premium), y franja horaria global "no molestar"
+  - `services/alertEngine.ts` (nuevo): motor compartido que unifica la lógica que antes estaba duplicada entre `useWeather.ts` y `alerts.tsx` — evita que ambos caminos diverjan en el futuro
+  - `checkAndNotify` usa el motor con `respectDoNotDisturb: true`; el switch instantáneo en `alerts.tsx` lo usa con `respectDoNotDisturb: false` (feedback directo a una acción del usuario no debe silenciarse, a diferencia de una comprobación proactiva)
+  - `AlertHistorySheet.tsx` (nuevo, mismo patrón que `SavedLocationsSheet`/`Paywall`, incluyendo el fix ya conocido de cerrar el sheet antes de abrir el paywall)
+  - Verificado en dispositivo: franja horaria cruzando medianoche, agrupación de varias alertas en una notificación, límite free/premium del historial, y feedback instantáneo ignorando "no molestar" correctamente
+- **Pendiente / pospuesto**: lluvia inminente (15 min antes) — retomar solo si se decide invertir en background fetch (previsiblemente junto con el development build que ya hace falta para probar notificaciones push completas) y se confirma el coste real de `minutely` en Visual Crossing
 
 ### Fase 6 — Datos premium adicionales
 - Calidad del aire (AQI)
