@@ -10,27 +10,16 @@ import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
 import { useIsPremium } from '../../hooks/useIsPremium';
 import { useWeatherStore } from '../../store/weatherStore';
-import { scheduleWeatherAlert } from '../../services/notifications';
 import { trackEvent } from '../../services/analytics';
-import { AlertType, loadActiveAlerts, saveActiveAlerts } from '../../services/alertsStorage';
+import {
+  AlertType, loadActiveAlerts, saveActiveAlerts,
+  DoNotDisturbConfig, DEFAULT_DO_NOT_DISTURB, loadDoNotDisturb, saveDoNotDisturb,
+} from '../../services/alertsStorage';
+import { AlertHistoryEntry, loadAlertHistory } from '../../services/alertHistoryStorage';
+import { evaluateAlert, notifyTriggeredAlerts } from '../../services/alertEngine';
+import { ALERT_TYPES } from '../../constants/alertTypes';
 import Paywall from '../../components/Paywall';
-
-interface Alert {
-  id: AlertType;
-  emoji: string;
-  unit: string;
-  defaultThreshold: number;
-  min: number;
-  max: number;
-  step: number;
-}
-
-const ALERT_TYPES: Alert[] = [
-  { id: 'rain', emoji: '🌧️', unit: '%', defaultThreshold: 70, min: 10, max: 100, step: 10 },
-  { id: 'wind', emoji: '💨', unit: 'km/h', defaultThreshold: 40, min: 10, max: 120, step: 10 },
-  { id: 'temp_low', emoji: '🥶', unit: '°C', defaultThreshold: 5, min: -10, max: 20, step: 1 },
-  { id: 'temp_high', emoji: '🥵', unit: '°C', defaultThreshold: 35, min: 25, max: 50, step: 1 },
-];
+import AlertHistorySheet from '../../components/AlertHistorySheet';
 
 function alertLabel(id: AlertType, t: TFunction): string {
   return t(`alerts.types.${id}.label`);
@@ -47,16 +36,21 @@ export default function AlertsScreen() {
   const isPremium = useIsPremium();
   const [activeAlerts, setActiveAlerts] = useState<AlertType[]>([]);
   const [thresholds, setThresholds] = useState<Record<AlertType, number>>({ rain: 70, wind: 40, temp_low: 5, temp_high: 35 });
+  const [dnd, setDnd] = useState<DoNotDisturbConfig>(DEFAULT_DO_NOT_DISTURB);
   const [loaded, setLoaded] = useState(false);
   const [paywallVisible, setPaywallVisible] = useState(false);
+  const [historyVisible, setHistoryVisible] = useState(false);
+  const [history, setHistory] = useState<AlertHistoryEntry[]>([]);
 
   useEffect(() => {
     async function load() {
       try {
         const savedAlerts = await loadActiveAlerts();
         const savedThresholds = await AsyncStorage.getItem('thresholds');
+        const savedDnd = await loadDoNotDisturb();
         setActiveAlerts(savedAlerts);
         if (savedThresholds) setThresholds(JSON.parse(savedThresholds));
+        setDnd(savedDnd);
       } catch (e) {
         console.error('Error loading alerts:', e);
       } finally {
@@ -72,12 +66,27 @@ export default function AlertsScreen() {
       try {
         await saveActiveAlerts(activeAlerts);
         await AsyncStorage.setItem('thresholds', JSON.stringify(thresholds));
+        await saveDoNotDisturb(dnd);
       } catch (e) {
         console.error('Error saving alerts:', e);
       }
     }
     save();
-  }, [activeAlerts, thresholds, loaded]);
+  }, [activeAlerts, thresholds, dnd, loaded]);
+
+  const openHistory = () => {
+    loadAlertHistory().then(setHistory);
+    setHistoryVisible(true);
+  };
+
+  const openPaywallFromHistory = () => {
+    setHistoryVisible(false);
+    setPaywallVisible(true);
+  };
+
+  const adjustDndHour = (edge: 'startHour' | 'endHour', delta: number) => {
+    setDnd((prev) => ({ ...prev, [edge]: (prev[edge] + delta + 24) % 24 }));
+  };
 
   // Free tier: solo 1 alerta activa a la vez. Con Premium no hay límite.
   const isFreeTierFull = (type: AlertType) =>
@@ -108,33 +117,16 @@ export default function AlertsScreen() {
 
   const checkAlert = (type: AlertType): boolean => {
     if (!weatherData || !activeAlerts.includes(type)) return false;
-    const { current } = weatherData;
-    const threshold = thresholds[type];
-    switch (type) {
-      case 'rain': return current.precipProb >= threshold;
-      case 'wind': return current.windSpeed >= threshold;
-      case 'temp_low': return current.temp <= threshold;
-      case 'temp_high': return current.temp >= threshold;
-    }
+    return evaluateAlert(type, thresholds[type], weatherData.current).triggered;
   };
 
   const triggerNotificationIfNeeded = async (type: AlertType) => {
     if (!weatherData) return;
-    const { current } = weatherData;
-    const threshold = thresholds[type];
-    let triggered = false;
-    let body = '';
-    switch (type) {
-      case 'rain': triggered = current.precipProb >= threshold; body = t('alerts.notifications.rainBody', { value: current.precipProb }); break;
-      case 'wind': triggered = current.windSpeed >= threshold; body = t('alerts.notifications.windBody', { value: current.windSpeed }); break;
-      case 'temp_low': triggered = current.temp <= threshold; body = t('alerts.notifications.tempLowBody', { value: current.temp }); break;
-      case 'temp_high': triggered = current.temp >= threshold; body = t('alerts.notifications.tempHighBody', { value: current.temp }); break;
-    }
-    if (triggered) {
-      const title = t('alerts.notifications.title', { label: alertLabel(type, t) });
-      await scheduleWeatherAlert(title, body);
-      trackEvent('alert_triggered', { alert_type: type, threshold });
-    }
+    const evaluation = evaluateAlert(type, thresholds[type], weatherData.current);
+    if (!evaluation.triggered) return;
+    // Feedback instantáneo de una acción directa del usuario: ignora la franja "no molestar"
+    // a propósito (a diferencia del chequeo periódico en hooks/useWeather.ts).
+    await notifyTriggeredAlerts([evaluation], { respectDoNotDisturb: false });
   };
 
   const s = makeStyles(theme);
@@ -195,6 +187,55 @@ export default function AlertsScreen() {
           );
         })}
 
+        <View style={s.dndCard}>
+          <View style={s.dndHeader}>
+            <View style={s.dndInfo}>
+              <Text style={s.dndTitle}>{t('alerts.doNotDisturb.sectionTitle')}</Text>
+              <Text style={s.dndDescription}>{t('alerts.doNotDisturb.description')}</Text>
+            </View>
+            <Switch
+              value={dnd.enabled}
+              onValueChange={(enabled) => setDnd((prev) => ({ ...prev, enabled }))}
+              trackColor={{ false: theme.border, true: theme.accent }}
+              thumbColor={theme.card}
+            />
+          </View>
+
+          {dnd.enabled && (
+            <View style={s.dndTimeRow}>
+              <View style={s.dndTimeCol}>
+                <Text style={s.dndTimeLabel}>{t('alerts.doNotDisturb.from')}</Text>
+                <View style={s.dndStepper}>
+                  <TouchableOpacity style={s.thresholdBtn} onPress={() => adjustDndHour('startHour', -1)}>
+                    <Text style={s.thresholdBtnText}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={s.dndTimeValue}>{String(dnd.startHour).padStart(2, '0')}:00</Text>
+                  <TouchableOpacity style={s.thresholdBtn} onPress={() => adjustDndHour('startHour', 1)}>
+                    <Text style={s.thresholdBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={s.dndTimeCol}>
+                <Text style={s.dndTimeLabel}>{t('alerts.doNotDisturb.to')}</Text>
+                <View style={s.dndStepper}>
+                  <TouchableOpacity style={s.thresholdBtn} onPress={() => adjustDndHour('endHour', -1)}>
+                    <Text style={s.thresholdBtnText}>−</Text>
+                  </TouchableOpacity>
+                  <Text style={s.dndTimeValue}>{String(dnd.endHour).padStart(2, '0')}:00</Text>
+                  <TouchableOpacity style={s.thresholdBtn} onPress={() => adjustDndHour('endHour', 1)}>
+                    <Text style={s.thresholdBtnText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          )}
+        </View>
+
+        <TouchableOpacity style={s.historyBtn} onPress={openHistory}>
+          <Text style={s.historyBtnIcon}>🕘</Text>
+          <Text style={s.historyBtnText}>{t('alerts.history.viewButton')}</Text>
+        </TouchableOpacity>
+
         {!isPremium && (
           <View style={s.premiumBanner}>
             <Text style={s.premiumEmoji}>💎</Text>
@@ -209,6 +250,13 @@ export default function AlertsScreen() {
         )}
       </ScrollView>
 
+      <AlertHistorySheet
+        visible={historyVisible}
+        onClose={() => setHistoryVisible(false)}
+        history={history}
+        isPremium={isPremium}
+        onUpgradePress={openPaywallFromHistory}
+      />
       <Paywall visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
     </SafeAreaView>
   );
@@ -244,5 +292,18 @@ function makeStyles(theme: Theme) {
     premiumDescription: { fontSize: Typography.xs, color: theme.textSecondary },
     premiumBtn: { backgroundColor: theme.storm, borderRadius: Radius.md, paddingHorizontal: Spacing.sm, paddingVertical: Spacing.xs },
     premiumBtnText: { fontSize: Typography.sm, fontWeight: Typography.bold, color: theme.textLight },
+    dndCard: { backgroundColor: theme.card, borderRadius: Radius.lg, padding: Spacing.md, gap: Spacing.sm },
+    dndHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+    dndInfo: { flex: 1, gap: 2 },
+    dndTitle: { fontSize: Typography.md, fontWeight: Typography.semibold, color: theme.textPrimary },
+    dndDescription: { fontSize: Typography.sm, color: theme.textSecondary },
+    dndTimeRow: { flexDirection: 'row', justifyContent: 'space-around', paddingTop: Spacing.sm, borderTopWidth: 1, borderTopColor: theme.border },
+    dndTimeCol: { alignItems: 'center', gap: Spacing.xs },
+    dndTimeLabel: { fontSize: Typography.xs, color: theme.textSecondary, fontWeight: Typography.medium },
+    dndStepper: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+    dndTimeValue: { fontSize: Typography.lg, fontWeight: Typography.bold, color: theme.textPrimary, minWidth: 60, textAlign: 'center' },
+    historyBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.xs, backgroundColor: theme.card, borderRadius: Radius.lg, padding: Spacing.md },
+    historyBtnIcon: { fontSize: Typography.md },
+    historyBtnText: { fontSize: Typography.sm, fontWeight: Typography.semibold, color: theme.textPrimary },
   });
 }
