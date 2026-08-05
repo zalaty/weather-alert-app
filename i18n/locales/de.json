@@ -150,5 +150,28 @@
       "ice": "Glatteis",
       "tornado": "Tornado"
     }
+  },
+  "weatherDetails": {
+    "tabs": { "temp": "Wetter", "wind": "Wind", "air": "Luft" },
+    "airQuality": {
+      "categories": {
+        "good": "Gut",
+        "moderate": "Mäßig",
+        "unhealthySensitive": "Ungesund für empfindliche Gruppen",
+        "unhealthy": "Ungesund",
+        "veryUnhealthy": "Sehr ungesund",
+        "hazardous": "Gefährlich"
+      },
+      "pollutants": {
+        "pm25": "PM2.5",
+        "pm10": "PM10",
+        "o3": "Ozon (O₃)",
+        "no2": "Stickstoffdioxid (NO₂)"
+      },
+      "euAqi": "Europäischer AQI: {{value}}",
+      "noData": "Keine Luftqualitätsdaten für diesen Ort verfügbar",
+      "cardTitle": "Luftqualität",
+      "premiumHint": "Zum Freischalten tippen"
+    }
   }
 }

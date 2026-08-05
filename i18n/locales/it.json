@@ -150,5 +150,28 @@
       "ice": "Ghiaccio",
       "tornado": "Tornado"
     }
+  },
+  "weatherDetails": {
+    "tabs": { "temp": "Meteo", "wind": "Vento", "air": "Aria" },
+    "airQuality": {
+      "categories": {
+        "good": "Buona",
+        "moderate": "Moderata",
+        "unhealthySensitive": "Dannosa per i gruppi sensibili",
+        "unhealthy": "Dannosa",
+        "veryUnhealthy": "Molto dannosa",
+        "hazardous": "Pericolosa"
+      },
+      "pollutants": {
+        "pm25": "PM2.5",
+        "pm10": "PM10",
+        "o3": "Ozono (O₃)",
+        "no2": "Diossido di azoto (NO₂)"
+      },
+      "euAqi": "AQI europeo: {{value}}",
+      "noData": "Nessun dato sulla qualità dell'aria per questa posizione",
+      "cardTitle": "Qualità dell'aria",
+      "premiumHint": "Tocca per sbloccare"
+    }
   }
 }

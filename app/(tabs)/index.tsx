@@ -27,29 +27,11 @@ import {
 import { trackEvent } from '../../services/analytics';
 import SavedLocationsSheet from '../../components/SavedLocationsSheet';
 import Paywall from '../../components/Paywall';
-
-function getWeatherEmoji(icon: string): string {
-  const map: Record<string, string> = {
-    'clear-day': '☀️',
-    'clear-night': '🌙',
-    'partly-cloudy-day': '⛅',
-    'partly-cloudy-night': '🌙',
-    cloudy: '☁️',
-    rain: '🌧️',
-    'showers-day': '🌦️',
-    'showers-night': '🌧️',
-    thunder: '⛈️',
-    'thunder-showers-day': '⛈️',
-    'thunder-showers-night': '⛈️',
-    snow: '❄️',
-    'snow-showers-day': '🌨️',
-    'snow-showers-night': '🌨️',
-    fog: '🌫️',
-    wind: '💨',
-    hail: '🌨️',
-  };
-  return map[icon] ?? '🌤️';
-}
+import HourDetailSheet from '../../components/HourDetailSheet';
+import AirQualityCard from '../../components/weather/AirQualityCard';
+import { getWeatherEmoji } from '../../utils/weatherIcons';
+import { getWindDirection } from '../../utils/wind';
+import { HourlyWeather } from '../../services/weatherApi';
 
 export default function HomeScreen() {
   const {
@@ -74,6 +56,8 @@ export default function HomeScreen() {
   const [savedLocationsLoaded, setSavedLocationsLoaded] = useState(false);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [paywallVisible, setPaywallVisible] = useState(false);
+  const [selectedHour, setSelectedHour] = useState<HourlyWeather | null>(null);
+  const [hourSheetVisible, setHourSheetVisible] = useState(false);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -143,6 +127,16 @@ export default function HomeScreen() {
     trackEvent('location_removed');
   }, []);
 
+  const handleRequestAirQualityPaywall = useCallback(() => {
+    trackEvent('air_quality_gate_reached');
+    setPaywallVisible(true);
+  }, []);
+
+  const handleSelectHour = useCallback((hour: HourlyWeather) => {
+    setSelectedHour(hour);
+    setHourSheetVisible(true);
+  }, []);
+
   const s = makeStyles(theme);
 
   if (isLoading && !weatherData) {
@@ -166,6 +160,7 @@ export default function HomeScreen() {
   if (!weatherData) return null;
 
   const { current, hourly, location } = weatherData;
+  const windDirs = t('weather.windDirections', { returnObjects: true }) as string[];
 
   return (
     <SafeAreaView style={s.container}>
@@ -238,17 +233,24 @@ export default function HomeScreen() {
           <View style={s.statsRow}>
             {[
               { emoji: '💧', value: `${current.humidity}%`, label: t('home.stats.humidity') },
-              { emoji: '💨', value: `${current.windSpeed} ${windLabel}`, label: t('home.stats.wind') },
+              { emoji: '💨', value: `${current.windSpeed} ${windLabel}`, sub: getWindDirection(current.windDir, windDirs), label: t('home.stats.wind') },
               { emoji: '🌂', value: `${current.precipProb}%`, label: t('home.stats.rain') },
               { emoji: '🔆', value: `${current.uvIndex}`, label: t('home.stats.uv') },
             ].map((stat) => (
               <View key={stat.label} style={s.statCard}>
                 <Text style={s.statEmoji}>{stat.emoji}</Text>
                 <Text style={s.statValue}>{stat.value}</Text>
+                {stat.sub && <Text style={s.statSub}>{stat.sub}</Text>}
                 <Text style={s.statLabel}>{stat.label}</Text>
               </View>
             ))}
           </View>
+
+          <AirQualityCard
+            airQuality={current.airQuality}
+            isPremium={isPremium}
+            onRequestPaywall={handleRequestAirQualityPaywall}
+          />
 
           <View style={s.section}>
             <Text style={s.sectionTitle}>{t('home.upcomingHours')}</Text>
@@ -259,12 +261,12 @@ export default function HomeScreen() {
                   hourly.findIndex(h => parseInt(h.time.substring(0, 2)) >= new Date().getHours()) + 12
                 )
                 .map((hour) => (
-                  <View key={hour.time} style={s.hourCard}>
+                  <TouchableOpacity key={hour.time} style={s.hourCard} onPress={() => handleSelectHour(hour)}>
                     <Text style={s.hourTime}>{hour.time.substring(0, 5)}</Text>
                     <Text style={s.hourEmoji}>{getWeatherEmoji(hour.icon)}</Text>
                     <Text style={s.hourTemp}>{hour.temp}{unitLabel}</Text>
                     {hour.precipProb > 20 && <Text style={s.hourPrecip}>{hour.precipProb}%</Text>}
-                  </View>
+                  </TouchableOpacity>
                 ))}
             </ScrollView>
           </View>
@@ -295,6 +297,13 @@ export default function HomeScreen() {
         onRemove={handleRemoveSavedLocation}
       />
       <Paywall visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+      <HourDetailSheet
+        visible={hourSheetVisible}
+        onClose={() => setHourSheetVisible(false)}
+        hour={selectedHour}
+        unitLabel={unitLabel}
+        windLabel={windLabel}
+      />
     </SafeAreaView>
   );
 }
@@ -332,6 +341,7 @@ function makeStyles(theme: ReturnType<typeof import('../../hooks/useTheme').useT
     statCard: { flex: 1, backgroundColor: theme.card, borderRadius: Radius.md, padding: Spacing.sm, alignItems: 'center', gap: 2 },
     statEmoji: { fontSize: Typography.lg },
     statValue: { fontSize: Typography.sm, fontWeight: Typography.bold, color: theme.textPrimary },
+    statSub: { fontSize: Typography.xs, fontWeight: Typography.medium, color: theme.wind },
     statLabel: { fontSize: Typography.xs, color: theme.textSecondary },
     section: { gap: Spacing.sm },
     sectionTitle: { fontSize: Typography.md, fontWeight: Typography.semibold, color: theme.textPrimary },

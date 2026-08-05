@@ -150,5 +150,28 @@
       "ice": "Ice",
       "tornado": "Tornado"
     }
+  },
+  "weatherDetails": {
+    "tabs": { "temp": "Weather", "wind": "Wind", "air": "Air" },
+    "airQuality": {
+      "categories": {
+        "good": "Good",
+        "moderate": "Moderate",
+        "unhealthySensitive": "Unhealthy for sensitive groups",
+        "unhealthy": "Unhealthy",
+        "veryUnhealthy": "Very unhealthy",
+        "hazardous": "Hazardous"
+      },
+      "pollutants": {
+        "pm25": "PM2.5",
+        "pm10": "PM10",
+        "o3": "Ozone (O₃)",
+        "no2": "Nitrogen dioxide (NO₂)"
+      },
+      "euAqi": "European AQI: {{value}}",
+      "noData": "No air quality data available for this location",
+      "cardTitle": "Air quality",
+      "premiumHint": "Tap to unlock"
+    }
   }
 }

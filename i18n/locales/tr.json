@@ -150,5 +150,28 @@
       "ice": "Buzlanma",
       "tornado": "Hortum"
     }
+  },
+  "weatherDetails": {
+    "tabs": { "temp": "Hava Durumu", "wind": "Rüzgâr", "air": "Hava Kalitesi" },
+    "airQuality": {
+      "categories": {
+        "good": "İyi",
+        "moderate": "Orta",
+        "unhealthySensitive": "Hassas gruplar için sağlıksız",
+        "unhealthy": "Sağlıksız",
+        "veryUnhealthy": "Çok sağlıksız",
+        "hazardous": "Tehlikeli"
+      },
+      "pollutants": {
+        "pm25": "PM2.5",
+        "pm10": "PM10",
+        "o3": "Ozon (O₃)",
+        "no2": "Azot dioksit (NO₂)"
+      },
+      "euAqi": "Avrupa AQI: {{value}}",
+      "noData": "Bu konum için hava kalitesi verisi yok",
+      "cardTitle": "Hava kalitesi",
+      "premiumHint": "Kilidi açmak için dokun"
+    }
   }
 }
