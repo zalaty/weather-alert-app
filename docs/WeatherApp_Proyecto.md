@@ -303,10 +303,22 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
   - Verificado en dispositivo: franja horaria cruzando medianoche, agrupación de varias alertas en una notificación, límite free/premium del historial, y feedback instantáneo ignorando "no molestar" correctamente
 - **Pendiente / pospuesto**: lluvia inminente (15 min antes) — retomar solo si se decide invertir en background fetch (previsiblemente junto con el development build que ya hace falta para probar notificaciones push completas) y se confirma el coste real de `minutely` en Visual Crossing
 
-### Fase 6 — Datos premium adicionales
+### Fase 6 — Datos premium adicionales 🔶 EN PROGRESO (iniciada 2026-08-04)
 - Calidad del aire (AQI)
 - Mapa de radar de lluvia (valorar RainViewer u otra API si Visual Crossing no lo cubre)
 - Bloque técnico separado por requerir APIs adicionales
+- **Verificación técnica previa (2026-08-04)**: confirmado que Visual Crossing ya incluye AQI (US e Europa) + desglose de contaminantes (PM2.5, PM10, O3, NO2...) vía el parámetro `elements=`, sin API ni key nueva, y **sin coste extra** en `queryCost` (verificado con llamada real, sigue en 1). Para el radar: RainViewer es gratuita sin key para uso pequeño/personal (sin SLA, no pensada para alto volumen comercial — revisar si compensa cambiar a una alternativa de pago si la app crece mucho), pero requiere una librería de mapas nativa (`react-native-maps` o similar) — módulo nativo nuevo, no probable en Expo Go, necesita build de EAS. Se decide separar: AQI primero (bajo riesgo, reutiliza stack actual), radar como pieza aparte posterior
+- **✅ AQI completado (2026-08-04)**: `weatherApi.ts` ahora expone `airQuality` en `current`, cada `hours[]` y cada `days[]` (inicialmente solo se parseaba en `current`, corregido). `utils/airQuality.ts` con las 6 categorías EPA + mapeo a 3 colores de severidad
+- **Iteración de diseño real — no todo salió bien a la primera**:
+  - Primer intento: selector de pestañas (Tiempo/Viento/Aire) reemplazando la tarjeta principal de Home — **rechazado tras probarlo**: la tarjeta principal no tenía problema real de saturación, y el cambio no aportaba
+  - Ajuste: Home revertida a su forma original (tarjeta principal + `statsRow` de 4 datos sin cambios), con `AirQualityCard` añadida como tarjeta **independiente** debajo (candado 🔒 + "Toca para desbloquear" si no premium, abre `Paywall` existente al tocar)
+  - Las tarjetas de "Próximas horas" en Home pasan a ser tocables → abren `HourDetailSheet` (modal, mismo patrón que `SavedLocationsSheet`) con viento, sensación, humedad, lluvia y UV de esa hora concreta
+  - **El problema real de saturación de información estaba en Forecast**, no en Home (cada fila mezclaba hora, sol/luna, viento, sensación, humedad, temperatura). Ahí sí se aplicó el patrón de selector: `MetricSelector` (extraído del componente de pestañas original) arriba de las listas, controla qué segunda línea muestra cada fila (Tiempo/Viento/Aire) tanto en horas como en días. Aire gateado premium igual que en Home. Cada fila de horas es tocable y se expande en acordeón con el detalle completo (los días ya tenían acordeón previo, sin cambios ahí)
+  - AQI en días fuera del horizonte de pronóstico de 5 días se muestra como "—" en vez de romper el layout
+  - Deduplicación oportunista durante la implementación: `getWindDirection`, `getWeatherEmoji` y `translateCondition` estaban duplicados entre `index.tsx`/`forecast.tsx`; extraídos a `utils/` compartidos al aparecer un tercer consumidor (`HourDetailSheet`)
+  - Fix menor de seguimiento: la tarjeta de Viento del `statsRow` en Home no mostraba dirección (solo velocidad) — confirmado por `git diff` que era limitación preexistente, no regresión de esta sesión. Añadida como segunda línea compacta (`NE`, `SO`...) bajo el valor
+  - Verificado en dispositivo: layout de tarjetas, `HourDetailSheet` sin chocar con otros modales, `AirQualityCard` con y sin premium, `MetricSelector` en Forecast, acordeón de horas con varias filas abiertas, caso "—" de AQI fuera de rango
+- **Pendiente**: radar de lluvia (RainViewer + librería de mapas nativa) — queda como siguiente pieza de esta fase, requiere su propio ciclo de build de EAS para probar
 
 ### Fase 7 — Widget de pantalla de inicio
 - Se deja para más adelante por ser más laborioso en nativo Android/iOS
