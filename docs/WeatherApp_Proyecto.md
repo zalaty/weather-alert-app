@@ -319,6 +319,12 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
   - Fix menor de seguimiento: la tarjeta de Viento del `statsRow` en Home no mostraba dirección (solo velocidad) — confirmado por `git diff` que era limitación preexistente, no regresión de esta sesión. Añadida como segunda línea compacta (`NE`, `SO`...) bajo el valor
   - Verificado en dispositivo: layout de tarjetas, `HourDetailSheet` sin chocar con otros modales, `AirQualityCard` con y sin premium, `MetricSelector` en Forecast, acordeón de horas con varias filas abiertas, caso "—" de AQI fuera de rango
 - **Pendiente**: radar de lluvia (RainViewer + librería de mapas nativa) — queda como siguiente pieza de esta fase, requiere su propio ciclo de build de EAS para probar
+- **✅ Radar de lluvia completado (2026-08-09)**: se descartó `react-native-maps` para evitar la necesidad de una cuenta de facturación de Google Cloud (requisito obligatorio de Google Maps Platform incluso dentro del nivel gratuito). En su lugar: `react-native-webview` (sí compatible con Expo Go, a diferencia de `react-native-purchases`) cargando un HTML autocontenido con **Leaflet.js** (CDN) + mapa base **OpenStreetMap** (gratuito, sin key) + teselas de **RainViewer** (gratuito, sin key, sin SLA — mismo caveat de volumen que AQI... revisar si crece mucho el uso)
+  - `services/radarHtml.ts`: HTML generado como string, `L.circleMarker` en vez de icono de imagen (evita el problema clásico de rutas de iconos de Leaflet en WebView sin bundler), zoom inicial y `maxNativeZoom` en 7 (límite real de las teselas de RainViewer), 8 fotogramas (~70 min) con animación por `setInterval` y botón ▶/⏸, atribución de OSM (obligatoria) y RainViewer visibles
+  - `app/radar.tsx`: primera ruta del proyecto fuera de `(tabs)/`, recibe `lat`/`lon` por params de `expo-router` en vez de acoplarse a `useWeather()`
+  - `RainRadarCard.tsx` en Home, mismo patrón premium que `AirQualityCard` (🔒 + `Paywall`)
+  - Verificado en dispositivo (Expo Go, sin necesitar build de EAS): mapa base, teselas de radar, marcador, animación, atribución, navegación de vuelta — todo correcto
+  - **✅ FASE 6 COMPLETA (2026-08-09)**: AQI + radar de lluvia, ambas piezas premium construidas, verificadas y listas para producción
 
 ### Fase 7 — Widget de pantalla de inicio
 - Se deja para más adelante por ser más laborioso en nativo Android/iOS
