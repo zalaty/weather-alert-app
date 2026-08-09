@@ -172,6 +172,14 @@
       "noData": "Brak danych o jakości powietrza dla tej lokalizacji",
       "cardTitle": "Jakość powietrza",
       "premiumHint": "Dotknij, aby odblokować"
+    },
+    "radar": {
+      "cardTitle": "Radar opadów",
+      "subtitle": "Dotknij, aby zobaczyć",
+      "premiumHint": "Dotknij, aby odblokować",
+      "screenTitle": "Radar opadów",
+      "loading": "Ładowanie radaru…",
+      "loadError": "Nie udało się załadować radaru"
     }
   }
 }

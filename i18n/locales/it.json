@@ -172,6 +172,14 @@
       "noData": "Nessun dato sulla qualità dell'aria per questa posizione",
       "cardTitle": "Qualità dell'aria",
       "premiumHint": "Tocca per sbloccare"
+    },
+    "radar": {
+      "cardTitle": "Radar meteo",
+      "subtitle": "Tocca per vedere",
+      "premiumHint": "Tocca per sbloccare",
+      "screenTitle": "Radar meteo",
+      "loading": "Caricamento radar…",
+      "loadError": "Impossibile caricare il radar"
     }
   }
 }

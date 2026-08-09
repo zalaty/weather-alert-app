@@ -172,6 +172,14 @@
       "noData": "Sin datos de calidad del aire para esta ubicación",
       "cardTitle": "Calidad del aire",
       "premiumHint": "Toca para desbloquear"
+    },
+    "radar": {
+      "cardTitle": "Radar de lluvia",
+      "subtitle": "Toca para ver",
+      "premiumHint": "Toca para desbloquear",
+      "screenTitle": "Radar de lluvia",
+      "loading": "Cargando radar…",
+      "loadError": "No se pudo cargar el radar"
     }
   }
 }

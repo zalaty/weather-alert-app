@@ -172,6 +172,14 @@
       "noData": "Keine Luftqualitätsdaten für diesen Ort verfügbar",
       "cardTitle": "Luftqualität",
       "premiumHint": "Zum Freischalten tippen"
+    },
+    "radar": {
+      "cardTitle": "Regenradar",
+      "subtitle": "Zum Anzeigen tippen",
+      "premiumHint": "Zum Freischalten tippen",
+      "screenTitle": "Regenradar",
+      "loading": "Radar wird geladen…",
+      "loadError": "Radar konnte nicht geladen werden"
     }
   }
 }

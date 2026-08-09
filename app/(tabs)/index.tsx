@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 import { useWeather } from '../../hooks/useWeather';
 import { useTheme } from '../../hooks/useTheme';
 import { useIsPremium } from '../../hooks/useIsPremium';
@@ -29,6 +30,7 @@ import SavedLocationsSheet from '../../components/SavedLocationsSheet';
 import Paywall from '../../components/Paywall';
 import HourDetailSheet from '../../components/HourDetailSheet';
 import AirQualityCard from '../../components/weather/AirQualityCard';
+import RainRadarCard from '../../components/weather/RainRadarCard';
 import { getWeatherEmoji } from '../../utils/weatherIcons';
 import { getWindDirection } from '../../utils/wind';
 import { HourlyWeather } from '../../services/weatherApi';
@@ -136,6 +138,19 @@ export default function HomeScreen() {
     setSelectedHour(hour);
     setHourSheetVisible(true);
   }, []);
+
+  const handlePressRadar = useCallback(() => {
+    if (!isPremium) {
+      trackEvent('radar_gate_reached');
+      setPaywallVisible(true);
+      return;
+    }
+    if (!currentCoords) return;
+    router.push({
+      pathname: '/radar',
+      params: { lat: String(currentCoords.latitude), lon: String(currentCoords.longitude) },
+    });
+  }, [isPremium, currentCoords]);
 
   const s = makeStyles(theme);
 
@@ -251,6 +266,8 @@ export default function HomeScreen() {
             isPremium={isPremium}
             onRequestPaywall={handleRequestAirQualityPaywall}
           />
+
+          <RainRadarCard isPremium={isPremium} onPress={handlePressRadar} />
 
           <View style={s.section}>
             <Text style={s.sectionTitle}>{t('home.upcomingHours')}</Text>

@@ -172,6 +172,14 @@
       "noData": "No air quality data available for this location",
       "cardTitle": "Air quality",
       "premiumHint": "Tap to unlock"
+    },
+    "radar": {
+      "cardTitle": "Rain radar",
+      "subtitle": "Tap to view",
+      "premiumHint": "Tap to unlock",
+      "screenTitle": "Rain radar",
+      "loading": "Loading radar…",
+      "loadError": "Couldn't load the radar"
     }
   }
 }

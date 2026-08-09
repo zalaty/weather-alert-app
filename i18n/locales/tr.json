@@ -172,6 +172,14 @@
       "noData": "Bu konum için hava kalitesi verisi yok",
       "cardTitle": "Hava kalitesi",
       "premiumHint": "Kilidi açmak için dokun"
+    },
+    "radar": {
+      "cardTitle": "Yağmur radarı",
+      "subtitle": "Görüntülemek için dokun",
+      "premiumHint": "Kilidi açmak için dokun",
+      "screenTitle": "Yağmur radarı",
+      "loading": "Radar yükleniyor…",
+      "loadError": "Radar yüklenemedi"
     }
   }
 }
