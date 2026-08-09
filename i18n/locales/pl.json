@@ -150,5 +150,36 @@
       "ice": "Gołoledź",
       "tornado": "Tornado"
     }
+  },
+  "weatherDetails": {
+    "tabs": { "temp": "Pogoda", "wind": "Wiatr", "air": "Powietrze" },
+    "airQuality": {
+      "categories": {
+        "good": "Dobra",
+        "moderate": "Umiarkowana",
+        "unhealthySensitive": "Szkodliwa dla grup wrażliwych",
+        "unhealthy": "Szkodliwa",
+        "veryUnhealthy": "Bardzo szkodliwa",
+        "hazardous": "Niebezpieczna"
+      },
+      "pollutants": {
+        "pm25": "PM2.5",
+        "pm10": "PM10",
+        "o3": "Ozon (O₃)",
+        "no2": "Dwutlenek azotu (NO₂)"
+      },
+      "euAqi": "Europejski AQI: {{value}}",
+      "noData": "Brak danych o jakości powietrza dla tej lokalizacji",
+      "cardTitle": "Jakość powietrza",
+      "premiumHint": "Dotknij, aby odblokować"
+    },
+    "radar": {
+      "cardTitle": "Radar opadów",
+      "subtitle": "Dotknij, aby zobaczyć",
+      "premiumHint": "Dotknij, aby odblokować",
+      "screenTitle": "Radar opadów",
+      "loading": "Ładowanie radaru…",
+      "loadError": "Nie udało się załadować radaru"
+    }
   }
 }

@@ -3,6 +3,15 @@ import i18n, { toApiLanguage } from '../i18n';
 const API_KEY = process.env.EXPO_PUBLIC_WEATHER_API_KEY ?? '';
 const BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline';
 
+export interface AirQuality {
+  aqiUs: number;
+  aqiEu: number;
+  pm2_5: number;
+  pm10: number;
+  o3: number;
+  no2: number;
+}
+
 export interface CurrentWeather {
   temp: number;
   feelsLike: number;
@@ -18,6 +27,7 @@ export interface CurrentWeather {
   description: string;
   sunrise: string;
   sunset: string;
+  airQuality?: AirQuality;
 }
 
 export interface HourlyWeather {
@@ -32,6 +42,7 @@ export interface HourlyWeather {
   windDir: number;
   conditions: string;
   icon: string;
+  airQuality?: AirQuality;
 }
 
 export interface DailyWeather {
@@ -50,6 +61,7 @@ export interface DailyWeather {
   icon: string;
   description: string;
   hours: HourlyWeather[];
+  airQuality?: AirQuality;
 }
 
 export interface WeatherData {
@@ -127,7 +139,13 @@ export async function fetchWeather(
   unitGroup: 'metric' | 'us' = 'metric'
 ): Promise<WeatherData> {
   const lang = toApiLanguage(i18n.language);
-  const url = `${BASE_URL}/${latitude},${longitude}?unitGroup=${unitGroup}&include=current,hours,days&key=${API_KEY}&contentType=json&lang=${lang}`;
+  const elements = [
+    'datetime', 'temp', 'feelslike', 'humidity', 'windspeed', 'winddir',
+    'precipprob', 'precip', 'uvindex', 'visibility', 'conditions', 'icon',
+    'sunrise', 'sunset', 'tempmax', 'tempmin', 'description',
+    'aqius', 'aqieur', 'pm2p5', 'pm10', 'o3', 'no2',
+  ].join(',');
+  const url = `${BASE_URL}/${latitude},${longitude}?unitGroup=${unitGroup}&include=current,hours,days&elements=${elements}&key=${API_KEY}&contentType=json&lang=${lang}`;
 
   const [weatherResponse, cityName] = await Promise.all([
     fetch(url),
@@ -140,6 +158,18 @@ export async function fetchWeather(
 
   const data = await weatherResponse.json();
   return parseWeatherData(data, cityName);
+}
+
+function parseAirQuality(raw: any): AirQuality | undefined {
+  if (raw.aqius == null) return undefined;
+  return {
+    aqiUs: Math.round(raw.aqius),
+    aqiEu: Math.round(raw.aqieur ?? 0),
+    pm2_5: raw.pm2p5 ?? 0,
+    pm10: raw.pm10 ?? 0,
+    o3: raw.o3 ?? 0,
+    no2: raw.no2 ?? 0,
+  };
 }
 
 function parseWeatherData(raw: any, cityName: string): WeatherData {
@@ -158,6 +188,7 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
     windDir: h.winddir ?? 0,
     conditions: h.conditions,
     icon: h.icon,
+    airQuality: parseAirQuality(h),
   });
 
   return {
@@ -180,6 +211,7 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
       description: today.description ?? '',
       sunrise: current.sunrise,
       sunset: current.sunset,
+      airQuality: parseAirQuality(current),
     },
 
     hourly: (today.hours as any[]).map(parseHour),
@@ -200,6 +232,7 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
       icon: d.icon,
       description: d.description ?? '',
       hours: ((d.hours ?? []) as any[]).map(parseHour),
+      airQuality: parseAirQuality(d),
     })),
   };
 }

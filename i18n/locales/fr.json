@@ -150,5 +150,36 @@
       "ice": "Verglas",
       "tornado": "Tornade"
     }
+  },
+  "weatherDetails": {
+    "tabs": { "temp": "Météo", "wind": "Vent", "air": "Air" },
+    "airQuality": {
+      "categories": {
+        "good": "Bonne",
+        "moderate": "Modérée",
+        "unhealthySensitive": "Mauvaise pour les groupes sensibles",
+        "unhealthy": "Mauvaise",
+        "veryUnhealthy": "Très mauvaise",
+        "hazardous": "Dangereuse"
+      },
+      "pollutants": {
+        "pm25": "PM2.5",
+        "pm10": "PM10",
+        "o3": "Ozone (O₃)",
+        "no2": "Dioxyde d'azote (NO₂)"
+      },
+      "euAqi": "Indice européen : {{value}}",
+      "noData": "Aucune donnée de qualité de l'air pour cet endroit",
+      "cardTitle": "Qualité de l'air",
+      "premiumHint": "Touchez pour débloquer"
+    },
+    "radar": {
+      "cardTitle": "Radar de pluie",
+      "subtitle": "Toucher pour voir",
+      "premiumHint": "Touchez pour débloquer",
+      "screenTitle": "Radar de pluie",
+      "loading": "Chargement du radar…",
+      "loadError": "Impossible de charger le radar"
+    }
   }
 }

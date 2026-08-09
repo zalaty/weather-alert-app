@@ -37,6 +37,9 @@ export const LightTheme = {
   sun: '#F5A623',
   storm: '#6B48A3',
   wind: '#7EC8C8',
+  aqiGood: '#2E9E5B',
+  aqiModerate: '#B8860B',
+  aqiUnhealthy: '#D64545',
 };
 
 export const DarkTheme = {
@@ -51,6 +54,9 @@ export const DarkTheme = {
   sun: '#F5A623',
   storm: '#6B48A3',
   wind: '#7EC8C8',
+  aqiGood: '#3FBE77',
+  aqiModerate: '#D6A72A',
+  aqiUnhealthy: '#E8635F',
 };
 
 export type Theme = typeof LightTheme;
