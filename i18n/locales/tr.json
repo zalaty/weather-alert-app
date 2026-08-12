@@ -162,6 +162,14 @@
         "veryUnhealthy": "Çok sağlıksız",
         "hazardous": "Tehlikeli"
       },
+      "recommendations": {
+        "good": "İyi hava kalitesi, sağlık riski yok denecek kadar az.",
+        "moderate": "Kabul edilebilir, hassas kişiler hafif rahatsızlık hissedebilir.",
+        "unhealthySensitive": "Hassas gruplar sağlık etkileri hissedebilir.",
+        "unhealthy": "Genel halkı etkileyebilir; hassas gruplar daha ciddi şekilde.",
+        "veryUnhealthy": "Sağlık uyarısı: herkes için risk arttı.",
+        "hazardous": "Acil sağlık uyarısı: herkes etkilenebilir."
+      },
       "pollutants": {
         "pm25": "PM2.5",
         "pm10": "PM10",

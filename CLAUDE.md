@@ -73,3 +73,11 @@ When adding user-facing text, add a key to all three files in `i18n/locales/`, n
   `isFreeTierFull`) — the rest of the UI (pricing banner, lock icons) assumes this constraint.
 - Icon/screenshot generation (`generate_icons.py`, `generate_store_assets.py`,
   `resize_screenshots.py`) are one-off local scripts (Pillow), not part of the app build.
+- `react-native-purchases` (RevenueCat) is a real native module and does not initialize in Expo
+  Go, so premium features can't be tested there through a real purchase. `hooks/useIsPremium.ts`
+  has a dev-only bypass: set `EXPO_PUBLIC_DEBUG_FORCE_PREMIUM=true` in your local `.env` (gitignored)
+  to force `isPremium` to `true` without touching RevenueCat. It only takes effect when `__DEV__` is
+  also true, so it's inert in any production/preview build regardless of this var, and it logs a
+  `console.warn` every time it's active so it can't go unnoticed. **Never add
+  `EXPO_PUBLIC_DEBUG_FORCE_PREMIUM` to EAS Environment Variables or reference it in any build
+  profile** — it exists only as a local `.env` value for testing in Expo Go.
