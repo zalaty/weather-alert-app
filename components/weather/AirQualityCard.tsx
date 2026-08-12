@@ -50,6 +50,9 @@ export default function AirQualityCard({ airQuality, isPremium, onRequestPaywall
       </View>
       <View style={s.info}>
         <Text style={s.title}>{title}</Text>
+        {isPremium && aqiCategory && (
+          <Text style={s.recommendation}>{t(`weatherDetails.airQuality.recommendations.${aqiCategory}`)}</Text>
+        )}
         <Text style={[s.subtitle, !isPremium && s.subtitleHint]}>{subtitle}</Text>
       </View>
     </TouchableOpacity>
@@ -71,6 +74,7 @@ function makeStyles(theme: ReturnType<typeof useTheme>['theme']) {
     badgeLock: { fontSize: Typography.sm },
     info: { flex: 1, gap: 2 },
     title: { fontSize: Typography.md, fontWeight: Typography.semibold, color: theme.textPrimary },
+    recommendation: { fontSize: Typography.xs, color: theme.textSecondary, lineHeight: 16 },
     subtitle: { fontSize: Typography.xs, color: theme.textSecondary },
     subtitleHint: { color: theme.accent, fontWeight: Typography.medium },
   });

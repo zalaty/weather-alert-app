@@ -162,6 +162,14 @@
         "veryUnhealthy": "Very unhealthy",
         "hazardous": "Hazardous"
       },
+      "recommendations": {
+        "good": "Air quality is satisfactory, with little or no health risk.",
+        "moderate": "Acceptable, but sensitive people may experience mild effects.",
+        "unhealthySensitive": "Sensitive groups may experience health effects.",
+        "unhealthy": "May affect the general public; sensitive groups more seriously.",
+        "veryUnhealthy": "Health alert: risk is increased for everyone.",
+        "hazardous": "Emergency health warning: everyone may be affected."
+      },
       "pollutants": {
         "pm25": "PM2.5",
         "pm10": "PM10",

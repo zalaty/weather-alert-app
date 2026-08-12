@@ -23,6 +23,16 @@ export function getAqiSeverity(category: AqiCategory): AqiSeverity {
   return 'unhealthy';
 }
 
+const SEVERITY_ICONS: Record<AqiSeverity, string> = {
+  good: '✅',
+  moderate: '⚠️',
+  unhealthy: '⛔',
+};
+
+export function getAqiSeverityIcon(severity: AqiSeverity): string {
+  return SEVERITY_ICONS[severity];
+}
+
 const POLLUTANT_BAR_MAX: Record<'pm2_5' | 'pm10' | 'o3' | 'no2', number> = {
   pm2_5: 150,
   pm10: 200,

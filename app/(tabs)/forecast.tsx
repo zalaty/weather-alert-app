@@ -14,12 +14,12 @@ import { useWeather } from '../../hooks/useWeather';
 import { useTheme } from '../../hooks/useTheme';
 import { useIsPremium } from '../../hooks/useIsPremium';
 import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
-import { DailyWeather, HourlyWeather } from '../../services/weatherApi';
+import { AirQuality, DailyWeather, HourlyWeather } from '../../services/weatherApi';
 import { getIntlLocale } from '../../i18n';
 import { getWindDirection } from '../../utils/wind';
 import { getWeatherEmoji } from '../../utils/weatherIcons';
 import { translateCondition } from '../../utils/weatherConditions';
-import { getAqiCategory, getAqiSeverity } from '../../utils/airQuality';
+import { getAqiCategory, getAqiSeverity, getAqiSeverityIcon } from '../../utils/airQuality';
 import { trackEvent } from '../../services/analytics';
 import MetricSelector, { WeatherMetric } from '../../components/weather/MetricSelector';
 import Paywall from '../../components/Paywall';
@@ -50,10 +50,24 @@ function getAqiColor(theme: Theme, aqiUs: number): string {
 
 function AqiMini({ aqiUs, theme, s }: { aqiUs: number | undefined; theme: Theme; s: any }) {
   if (aqiUs == null) return <Text style={s.aqiMiniMuted}>—</Text>;
+  const severity = getAqiSeverity(getAqiCategory(aqiUs));
   return (
     <View style={s.aqiMiniRow}>
-      <View style={[s.aqiMiniDot, { backgroundColor: getAqiColor(theme, aqiUs) }]} />
-      <Text style={s.aqiMiniText}>AQI {aqiUs}</Text>
+      <Text style={s.aqiMiniIcon}>{getAqiSeverityIcon(severity)}</Text>
+      <Text style={[s.aqiMiniText, { color: getAqiColor(theme, aqiUs) }]}>{aqiUs}</Text>
+    </View>
+  );
+}
+
+function AqiFullDetail({ airQuality, theme, s, t }: { airQuality: AirQuality; theme: Theme; s: any; t: TFunction }) {
+  const category = getAqiCategory(airQuality.aqiUs);
+  const severity = getAqiSeverity(category);
+  return (
+    <View style={s.aqiDetailBlock}>
+      <Text style={s.aqiDetailTitle}>
+        {getAqiSeverityIcon(severity)} {t(`weatherDetails.airQuality.categories.${category}`)} ({airQuality.aqiUs})
+      </Text>
+      <Text style={s.aqiDetailText}>{t(`weatherDetails.airQuality.recommendations.${category}`)}</Text>
     </View>
   );
 }
@@ -105,13 +119,13 @@ function HourRow({ hour, metric, theme, s, t, windDirs }: {
 
       {expanded && (
         <View style={s.hourDetailPanel}>
-          <Text style={s.summaryItem}>💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir, windDirs)}</Text>
-          <Text style={s.summaryItem}>🌡️ {feelsLikeAbbr} {hour.feelsLike}°</Text>
-          <Text style={s.summaryItem}>💧 {hour.humidity}%</Text>
-          <Text style={s.summaryItem}>☀️ UV {hour.uvIndex}</Text>
-          {hour.airQuality && (
-            <Text style={s.summaryItem}>🍃 AQI {hour.airQuality.aqiUs}</Text>
-          )}
+          <View style={s.summaryRow}>
+            <Text style={s.summaryItem}>💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir, windDirs)}</Text>
+            <Text style={s.summaryItem}>🌡️ {feelsLikeAbbr} {hour.feelsLike}°</Text>
+            <Text style={s.summaryItem}>💧 {hour.humidity}%</Text>
+            <Text style={s.summaryItem}>☀️ UV {hour.uvIndex}</Text>
+          </View>
+          {hour.airQuality && <AqiFullDetail airQuality={hour.airQuality} theme={theme} s={s} t={t} />}
         </View>
       )}
     </View>
@@ -155,6 +169,7 @@ function DayExpandable({ day, isToday, theme, metric }: { day: DailyWeather; isT
             <Text style={s.summaryItem}>☀️ UV {day.uvIndex}</Text>
           </View>
           {day.description ? <Text style={s.dayDescription}>{day.description}</Text> : null}
+          {day.airQuality && <AqiFullDetail airQuality={day.airQuality} theme={theme} s={s} t={t} />}
         </View>
       )}
 
@@ -247,7 +262,7 @@ function makeStyles(theme: Theme) {
     hoursContainer: { borderTopWidth: 1, borderTopColor: theme.border, backgroundColor: theme.background },
     hourBlock: { borderBottomWidth: 1, borderBottomColor: theme.border },
     hourRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, gap: Spacing.sm },
-    hourDetailPanel: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.md, paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm, paddingLeft: Spacing.md + 44 },
+    hourDetailPanel: { gap: Spacing.xs, paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm, paddingLeft: Spacing.md + 44 },
     hourTime: { fontSize: Typography.sm, color: theme.textSecondary, fontWeight: Typography.medium, width: 44 },
     hourEmoji: { fontSize: Typography.lg, width: 28, textAlign: 'center' },
     hourBar: { flex: 1, gap: 3 },
@@ -258,8 +273,11 @@ function makeStyles(theme: Theme) {
     windText: { fontSize: Typography.xs, color: theme.wind, fontWeight: Typography.medium },
     detailText: { fontSize: Typography.xs, color: theme.textSecondary },
     aqiMiniRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    aqiMiniDot: { width: 8, height: 8, borderRadius: 4 },
-    aqiMiniText: { fontSize: Typography.xs, color: theme.textSecondary, fontWeight: Typography.medium },
+    aqiMiniIcon: { fontSize: Typography.sm },
+    aqiMiniText: { fontSize: Typography.xs, fontWeight: Typography.bold },
     aqiMiniMuted: { fontSize: Typography.xs, color: theme.textSecondary },
+    aqiDetailBlock: { marginTop: Spacing.xs, gap: 2 },
+    aqiDetailTitle: { fontSize: Typography.xs, fontWeight: Typography.bold, color: theme.textPrimary },
+    aqiDetailText: { fontSize: Typography.xs, color: theme.textSecondary, lineHeight: 16 },
   });
 }

@@ -162,6 +162,14 @@
         "veryUnhealthy": "Sehr ungesund",
         "hazardous": "Gefährlich"
       },
+      "recommendations": {
+        "good": "Gute Luftqualität, kaum oder kein Gesundheitsrisiko.",
+        "moderate": "Akzeptabel, empfindliche Personen können leichte Beschwerden spüren.",
+        "unhealthySensitive": "Empfindliche Gruppen können gesundheitliche Auswirkungen spüren.",
+        "unhealthy": "Kann die Allgemeinbevölkerung betreffen; empfindliche Gruppen stärker.",
+        "veryUnhealthy": "Gesundheitswarnung: erhöhtes Risiko für alle.",
+        "hazardous": "Notfallwarnung: alle können betroffen sein."
+      },
       "pollutants": {
         "pm25": "PM2.5",
         "pm10": "PM10",
