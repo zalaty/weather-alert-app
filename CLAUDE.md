@@ -42,14 +42,29 @@ Timeline API (key in `EXPO_PUBLIC_WEATHER_API_KEY`, `.env`) and reverse-geocodes
 then checks the active alert threshold and fires a local notification through
 `services/notifications.ts` (`expo-notifications`) when it's crossed.
 
-**State**: `store/weatherStore.ts` is a plain Zustand store, held in memory only (not persisted —
-a fresh app launch always re-fetches via GPS unless `isManualLocation` was set this session).
-Alert configuration (`activeAlert`, `thresholds`) and the language preference are the only bits
-persisted, via direct `AsyncStorage` calls in `app/(tabs)/alerts.tsx` and `i18n/index.ts`
-respectively — there's no persistence middleware wired into the store itself.
+**State**: `store/weatherStore.ts` is a plain Zustand store with no persistence middleware.
+`services/weatherPersistence.ts` selectively persists two things via `AsyncStorage`: the `units`
+preference and a snapshot of the last **GPS** weather (never a manually searched city).
+`app/_layout.tsx` awaits `hydrateWeatherStore()` alongside `initI18n()` before first render, so Home
+paints the snapshot instantly; `isFromPersistedCache` then forces `useWeather` to refetch on launch
+regardless of the 30-min cache (the user may have moved). A fresh launch still always starts from
+GPS. Alert configuration (`services/alertsStorage.ts`), saved locations, alert history and the
+language preference (`i18n/index.ts`) are persisted separately via direct `AsyncStorage` calls.
+
+**Official warnings**: `fetchWeather` requests `include=...,alerts` (verified: no extra
+`queryCost`). `parseWarnings()` in `services/weatherApi.ts` drops expired ones and infers a
+yellow/orange/red level from keywords in the source-language text (Visual Crossing has no
+normalized severity field). Shown free for everyone via `components/weather/OfficialWarningsCard.tsx`.
+
+**Android build tweaks**: `plugins/withOkHttpVersion.js` (local config plugin) forces OkHttp
+4.12.1 for the eMudhra CA revocation — without it Gradle resolves 4.12.0. There is no `android/`
+folder (CNG), so native Gradle changes must go through config plugins, not hand edits.
 
 **Theming**: `constants/theme.ts` exports `LightTheme`/`DarkTheme` objects plus `Typography`,
-`Spacing`, `Radius` scales; `hooks/useTheme.ts` picks light/dark from `useColorScheme()`. Every
+`Spacing`, `Radius` scales; `hooks/useTheme.ts` picks light/dark from `useColorScheme()`. Dark mode follows the system
+(`userInterfaceStyle: "automatic"` + `expo-system-ui`, required on Android). Always take colors
+from `theme` — the static `Colors` export is light-only and must not be used in UI (the tab bar
+did, and stayed white in dark mode). Every
 screen follows the same pattern: a `makeStyles(theme: Theme)` function returning
 `StyleSheet.create(...)`, called at the top of the component body. `nativewind`/`tailwindcss` are
 listed in `package.json` but are **not actually wired up** (no babel plugin, no config, no

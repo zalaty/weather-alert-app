@@ -14,6 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useWeather } from '../../hooks/useWeather';
 import { useTheme } from '../../hooks/useTheme';
 import { useIsPremium } from '../../hooks/useIsPremium';
@@ -31,6 +32,8 @@ import Paywall from '../../components/Paywall';
 import HourDetailSheet from '../../components/HourDetailSheet';
 import AirQualityCard from '../../components/weather/AirQualityCard';
 import RainRadarCard from '../../components/weather/RainRadarCard';
+import OfficialWarningsCard from '../../components/weather/OfficialWarningsCard';
+import { getWeatherGradient } from '../../utils/weatherGradient';
 import { getWeatherEmoji } from '../../utils/weatherIcons';
 import { getWindDirection } from '../../utils/wind';
 import { HourlyWeather } from '../../services/weatherApi';
@@ -46,6 +49,7 @@ export default function HomeScreen() {
     searchAndLoadCity,
     backToGPS,
     location: currentCoords,
+    lastUpdated,
   } = useWeather();
   const { theme } = useTheme();
   const { t } = useTranslation();
@@ -61,6 +65,13 @@ export default function HomeScreen() {
   const [selectedHour, setSelectedHour] = useState<HourlyWeather | null>(null);
   const [hourSheetVisible, setHourSheetVisible] = useState(false);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [now, setNow] = useState(Date.now());
+
+  // Mantiene al día el texto "Actualizado hace X min"
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     loadSavedLocations().then((locs) => {
@@ -174,7 +185,15 @@ export default function HomeScreen() {
 
   if (!weatherData) return null;
 
-  const { current, hourly, location } = weatherData;
+  const { current, hourly, location, warnings, daily } = weatherData;
+
+  const minutesAgo = lastUpdated ? Math.max(0, Math.floor((now - lastUpdated) / 60000)) : 0;
+  const updatedText =
+    minutesAgo < 1
+      ? t('home.updatedJustNow')
+      : minutesAgo < 60
+        ? t('home.updatedMinutesAgo', { count: minutesAgo })
+        : t('home.updatedHoursAgo', { count: Math.floor(minutesAgo / 60) });
   const windDirs = t('weather.windDirections', { returnObjects: true }) as string[];
 
   return (
@@ -230,6 +249,9 @@ export default function HomeScreen() {
                 <Text style={s.savedLocationsIcon}>📌</Text>
               </TouchableOpacity>
             </View>
+            <Text style={[s.updatedText, !!error && s.updatedTextError]}>
+              {error ? `${updatedText} · ${t('home.updateFailed')}` : updatedText}
+            </Text>
             {isManualLocation && (
               <TouchableOpacity onPress={handleBackToGPS} style={s.gpsButton}>
                 <Text style={s.gpsButtonText}>{t('home.useMyLocation')}</Text>
@@ -237,13 +259,20 @@ export default function HomeScreen() {
             )}
           </View>
 
-          <View style={s.mainCard}>
+          <OfficialWarningsCard warnings={warnings} locationToday={daily[0]?.date} />
+
+          <LinearGradient
+            colors={getWeatherGradient(current.icon)}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={s.mainCard}
+          >
             <Text style={s.weatherEmoji}>{getWeatherEmoji(current.icon)}</Text>
             <Text style={s.tempText}>{current.temp}{unitLabel}</Text>
             <Text style={s.conditionsText}>{current.conditions}</Text>
             <Text style={s.feelsLikeText}>{t('home.feelsLike', { value: current.feelsLike, unit: unitLabel })}</Text>
             <Text style={s.descriptionText}>{current.description}</Text>
-          </View>
+          </LinearGradient>
 
           <View style={s.statsRow}>
             {[
@@ -348,7 +377,9 @@ function makeStyles(theme: ReturnType<typeof import('../../hooks/useTheme').useT
     resultItem: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.md, borderBottomWidth: 1, borderBottomColor: theme.border },
     resultName: { fontSize: Typography.md, color: theme.textPrimary, fontWeight: Typography.medium },
     resultRegion: { fontSize: Typography.xs, color: theme.textSecondary, marginTop: 2 },
-    mainCard: { backgroundColor: theme.accent, borderRadius: Radius.xl, padding: Spacing.xl, alignItems: 'center', gap: Spacing.xs },
+    updatedText: { fontSize: Typography.xs, color: theme.textSecondary },
+    updatedTextError: { color: theme.warningOrange },
+    mainCard: { borderRadius: Radius.xl, padding: Spacing.xl, alignItems: 'center', gap: Spacing.xs },
     weatherEmoji: { fontSize: 72 },
     tempText: { fontSize: Typography.huge, fontWeight: Typography.bold, color: theme.textLight },
     conditionsText: { fontSize: Typography.lg, color: theme.textLight, fontWeight: Typography.medium },

@@ -16,6 +16,16 @@
     "upcomingHours": "Próximas horas",
     "sunrise": "Amanecer",
     "sunset": "Atardecer",
+    "updatedJustNow": "Actualizado ahora",
+    "updatedMinutesAgo": "Actualizado hace {{count}} min",
+    "updatedHoursAgo": "Actualizado hace {{count}} h",
+    "updateFailed": "No se pudo actualizar",
+    "warnings": {
+      "label": "Aviso oficial",
+      "until": "Hasta las {{time}}",
+      "untilDay": "Hasta el {{day}} a las {{time}}",
+      "moreInfo": "Más información"
+    },
     "stats": {
       "humidity": "Humedad",
       "wind": "Viento",

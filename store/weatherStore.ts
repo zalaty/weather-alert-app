@@ -15,12 +15,15 @@ interface WeatherStore {
   units: 'metric' | 'us';
   lastUpdated: number | null;
   isManualLocation: boolean;
+  /** true si weatherData viene de la caché persistida y aún no se ha refrescado en esta sesión */
+  isFromPersistedCache: boolean;
 
   setWeatherData: (data: WeatherData) => void;
   setLocation: (location: Location, isManual?: boolean) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   toggleUnits: () => void;
+  hydrate: (snapshot: Partial<Pick<WeatherStore, 'units' | 'weatherData' | 'location' | 'lastUpdated'>>) => void;
   clearError: () => void;
   resetToGPS: () => void;
 }
@@ -33,9 +36,10 @@ export const useWeatherStore = create<WeatherStore>((set) => ({
   units: 'metric',
   lastUpdated: null,
   isManualLocation: false,
+  isFromPersistedCache: false,
 
   setWeatherData: (data) =>
-    set({ weatherData: data, lastUpdated: Date.now(), error: null }),
+    set({ weatherData: data, lastUpdated: Date.now(), error: null, isFromPersistedCache: false }),
 
   setLocation: (location, isManual = false) =>
     set({ location, isManualLocation: isManual }),
@@ -48,6 +52,9 @@ export const useWeatherStore = create<WeatherStore>((set) => ({
     set((state) => ({ units: state.units === 'metric' ? 'us' : 'metric' })),
 
   clearError: () => set({ error: null }),
+
+  hydrate: (snapshot) =>
+    set({ ...snapshot, isFromPersistedCache: snapshot.weatherData != null }),
 
   resetToGPS: () =>
     set({ isManualLocation: false, lastUpdated: null }),

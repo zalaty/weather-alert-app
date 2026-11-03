@@ -16,6 +16,16 @@
     "upcomingHours": "Prossime ore",
     "sunrise": "Alba",
     "sunset": "Tramonto",
+    "updatedJustNow": "Aggiornato ora",
+    "updatedMinutesAgo": "Aggiornato {{count}} min fa",
+    "updatedHoursAgo": "Aggiornato {{count}} h fa",
+    "updateFailed": "Aggiornamento non riuscito",
+    "warnings": {
+      "label": "Allerta ufficiale",
+      "until": "Fino alle {{time}}",
+      "untilDay": "Fino a {{day}} alle {{time}}",
+      "moreInfo": "Maggiori informazioni"
+    },
     "stats": {
       "humidity": "Umidità",
       "wind": "Vento",

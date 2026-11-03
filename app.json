@@ -3,10 +3,10 @@
     "name": "Avisa",
     "slug": "weather-alert-app",
     "scheme": "weatheralert",
-    "version": "1.2.0",
+    "version": "1.3.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true
     },
@@ -35,6 +35,9 @@
           "image": "./assets/splash-icon.png",
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#0D1117"
+          },
           "android": {
             "image": "./assets/icon.png",
             "imageWidth": 200
@@ -49,7 +52,8 @@
             "enableShrinkResourcesInReleaseBuilds": true
           }
         }
-      ]
+      ],
+      "./plugins/withOkHttpVersion"
     ],
     "extra": {
       "router": {},

@@ -64,10 +64,28 @@ export interface DailyWeather {
   airQuality?: AirQuality;
 }
 
+export type WarningLevel = 'yellow' | 'orange' | 'red';
+
+/** Aviso meteorológico oficial (AEMET/MeteoAlarm en Europa, NWS en EE. UU., etc.) vía Visual Crossing */
+export interface OfficialWarning {
+  id: string;
+  event: string;
+  headline: string;
+  description: string;
+  /** Hora local de la ubicación, ISO sin zona ("2026-11-03T20:59:59") */
+  onset: string;
+  ends: string;
+  endsEpoch: number;
+  link: string;
+  level: WarningLevel;
+}
+
 export interface WeatherData {
   current: CurrentWeather;
   hourly: HourlyWeather[];
   daily: DailyWeather[];
+  /** Opcional: los snapshots guardados por versiones anteriores no lo traen */
+  warnings?: OfficialWarning[];
   location: string;
   timezone: string;
   lastUpdated: number;
@@ -145,7 +163,7 @@ export async function fetchWeather(
     'sunrise', 'sunset', 'tempmax', 'tempmin', 'description',
     'aqius', 'aqieur', 'pm2p5', 'pm10', 'o3', 'no2',
   ].join(',');
-  const url = `${BASE_URL}/${latitude},${longitude}?unitGroup=${unitGroup}&include=current,hours,days&elements=${elements}&key=${API_KEY}&contentType=json&lang=${lang}`;
+  const url = `${BASE_URL}/${latitude},${longitude}?unitGroup=${unitGroup}&include=current,hours,days,alerts&elements=${elements}&key=${API_KEY}&contentType=json&lang=${lang}`;
 
   const [weatherResponse, cityName] = await Promise.all([
     fetch(url),
@@ -170,6 +188,48 @@ function parseAirQuality(raw: any): AirQuality | undefined {
     o3: raw.o3 ?? 0,
     no2: raw.no2 ?? 0,
   };
+}
+
+// Visual Crossing no da un campo de severidad normalizado: el nivel va en el texto del aviso y en
+// el idioma de la fuente. Se detectan rojo/naranja por palabra clave; todo lo demás es amarillo.
+const RED_KEYWORDS = ['red', 'rojo', 'roja', 'vermelho', 'vermelha', 'rouge', 'rot', 'rote', 'roter', 'rosso', 'rossa', 'czerwon', 'kırmızı', 'extreme'];
+const ORANGE_KEYWORDS = ['orange', 'naranja', 'laranja', 'arancione', 'pomarańcz', 'turuncu', 'severe'];
+
+function detectWarningLevel(text: string): WarningLevel {
+  const words = text.toLowerCase().split(/[^\p{L}]+/u);
+  const has = (keywords: string[]) =>
+    words.some((w) => keywords.some((k) => w === k || (k.length > 5 && w.startsWith(k))));
+  if (has(RED_KEYWORDS)) return 'red';
+  if (has(ORANGE_KEYWORDS)) return 'orange';
+  return 'yellow';
+}
+
+const LEVEL_RANK: Record<WarningLevel, number> = { red: 0, orange: 1, yellow: 2 };
+
+export function parseWarnings(rawAlerts: any[] | null | undefined, nowEpoch = Date.now() / 1000): OfficialWarning[] {
+  if (!Array.isArray(rawAlerts)) return [];
+  const seen = new Set<string>();
+  return rawAlerts
+    .filter((a) => a && a.event && (a.endsEpoch == null || a.endsEpoch > nowEpoch))
+    .map((a): OfficialWarning => ({
+      id: String(a.id ?? `${a.event}-${a.onsetEpoch}`),
+      event: a.event,
+      headline: a.headline ?? '',
+      description: (a.description ?? '').trim(),
+      onset: a.onset ?? '',
+      ends: a.ends ?? '',
+      endsEpoch: a.endsEpoch ?? 0,
+      link: a.link ?? '',
+      level: detectWarningLevel(`${a.event} ${a.headline ?? ''}`),
+    }))
+    // MeteoAlarm a veces repite el mismo aviso para zonas contiguas
+    .filter((w) => {
+      const key = `${w.event}|${w.ends}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => LEVEL_RANK[a.level] - LEVEL_RANK[b.level] || a.endsEpoch - b.endsEpoch);
 }
 
 function parseWeatherData(raw: any, cityName: string): WeatherData {
@@ -215,6 +275,8 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
     },
 
     hourly: (today.hours as any[]).map(parseHour),
+
+    warnings: parseWarnings(raw.alerts),
 
     daily: (raw.days as any[]).map((d) => ({
       date: d.datetime,

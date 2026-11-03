@@ -36,6 +36,7 @@ export function useWeather() {
     units,
     lastUpdated,
     isManualLocation,
+    isFromPersistedCache,
     setWeatherData,
     setLocation,
     setLoading,
@@ -59,7 +60,9 @@ export function useWeather() {
 
   const loadWeather = useCallback(
     async (forceRefresh = false, forceGPS = false) => {
-      if (!forceRefresh && isCacheValid() && weatherData) return;
+      // Los datos restaurados de disco se pintan al instante, pero en el arranque se refrescan
+      // siempre: el usuario puede haberse movido desde la última vez que abrió la app.
+      if (!forceRefresh && !isFromPersistedCache && isCacheValid() && weatherData) return;
 
       setLoading(true);
 
@@ -94,7 +97,7 @@ export function useWeather() {
         setLoading(false);
       }
     },
-    [isCacheValid, weatherData, units, isManualLocation, location, setLoading, setLocation, setWeatherData, setError, requestLocationPermission, t]
+    [isCacheValid, weatherData, isFromPersistedCache, units, isManualLocation, location, setLoading, setLocation, setWeatherData, setError, requestLocationPermission, t]
   );
 
   const backToGPS = useCallback(async () => {
@@ -137,6 +140,7 @@ export function useWeather() {
     error,
     units,
     isManualLocation,
+    lastUpdated,
     refresh: () => loadWeather(true),
     searchAndLoadCity,
     backToGPS,

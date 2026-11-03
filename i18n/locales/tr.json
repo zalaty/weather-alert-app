@@ -16,6 +16,16 @@
     "upcomingHours": "Sonraki saatler",
     "sunrise": "Gün doğumu",
     "sunset": "Gün batımı",
+    "updatedJustNow": "Az önce güncellendi",
+    "updatedMinutesAgo": "{{count}} dk önce güncellendi",
+    "updatedHoursAgo": "{{count}} sa önce güncellendi",
+    "updateFailed": "Güncellenemedi",
+    "warnings": {
+      "label": "Resmi uyarı",
+      "until": "Bitiş: {{time}}",
+      "untilDay": "Bitiş: {{day}} {{time}}",
+      "moreInfo": "Daha fazla bilgi"
+    },
     "stats": {
       "humidity": "Nem",
       "wind": "Rüzgâr",

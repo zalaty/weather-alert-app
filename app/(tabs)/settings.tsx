@@ -109,7 +109,7 @@ export default function SettingsScreen() {
                   value={isMetric}
                   onValueChange={toggleUnits}
                   trackColor={{ false: theme.border, true: theme.accent }}
-                  thumbColor={theme.card}
+                  thumbColor={theme.textLight}
                 />
               }
             />
