@@ -40,6 +40,10 @@ export const LightTheme = {
   aqiGood: '#2E9E5B',
   aqiModerate: '#B8860B',
   aqiUnhealthy: '#D64545',
+  onAqiBadge: '#FFFFFF',
+  warningYellow: '#9A7300',
+  warningOrange: '#C25700',
+  warningRed: '#C62828',
 };
 
 export const DarkTheme = {
@@ -57,6 +61,10 @@ export const DarkTheme = {
   aqiGood: '#3FBE77',
   aqiModerate: '#D6A72A',
   aqiUnhealthy: '#E8635F',
+  onAqiBadge: '#0D1117',
+  warningYellow: '#E3B341',
+  warningOrange: '#F0883E',
+  warningRed: '#F26B6B',
 };
 
 export type Theme = typeof LightTheme;

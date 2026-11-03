@@ -326,6 +326,16 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
   - Verificado en dispositivo (Expo Go, sin necesitar build de EAS): mapa base, teselas de radar, marcador, animación, atribución, navegación de vuelta — todo correcto
   - **✅ FASE 6 COMPLETA (2026-08-09)**: AQI + radar de lluvia, ambas piezas premium construidas, verificadas y listas para producción
 
+### Release 1.3.0 — mantenimiento + mejoras 🔶 EN PROGRESO (iniciada 2026-11-03)
+- **Seguridad (aviso de PostHog, 2026-11-03)**: 8 certificados intermedios de eMudhra comprometidos; OkHttp 4.12.1 los bloquea dentro del cliente. Analizado: usamos `posthog-react-native` (solo JS, sin `@posthog/react-native-plugin`), así que PostHog no trae OkHttp propio — el tráfico va por el `fetch` de React Native. Gradle resolvía **4.12.0** (RN 4.9.2, `expo-file-system` 4.9.2, `coil-network-okhttp` 4.12.0 vía `react-native-screens`). Fix: config plugin local `plugins/withOkHttpVersion.js` que fuerza 4.12.1 (verificado con `expo prebuild` que el `build.gradle` generado lo incluye). Protege todo el tráfico HTTP de la app, no solo PostHog
+- **Bug — unidades no persistían**: elegir °F se perdía en cada arranque. Ahora se guarda (`services/weatherPersistence.ts`)
+- **Arranque instantáneo**: se guarda el último tiempo obtenido por GPS y se pinta al abrir mientras se refresca por detrás (también sirve de respaldo sin conexión). Línea "Actualizado hace X min" en Home (avisa si no se pudo actualizar)
+- **Avisos oficiales** (AEMET/MeteoAlarm/NWS vía `include=alerts` de Visual Crossing, verificado sin coste extra de `queryCost`): tarjeta en Home, gratuita para todos por ser información de seguridad, con nivel amarillo/naranja/rojo inferido del texto, expandible con descripción y enlace a la fuente. Eventos PostHog: `official_warnings_shown`, `official_warning_expanded`, `official_warning_link_opened`
+- **Estético**: tarjeta principal de Home con degradado según condición y día/noche (`utils/weatherGradient.ts`, `expo-linear-gradient`), todos los tonos con contraste ≥ al azul anterior para el texto blanco
+- **Modo oscuro automático activado** (estaba en el MVP pero desactivado de facto: `userInterfaceStyle: "light"` y barra de estado fija en oscuro, pese a existir `DarkTheme` completo). Cambios: `userInterfaceStyle: "automatic"` + `expo-system-ui` (necesario en Android), `StatusBar style="auto"`, splash con variante oscura (`#0D1117`), barra de pestañas migrada de `Colors` fijos a `theme`, fondo de navegación y pantalla de carga temáticos. Fixes de contraste: círculo de los interruptores (era `theme.card`, invisible en oscuro → blanco) y número del badge de AQI en oscuro (blanco sobre verde claro ~2,4:1 → texto oscuro, ≥5,8:1). El mapa del radar sigue claro (teselas OSM), decisión consciente
+- Pospuesto a otra release: compartir previsión y prompt de valoración (Fase 8)
+- Pendiente: prueba en build de Internal Testing (OkHttp solo es verificable en build real) y promoción a producción
+
 ### Fase 7 — Widget de pantalla de inicio
 - Se deja para más adelante por ser más laborioso en nativo Android/iOS
 - Mejor decidir prioridad real una vez haya datos de analytics (Fase 2)

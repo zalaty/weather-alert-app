@@ -70,7 +70,7 @@ function makeStyles(theme: ReturnType<typeof useTheme>['theme']) {
       padding: Spacing.md,
     },
     badge: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-    badgeValue: { fontSize: Typography.md, fontWeight: Typography.bold, color: '#FFFFFF' },
+    badgeValue: { fontSize: Typography.md, fontWeight: Typography.bold, color: theme.onAqiBadge },
     badgeLock: { fontSize: Typography.sm },
     info: { flex: 1, gap: 2 },
     title: { fontSize: Typography.md, fontWeight: Typography.semibold, color: theme.textPrimary },

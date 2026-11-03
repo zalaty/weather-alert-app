@@ -16,6 +16,16 @@
     "upcomingHours": "Upcoming hours",
     "sunrise": "Sunrise",
     "sunset": "Sunset",
+    "updatedJustNow": "Updated just now",
+    "updatedMinutesAgo": "Updated {{count}} min ago",
+    "updatedHoursAgo": "Updated {{count}} h ago",
+    "updateFailed": "Couldn't update",
+    "warnings": {
+      "label": "Official warning",
+      "until": "Until {{time}}",
+      "untilDay": "Until {{day}} at {{time}}",
+      "moreInfo": "More info"
+    },
     "stats": {
       "humidity": "Humidity",
       "wind": "Wind",

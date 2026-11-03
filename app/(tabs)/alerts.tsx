@@ -161,7 +161,7 @@ export default function AlertsScreen() {
                     value={isActive}
                     onValueChange={() => toggleAlert(alert.id)}
                     trackColor={{ false: theme.border, true: theme.accent }}
-                    thumbColor={theme.card}
+                    thumbColor={theme.textLight}
                   />
                 )}
               </View>
@@ -197,7 +197,7 @@ export default function AlertsScreen() {
               value={dnd.enabled}
               onValueChange={(enabled) => setDnd((prev) => ({ ...prev, enabled }))}
               trackColor={{ false: theme.border, true: theme.accent }}
-              thumbColor={theme.card}
+              thumbColor={theme.textLight}
             />
           </View>
 
