@@ -46,10 +46,10 @@
     "premiumTierSubtitle": "Premium : alertes illimitées",
     "conditionActive": "⚠️ Condition active en ce moment",
     "types": {
-      "rain": { "label": "Pluie", "description": "M'avertir si la probabilité de pluie dépasse" },
-      "wind": { "label": "Vent fort", "description": "M'avertir si le vent dépasse" },
-      "temp_low": { "label": "Température minimale", "description": "M'avertir si la température descend en dessous de" },
-      "temp_high": { "label": "Température maximale", "description": "M'avertir si la température monte au-dessus de" }
+      "rain": { "label": "Pluie", "description": "M'avertir avant que la probabilité de pluie ne dépasse" },
+      "wind": { "label": "Vent fort", "description": "M'avertir avant que le vent ne dépasse" },
+      "temp_low": { "label": "Température minimale", "description": "M'avertir avant que la température ne descende en dessous de" },
+      "temp_high": { "label": "Température maximale", "description": "M'avertir avant que la température ne monte au-dessus de" }
     },
     "premium": {
       "title": "Alertes illimitées",
@@ -59,10 +59,12 @@
     "notifications": {
       "title": "⚠️ Alerte : {{label}}",
       "groupedTitle": "⚠️ {{count}} alertes déclenchées",
-      "rainBody": "Probabilité de pluie : {{value}}%",
-      "windBody": "Vent actuel : {{value}} km/h",
-      "tempLowBody": "Température actuelle : {{value}}°C",
-      "tempHighBody": "Température actuelle : {{value}}°C"
+      "rainForecast": "Pluie prévue à {{time}} ({{value}} %)",
+      "windForecast": "Vent de {{value}} prévu à {{time}}",
+      "tempForecast": "Température de {{value}} prévue à {{time}}",
+      "rainNow": "Probabilité de pluie actuelle : {{value}} %",
+      "windNow": "Vent actuel : {{value}}",
+      "tempNow": "Température actuelle : {{value}}"
     },
     "doNotDisturb": {
       "sectionTitle": "Ne pas déranger",
@@ -76,7 +78,8 @@
       "empty": "Aucune alerte n'a encore été déclenchée",
       "thresholdLabel": "Seuil",
       "silencedTag": "🔕 Ne pas déranger",
-      "limitedNotice": "Affichage des {{count}} dernières. Passez à Premium pour voir l'historique complet."
+      "limitedNotice": "Affichage des {{count}} dernières. Passez à Premium pour voir l'historique complet.",
+      "forecastFor": "Prévu pour : {{time}}"
     }
   },
   "savedLocations": {

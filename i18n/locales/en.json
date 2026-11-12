@@ -46,10 +46,10 @@
     "premiumTierSubtitle": "Premium: unlimited alerts",
     "conditionActive": "⚠️ Condition currently active",
     "types": {
-      "rain": { "label": "Rain", "description": "Notify me if rain probability exceeds" },
-      "wind": { "label": "Strong wind", "description": "Notify me if wind exceeds" },
-      "temp_low": { "label": "Low temperature", "description": "Notify me if temperature drops below" },
-      "temp_high": { "label": "High temperature", "description": "Notify me if temperature rises above" }
+      "rain": { "label": "Rain", "description": "Notify me before rain probability exceeds" },
+      "wind": { "label": "Strong wind", "description": "Notify me before wind exceeds" },
+      "temp_low": { "label": "Low temperature", "description": "Notify me before temperature drops below" },
+      "temp_high": { "label": "High temperature", "description": "Notify me before temperature rises above" }
     },
     "premium": {
       "title": "Unlimited alerts",
@@ -59,10 +59,12 @@
     "notifications": {
       "title": "⚠️ Alert: {{label}}",
       "groupedTitle": "⚠️ {{count}} alerts triggered",
-      "rainBody": "Rain probability: {{value}}%",
-      "windBody": "Current wind: {{value}} km/h",
-      "tempLowBody": "Current temperature: {{value}}°C",
-      "tempHighBody": "Current temperature: {{value}}°C"
+      "rainForecast": "Rain expected at {{time}} ({{value}}%)",
+      "windForecast": "Wind of {{value}} expected at {{time}}",
+      "tempForecast": "Temperature of {{value}} expected at {{time}}",
+      "rainNow": "Rain probability now: {{value}}%",
+      "windNow": "Wind now: {{value}}",
+      "tempNow": "Temperature now: {{value}}"
     },
     "doNotDisturb": {
       "sectionTitle": "Do Not Disturb",
@@ -76,7 +78,8 @@
       "empty": "No alerts have been triggered yet",
       "thresholdLabel": "Threshold",
       "silencedTag": "🔕 Do Not Disturb",
-      "limitedNotice": "Showing the last {{count}}. Go Premium to see the full history."
+      "limitedNotice": "Showing the last {{count}}. Go Premium to see the full history.",
+      "forecastFor": "Expected: {{time}}"
     }
   },
   "savedLocations": {

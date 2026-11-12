@@ -46,10 +46,10 @@
     "premiumTierSubtitle": "Premium: avvisi illimitati",
     "conditionActive": "⚠️ Condizione attualmente attiva",
     "types": {
-      "rain": { "label": "Pioggia", "description": "Avvisami se la probabilità di pioggia supera" },
-      "wind": { "label": "Vento forte", "description": "Avvisami se il vento supera" },
-      "temp_low": { "label": "Temperatura minima", "description": "Avvisami se la temperatura scende sotto" },
-      "temp_high": { "label": "Temperatura massima", "description": "Avvisami se la temperatura supera" }
+      "rain": { "label": "Pioggia", "description": "Avvisami prima che la probabilità di pioggia superi" },
+      "wind": { "label": "Vento forte", "description": "Avvisami prima che il vento superi" },
+      "temp_low": { "label": "Temperatura minima", "description": "Avvisami prima che la temperatura scenda sotto" },
+      "temp_high": { "label": "Temperatura massima", "description": "Avvisami prima che la temperatura superi" }
     },
     "premium": {
       "title": "Avvisi illimitati",
@@ -59,10 +59,12 @@
     "notifications": {
       "title": "⚠️ Avviso: {{label}}",
       "groupedTitle": "⚠️ {{count}} avvisi attivati",
-      "rainBody": "Probabilità di pioggia: {{value}}%",
-      "windBody": "Vento attuale: {{value}} km/h",
-      "tempLowBody": "Temperatura attuale: {{value}}°C",
-      "tempHighBody": "Temperatura attuale: {{value}}°C"
+      "rainForecast": "Pioggia prevista alle {{time}} ({{value}}%)",
+      "windForecast": "Vento di {{value}} previsto alle {{time}}",
+      "tempForecast": "Temperatura di {{value}} prevista alle {{time}}",
+      "rainNow": "Probabilità di pioggia ora: {{value}}%",
+      "windNow": "Vento ora: {{value}}",
+      "tempNow": "Temperatura ora: {{value}}"
     },
     "doNotDisturb": {
       "sectionTitle": "Non disturbare",
@@ -76,7 +78,8 @@
       "empty": "Nessun avviso è ancora stato attivato",
       "thresholdLabel": "Soglia",
       "silencedTag": "🔕 Non disturbare",
-      "limitedNotice": "Mostrando gli ultimi {{count}}. Passa a Premium per vedere la cronologia completa."
+      "limitedNotice": "Mostrando gli ultimi {{count}}. Passa a Premium per vedere la cronologia completa.",
+      "forecastFor": "Previsto per: {{time}}"
     }
   },
   "savedLocations": {

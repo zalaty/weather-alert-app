@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView,
 } from 'react-native';
@@ -16,9 +16,11 @@ import {
   DoNotDisturbConfig, DEFAULT_DO_NOT_DISTURB, loadDoNotDisturb, saveDoNotDisturb,
 } from '../../services/alertsStorage';
 import { AlertHistoryEntry, loadAlertHistory } from '../../services/alertHistoryStorage';
-import { evaluateAlert, notifyTriggeredAlerts } from '../../services/alertEngine';
+import { isConditionActiveNow } from '../../services/alertEngine';
+import { replanAlerts } from '../../services/alertScheduler';
+import { formatAlertValue } from '../../utils/alertUnits';
 import { ALERT_TYPES } from '../../constants/alertTypes';
-import Paywall from '../../components/Paywall';
+import Paywall, { PaywallSource } from '../../components/Paywall';
 import AlertHistorySheet from '../../components/AlertHistorySheet';
 
 function alertLabel(id: AlertType, t: TFunction): string {
@@ -30,7 +32,7 @@ function alertDescription(id: AlertType, t: TFunction): string {
 }
 
 export default function AlertsScreen() {
-  const { weatherData } = useWeatherStore();
+  const { weatherData, units } = useWeatherStore();
   const { theme } = useTheme();
   const { t } = useTranslation();
   const isPremium = useIsPremium();
@@ -39,6 +41,13 @@ export default function AlertsScreen() {
   const [dnd, setDnd] = useState<DoNotDisturbConfig>(DEFAULT_DO_NOT_DISTURB);
   const [loaded, setLoaded] = useState(false);
   const [paywallVisible, setPaywallVisible] = useState(false);
+  const [paywallSource, setPaywallSource] = useState<PaywallSource>('alerts_lock');
+  const openPaywall = (source: PaywallSource) => {
+    setPaywallSource(source);
+    setPaywallVisible(true);
+  };
+  // Interruptor recién activado, pendiente de feedback en la próxima replanificación
+  const pendingFeedbackRef = useRef<AlertType | null>(null);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [history, setHistory] = useState<AlertHistoryEntry[]>([]);
 
@@ -67,6 +76,12 @@ export default function AlertsScreen() {
         await saveActiveAlerts(activeAlerts);
         await AsyncStorage.setItem('thresholds', JSON.stringify(thresholds));
         await saveDoNotDisturb(dnd);
+        // Cualquier cambio de alertas activas, umbrales o franja "no molestar" replanifica las
+        // notificaciones programadas (siempre sobre el último dato de GPS, no sobre la ciudad
+        // manual que pueda haber en pantalla).
+        const feedbackFor = pendingFeedbackRef.current ?? undefined;
+        pendingFeedbackRef.current = null;
+        await replanAlerts({ feedbackFor });
       } catch (e) {
         console.error('Error saving alerts:', e);
       }
@@ -81,7 +96,7 @@ export default function AlertsScreen() {
 
   const openPaywallFromHistory = () => {
     setHistoryVisible(false);
-    setPaywallVisible(true);
+    openPaywall('alerts_history');
   };
 
   const adjustDndHour = (edge: 'startHour' | 'endHour', delta: number) => {
@@ -99,12 +114,14 @@ export default function AlertsScreen() {
     }
     if (!isPremium && activeAlerts.length >= 1) {
       trackEvent('alert_limit_reached', { attempted_alert_type: type });
-      setPaywallVisible(true);
+      openPaywall('alerts_lock');
       return;
     }
+    // Feedback instantáneo ("Lluvia prevista a las 17:00"): lo emite la replanificación que
+    // dispara este cambio de estado, una vez guardada la alerta.
+    pendingFeedbackRef.current = type;
     setActiveAlerts((prev) => [...prev, type]);
     trackEvent('alert_created', { alert_type: type, threshold: thresholds[type] });
-    triggerNotificationIfNeeded(type);
   };
 
   const adjustThreshold = (type: AlertType, delta: number) => {
@@ -117,16 +134,7 @@ export default function AlertsScreen() {
 
   const checkAlert = (type: AlertType): boolean => {
     if (!weatherData || !activeAlerts.includes(type)) return false;
-    return evaluateAlert(type, thresholds[type], weatherData.current).triggered;
-  };
-
-  const triggerNotificationIfNeeded = async (type: AlertType) => {
-    if (!weatherData) return;
-    const evaluation = evaluateAlert(type, thresholds[type], weatherData.current);
-    if (!evaluation.triggered) return;
-    // Feedback instantáneo de una acción directa del usuario: ignora la franja "no molestar"
-    // a propósito (a diferencia del chequeo periódico en hooks/useWeather.ts).
-    await notifyTriggeredAlerts([evaluation], { respectDoNotDisturb: false });
+    return isConditionActiveNow(type, thresholds[type], weatherData.current, units);
   };
 
   const s = makeStyles(theme);
@@ -149,7 +157,7 @@ export default function AlertsScreen() {
                 <View style={s.alertInfo}>
                   <Text style={[s.alertLabel, isLocked && s.textLocked]}>{alertLabel(alert.id, t)}</Text>
                   <Text style={[s.alertDescription, isLocked && s.textLocked]}>
-                    {alertDescription(alert.id, t)} {thresholds[alert.id]}{alert.unit}
+                    {alertDescription(alert.id, t)} {formatAlertValue(alert.id, thresholds[alert.id], units)}
                   </Text>
                 </View>
                 {isLocked ? (
@@ -171,7 +179,7 @@ export default function AlertsScreen() {
                   <TouchableOpacity style={s.thresholdBtn} onPress={() => adjustThreshold(alert.id, -alert.step)}>
                     <Text style={s.thresholdBtnText}>−</Text>
                   </TouchableOpacity>
-                  <Text style={s.thresholdValue}>{thresholds[alert.id]}{alert.unit}</Text>
+                  <Text style={s.thresholdValue}>{formatAlertValue(alert.id, thresholds[alert.id], units)}</Text>
                   <TouchableOpacity style={s.thresholdBtn} onPress={() => adjustThreshold(alert.id, alert.step)}>
                     <Text style={s.thresholdBtnText}>+</Text>
                   </TouchableOpacity>
@@ -243,7 +251,7 @@ export default function AlertsScreen() {
               <Text style={s.premiumTitle}>{t('alerts.premium.title')}</Text>
               <Text style={s.premiumDescription}>{t('alerts.premium.description')}</Text>
             </View>
-            <TouchableOpacity style={s.premiumBtn} onPress={() => setPaywallVisible(true)}>
+            <TouchableOpacity style={s.premiumBtn} onPress={() => openPaywall('alerts_banner')}>
               <Text style={s.premiumBtnText}>{t('alerts.premium.price')}</Text>
             </TouchableOpacity>
           </View>
@@ -257,7 +265,7 @@ export default function AlertsScreen() {
         isPremium={isPremium}
         onUpgradePress={openPaywallFromHistory}
       />
-      <Paywall visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+      <Paywall visible={paywallVisible} source={paywallSource} onClose={() => setPaywallVisible(false)} />
     </SafeAreaView>
   );
 }

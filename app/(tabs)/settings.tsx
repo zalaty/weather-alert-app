@@ -10,7 +10,7 @@ import { useWeatherStore } from '../../store/weatherStore';
 import { setAppLanguage, SUPPORTED_LANGUAGES, SupportedLanguage } from '../../i18n';
 import { restorePurchases } from '../../services/purchases';
 import { trackEvent } from '../../services/analytics';
-import Paywall from '../../components/Paywall';
+import Paywall, { PaywallSource } from '../../components/Paywall';
 
 const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
   es: 'Español',
@@ -50,6 +50,11 @@ export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const isPremium = useIsPremium();
   const [paywallVisible, setPaywallVisible] = useState(false);
+  const [paywallSource, setPaywallSource] = useState<PaywallSource>('settings_banner');
+  const openPaywall = (source: PaywallSource) => {
+    setPaywallSource(source);
+    setPaywallVisible(true);
+  };
   const [restoring, setRestoring] = useState(false);
   const isMetric = units === 'metric';
   const s = makeStyles(theme);
@@ -77,7 +82,7 @@ export default function SettingsScreen() {
         <Text style={s.screenTitle}>{t('settings.title')}</Text>
 
         {!isPremium && (
-          <TouchableOpacity style={s.premiumBanner} onPress={() => setPaywallVisible(true)}>
+          <TouchableOpacity style={s.premiumBanner} onPress={() => openPaywall('settings_banner')}>
             <Text style={s.premiumEmoji}>💎</Text>
             <View style={s.premiumText}>
               <Text style={s.premiumTitle}>{t('settings.premiumBanner.title')}</Text>
@@ -168,7 +173,7 @@ export default function SettingsScreen() {
         </View>
       </ScrollView>
 
-      <Paywall visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+      <Paywall visible={paywallVisible} source={paywallSource} onClose={() => setPaywallVisible(false)} />
     </SafeAreaView>
   );
 }

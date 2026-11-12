@@ -3,6 +3,7 @@ import { AlertType } from '../services/alertsStorage';
 export interface AlertTypeMeta {
   id: AlertType;
   emoji: string;
+  /** Unidad MÉTRICA en la que se guarda el umbral. Para mostrarlo usa utils/alertUnits.ts */
   unit: string;
   defaultThreshold: number;
   min: number;

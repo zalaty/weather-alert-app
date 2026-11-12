@@ -12,17 +12,35 @@ const PACKAGE_ORDER: Partial<Record<PACKAGE_TYPE, number>> = {
   [PACKAGE_TYPE.ANNUAL]: 1,
 };
 
+export type PaywallSource =
+  | 'alerts_lock'
+  | 'alerts_banner'
+  | 'alerts_history'
+  | 'settings_banner'
+  | 'saved_locations'
+  | 'home_air_quality'
+  | 'forecast_air_quality'
+  | 'radar';
+
 interface PaywallProps {
   visible: boolean;
+  /** Desde dónde se abrió (evento paywall_viewed) */
+  source: PaywallSource;
   onClose: () => void;
 }
 
-export default function Paywall({ visible, onClose }: PaywallProps) {
+export default function Paywall({ visible, source, onClose }: PaywallProps) {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const [offering, setOffering] = useState<PurchasesOffering | null>(null);
   const [loadingOffering, setLoadingOffering] = useState(false);
   const [purchasingId, setPurchasingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (visible) trackEvent('paywall_viewed', { source });
+    // Solo al hacerse visible: `source` no cambia mientras está abierto
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible]);
 
   useEffect(() => {
     if (!visible) return;

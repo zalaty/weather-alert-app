@@ -31,7 +31,10 @@ export interface CurrentWeather {
 }
 
 export interface HourlyWeather {
+  /** "HH:MM:SS" en hora local de la UBICACIÓN (no del dispositivo) */
   time: string;
+  /** Instante absoluto del inicio de la hora (ms epoch). Opcional: los snapshots antiguos no lo traen */
+  epoch?: number;
   temp: number;
   feelsLike: number;
   humidity: number;
@@ -158,7 +161,7 @@ export async function fetchWeather(
 ): Promise<WeatherData> {
   const lang = toApiLanguage(i18n.language);
   const elements = [
-    'datetime', 'temp', 'feelslike', 'humidity', 'windspeed', 'winddir',
+    'datetime', 'datetimeEpoch', 'temp', 'feelslike', 'humidity', 'windspeed', 'winddir',
     'precipprob', 'precip', 'uvindex', 'visibility', 'conditions', 'icon',
     'sunrise', 'sunset', 'tempmax', 'tempmin', 'description',
     'aqius', 'aqieur', 'pm2p5', 'pm10', 'o3', 'no2',
@@ -238,6 +241,7 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
 
   const parseHour = (h: any): HourlyWeather => ({
     time: h.datetime,
+    epoch: typeof h.datetimeEpoch === 'number' ? h.datetimeEpoch * 1000 : undefined,
     temp: Math.round(h.temp),
     feelsLike: Math.round(h.feelslike),
     humidity: Math.round(h.humidity ?? 0),
