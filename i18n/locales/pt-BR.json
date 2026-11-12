@@ -45,6 +45,7 @@
     "freeTierSubtitle": "Versão gratuita: 1 alerta ativo",
     "premiumTierSubtitle": "Premium: alertas ilimitados",
     "conditionActive": "⚠️ Condição ativa agora",
+    "permission": { "message": "As notificações estão desativadas", "openSettings": "Abrir configurações" },
     "types": {
       "rain": { "label": "Chuva", "description": "Avise-me antes que a probabilidade de chuva ultrapasse" },
       "wind": { "label": "Vento forte", "description": "Avise-me antes que o vento ultrapasse" },

@@ -45,6 +45,7 @@
     "freeTierSubtitle": "Kostenlose Version: 1 aktive Warnung",
     "premiumTierSubtitle": "Premium: unbegrenzte Warnungen",
     "conditionActive": "⚠️ Bedingung derzeit aktiv",
+    "permission": { "message": "Benachrichtigungen sind deaktiviert", "openSettings": "Einstellungen öffnen" },
     "types": {
       "rain": { "label": "Regen", "description": "Vorwarnung bei Regenwahrscheinlichkeit über" },
       "wind": { "label": "Starker Wind", "description": "Vorwarnung bei Wind über" },

@@ -45,6 +45,7 @@
     "freeTierSubtitle": "Wersja bezpłatna: 1 aktywny alert",
     "premiumTierSubtitle": "Premium: nieograniczona liczba alertów",
     "conditionActive": "⚠️ Warunek obecnie aktywny",
+    "permission": { "message": "Powiadomienia są wyłączone", "openSettings": "Otwórz ustawienia" },
     "types": {
       "rain": { "label": "Deszcz", "description": "Powiadom mnie, zanim prawdopodobieństwo deszczu przekroczy" },
       "wind": { "label": "Silny wiatr", "description": "Powiadom mnie, zanim wiatr przekroczy" },

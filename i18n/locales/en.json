@@ -45,6 +45,7 @@
     "freeTierSubtitle": "Free tier: 1 active alert",
     "premiumTierSubtitle": "Premium: unlimited alerts",
     "conditionActive": "⚠️ Condition currently active",
+    "permission": { "message": "Notifications are turned off", "openSettings": "Open settings" },
     "types": {
       "rain": { "label": "Rain", "description": "Notify me before rain probability exceeds" },
       "wind": { "label": "Strong wind", "description": "Notify me before wind exceeds" },

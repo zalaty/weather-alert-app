@@ -45,6 +45,7 @@
     "freeTierSubtitle": "Ücretsiz sürüm: 1 aktif uyarı",
     "premiumTierSubtitle": "Premium: sınırsız uyarı",
     "conditionActive": "⚠️ Koşul şu anda aktif",
+    "permission": { "message": "Bildirimler kapalı", "openSettings": "Ayarları aç" },
     "types": {
       "rain": { "label": "Yağmur", "description": "Yağmur olasılığı için ön uyarı eşiği:" },
       "wind": { "label": "Kuvvetli rüzgâr", "description": "Rüzgâr için ön uyarı eşiği:" },

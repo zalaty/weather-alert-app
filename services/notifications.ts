@@ -34,7 +34,17 @@ function ensureAlertsChannel(): Promise<void> {
   return channelReady;
 }
 
+/** Consulta el permiso sin pedirlo */
+export async function isNotificationPermissionGranted(): Promise<boolean> {
+  const { status } = await Notifications.getPermissionsAsync();
+  return status === 'granted';
+}
+
 export async function requestNotificationPermission(): Promise<boolean> {
+  // El canal va ANTES de pedir el permiso: en Android 13+ el diálogo del sistema puede no
+  // mostrarse si la app aún no ha creado ningún canal.
+  await ensureAlertsChannel();
+
   const { status: existing } = await Notifications.getPermissionsAsync();
 
   if (existing === 'granted') return true;
@@ -54,9 +64,8 @@ export async function scheduleWeatherAlertAt(
   body: string,
   date: Date | null,
 ): Promise<boolean> {
-  const hasPermission = await requestNotificationPermission();
+  const hasPermission = await requestNotificationPermission(); // crea también el canal
   if (!hasPermission) return false;
-  await ensureAlertsChannel();
 
   const isFuture = date != null && date.getTime() > Date.now();
 

@@ -41,14 +41,14 @@ export function formatAlertValue(type: AlertType, metricValue: number, units: Un
   return type === 'wind' ? `${n} ${unit}` : `${n}${unit}`;
 }
 
-/** "HH:MM[:SS]" (hora local de la ubicación) → hora formateada según el locale ("17:00", "5:00 PM") */
+/** "HH:MM[:SS]" (hora local de la ubicación) → hora formateada según el locale ("17:00", "05:00 PM") */
 export function formatClockTime(time: string, locale: string): string {
   const [h, m] = time.split(':').map(Number);
   // Se formatea en UTC a propósito: la cadena ya es hora local de la ubicación y no debe
   // volver a desplazarse por la zona horaria del dispositivo.
   const date = new Date(Date.UTC(2000, 0, 1, h || 0, m || 0));
   try {
-    return new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' }).format(date);
+    return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }).format(date);
   } catch {
     return time.slice(0, 5);
   }
