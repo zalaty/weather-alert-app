@@ -28,7 +28,7 @@ import {
 } from '../../services/savedLocationsStorage';
 import { trackEvent } from '../../services/analytics';
 import SavedLocationsSheet from '../../components/SavedLocationsSheet';
-import Paywall from '../../components/Paywall';
+import Paywall, { PaywallSource } from '../../components/Paywall';
 import HourDetailSheet from '../../components/HourDetailSheet';
 import AirQualityCard from '../../components/weather/AirQualityCard';
 import RainRadarCard from '../../components/weather/RainRadarCard';
@@ -62,6 +62,11 @@ export default function HomeScreen() {
   const [savedLocationsLoaded, setSavedLocationsLoaded] = useState(false);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [paywallVisible, setPaywallVisible] = useState(false);
+  const [paywallSource, setPaywallSource] = useState<PaywallSource>('saved_locations');
+  const openPaywall = (source: PaywallSource) => {
+    setPaywallSource(source);
+    setPaywallVisible(true);
+  };
   const [selectedHour, setSelectedHour] = useState<HourlyWeather | null>(null);
   const [hourSheetVisible, setHourSheetVisible] = useState(false);
   const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -122,7 +127,7 @@ export default function HomeScreen() {
     if (!isPremium && savedLocations.length >= 1) {
       trackEvent('location_limit_reached');
       setSheetVisible(false);
-      setPaywallVisible(true);
+      openPaywall('saved_locations');
       return;
     }
     const newLocation: SavedLocation = {
@@ -142,7 +147,7 @@ export default function HomeScreen() {
 
   const handleRequestAirQualityPaywall = useCallback(() => {
     trackEvent('air_quality_gate_reached');
-    setPaywallVisible(true);
+    openPaywall('home_air_quality');
   }, []);
 
   const handleSelectHour = useCallback((hour: HourlyWeather) => {
@@ -153,7 +158,7 @@ export default function HomeScreen() {
   const handlePressRadar = useCallback(() => {
     if (!isPremium) {
       trackEvent('radar_gate_reached');
-      setPaywallVisible(true);
+      openPaywall('radar');
       return;
     }
     if (!currentCoords) return;
@@ -342,7 +347,7 @@ export default function HomeScreen() {
         onSaveCurrent={handleSaveCurrentLocation}
         onRemove={handleRemoveSavedLocation}
       />
-      <Paywall visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+      <Paywall visible={paywallVisible} source={paywallSource} onClose={() => setPaywallVisible(false)} />
       <HourDetailSheet
         visible={hourSheetVisible}
         onClose={() => setHourSheetVisible(false)}

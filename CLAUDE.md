@@ -11,11 +11,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm install --legacy-peer-deps   # plain `npm install` fails: the tree has orphaned peer conflicts
 npx expo start                   # dev server (press i/a/w, or scan QR with Expo Go)
 npm run android / ios / web      # expo start --android / --ios / --web
-npx tsc --noEmit                 # typecheck (no test suite or linter is configured)
+npx tsc --noEmit                 # typecheck (no linter is configured)
+npm test                         # jest (jest-expo); unit tests live in __tests__/
 ```
 
-There is no test runner, lint script, or CI check beyond the build below — `tsc --noEmit` is the
-only automated verification available. When adding Expo-specific packages, use
+There is no lint script — `tsc --noEmit` and `npm test` are the only automated verification
+available. `.github/workflows/ci.yml` runs both on every pull request. When adding Expo-specific packages, use
 `npx expo install <pkg>` (not plain npm) so the version matches the installed SDK.
 
 After any `npx expo install` or other dependency change, run `rm -rf .expo` before the next
@@ -39,8 +40,17 @@ leftover Expo template files and are **not** part of the running app — the rea
 between GPS (`expo-location`) and a manually-searched city, applies a 30-minute cache
 (`lastUpdated` in the store), calls `services/weatherApi.ts` to fetch from the Visual Crossing
 Timeline API (key in `EXPO_PUBLIC_WEATHER_API_KEY`, `.env`) and reverse-geocodes via Nominatim,
-then checks the active alert threshold and fires a local notification through
-`services/notifications.ts` (`expo-notifications`) when it's crossed.
+then calls `replanAlerts()` (`services/alertScheduler.ts`).
+
+**Alerts**: `services/alertEngine.ts` is pure (`planAlerts`, unit-tested): for each active alert it
+finds the first hour in the next 24 h of forecast that crosses the threshold and plans a notice
+`LEAD_MINUTES` (60) before it. `alertScheduler.ts` holds the side effects: cancel our scheduled
+notifications → plan → dedupe per episode (`alertEpisodes` in AsyncStorage) → reschedule with stable
+ids (`avisa-alert-*`) via `services/notifications.ts`, plus history and `alert_scheduled` analytics.
+Alerts are tied to GPS: the scheduler only uses GPS data (this session's last GPS fetch, else the
+persisted snapshot), never a searched/saved city. Thresholds are always stored in metric; all unit
+conversion lives in `utils/alertUnits.ts`. Hour instants come from `datetimeEpoch` (`hour.epoch`);
+data without it (old snapshots) is not plannable.
 
 **State**: `store/weatherStore.ts` is a plain Zustand store with no persistence middleware.
 `services/weatherPersistence.ts` selectively persists two things via `AsyncStorage`: the `units`

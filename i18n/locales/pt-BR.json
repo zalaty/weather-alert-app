@@ -45,11 +45,12 @@
     "freeTierSubtitle": "Versão gratuita: 1 alerta ativo",
     "premiumTierSubtitle": "Premium: alertas ilimitados",
     "conditionActive": "⚠️ Condição ativa agora",
+    "permission": { "message": "As notificações estão desativadas", "openSettings": "Abrir configurações" },
     "types": {
-      "rain": { "label": "Chuva", "description": "Avise-me se a probabilidade de chuva ultrapassar" },
-      "wind": { "label": "Vento forte", "description": "Avise-me se o vento ultrapassar" },
-      "temp_low": { "label": "Temperatura mínima", "description": "Avise-me se a temperatura cair abaixo de" },
-      "temp_high": { "label": "Temperatura máxima", "description": "Avise-me se a temperatura subir acima de" }
+      "rain": { "label": "Chuva", "description": "Avise-me antes que a probabilidade de chuva ultrapasse" },
+      "wind": { "label": "Vento forte", "description": "Avise-me antes que o vento ultrapasse" },
+      "temp_low": { "label": "Temperatura mínima", "description": "Avise-me antes que a temperatura caia abaixo de" },
+      "temp_high": { "label": "Temperatura máxima", "description": "Avise-me antes que a temperatura suba acima de" }
     },
     "premium": {
       "title": "Alertas ilimitados",
@@ -59,10 +60,12 @@
     "notifications": {
       "title": "⚠️ Alerta: {{label}}",
       "groupedTitle": "⚠️ {{count}} alertas disparados",
-      "rainBody": "Probabilidade de chuva: {{value}}%",
-      "windBody": "Vento atual: {{value}} km/h",
-      "tempLowBody": "Temperatura atual: {{value}}°C",
-      "tempHighBody": "Temperatura atual: {{value}}°C"
+      "rainForecast": "Chuva prevista às {{time}} ({{value}}%)",
+      "windForecast": "Vento de {{value}} previsto às {{time}}",
+      "tempForecast": "Temperatura de {{value}} prevista às {{time}}",
+      "rainNow": "Probabilidade de chuva agora: {{value}}%",
+      "windNow": "Vento agora: {{value}}",
+      "tempNow": "Temperatura agora: {{value}}"
     },
     "doNotDisturb": {
       "sectionTitle": "Não perturbe",
@@ -76,7 +79,8 @@
       "empty": "Nenhum alerta foi disparado ainda",
       "thresholdLabel": "Limite",
       "silencedTag": "🔕 Não perturbe",
-      "limitedNotice": "Mostrando os últimos {{count}}. Seja Premium para ver o histórico completo."
+      "limitedNotice": "Mostrando os últimos {{count}}. Seja Premium para ver o histórico completo.",
+      "forecastFor": "Previsto para: {{time}}"
     }
   },
   "savedLocations": {

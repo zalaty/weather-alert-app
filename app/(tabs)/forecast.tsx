@@ -22,7 +22,7 @@ import { translateCondition } from '../../utils/weatherConditions';
 import { getAqiCategory, getAqiSeverity, getAqiSeverityIcon } from '../../utils/airQuality';
 import { trackEvent } from '../../services/analytics';
 import MetricSelector, { WeatherMetric } from '../../components/weather/MetricSelector';
-import Paywall from '../../components/Paywall';
+import Paywall, { PaywallSource } from '../../components/Paywall';
 
 function formatDay(dateStr: string, t: TFunction, language: string): string {
   const date = new Date(dateStr + 'T00:00:00');
@@ -191,11 +191,16 @@ export default function ForecastScreen() {
   const isPremium = useIsPremium();
   const [metric, setMetric] = useState<WeatherMetric>('temp');
   const [paywallVisible, setPaywallVisible] = useState(false);
+  const [paywallSource, setPaywallSource] = useState<PaywallSource>('forecast_air_quality');
+  const openPaywall = (source: PaywallSource) => {
+    setPaywallSource(source);
+    setPaywallVisible(true);
+  };
   const s = makeStyles(theme);
 
   const handleRequestPaywall = () => {
     trackEvent('air_quality_gate_reached');
-    setPaywallVisible(true);
+    openPaywall('forecast_air_quality');
   };
 
   if (isLoading && !weatherData) {
@@ -230,7 +235,7 @@ export default function ForecastScreen() {
         </View>
       </ScrollView>
 
-      <Paywall visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+      <Paywall visible={paywallVisible} source={paywallSource} onClose={() => setPaywallVisible(false)} />
     </SafeAreaView>
   );
 }

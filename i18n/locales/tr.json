@@ -45,11 +45,12 @@
     "freeTierSubtitle": "Ücretsiz sürüm: 1 aktif uyarı",
     "premiumTierSubtitle": "Premium: sınırsız uyarı",
     "conditionActive": "⚠️ Koşul şu anda aktif",
+    "permission": { "message": "Bildirimler kapalı", "openSettings": "Ayarları aç" },
     "types": {
-      "rain": { "label": "Yağmur", "description": "Yağmur olasılığı eşiği:" },
-      "wind": { "label": "Kuvvetli rüzgâr", "description": "Rüzgâr eşiği:" },
-      "temp_low": { "label": "Minimum sıcaklık", "description": "Minimum sıcaklık eşiği:" },
-      "temp_high": { "label": "Maksimum sıcaklık", "description": "Maksimum sıcaklık eşiği:" }
+      "rain": { "label": "Yağmur", "description": "Yağmur olasılığı için ön uyarı eşiği:" },
+      "wind": { "label": "Kuvvetli rüzgâr", "description": "Rüzgâr için ön uyarı eşiği:" },
+      "temp_low": { "label": "Minimum sıcaklık", "description": "Minimum sıcaklık için ön uyarı eşiği:" },
+      "temp_high": { "label": "Maksimum sıcaklık", "description": "Maksimum sıcaklık için ön uyarı eşiği:" }
     },
     "premium": {
       "title": "Sınırsız uyarı",
@@ -59,10 +60,12 @@
     "notifications": {
       "title": "⚠️ Uyarı: {{label}}",
       "groupedTitle": "⚠️ {{count}} uyarı tetiklendi",
-      "rainBody": "Yağmur olasılığı: %{{value}}",
-      "windBody": "Güncel rüzgâr: {{value}} km/h",
-      "tempLowBody": "Güncel sıcaklık: {{value}}°C",
-      "tempHighBody": "Güncel sıcaklık: {{value}}°C"
+      "rainForecast": "Saat {{time}} için yağmur bekleniyor (%{{value}})",
+      "windForecast": "Saat {{time}} için {{value}} rüzgâr bekleniyor",
+      "tempForecast": "Saat {{time}} için {{value}} sıcaklık bekleniyor",
+      "rainNow": "Şu an yağmur olasılığı: %{{value}}",
+      "windNow": "Şu an rüzgâr: {{value}}",
+      "tempNow": "Şu an sıcaklık: {{value}}"
     },
     "doNotDisturb": {
       "sectionTitle": "Rahatsız Etme",
@@ -76,7 +79,8 @@
       "empty": "Henüz hiçbir uyarı tetiklenmedi",
       "thresholdLabel": "Eşik",
       "silencedTag": "🔕 Rahatsız Etme",
-      "limitedNotice": "Son {{count}} gösteriliyor. Tüm geçmişi görmek için Premium'a geçin."
+      "limitedNotice": "Son {{count}} gösteriliyor. Tüm geçmişi görmek için Premium'a geçin.",
+      "forecastFor": "Beklenen zaman: {{time}}"
     }
   },
   "savedLocations": {

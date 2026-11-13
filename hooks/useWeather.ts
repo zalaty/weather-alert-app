@@ -3,28 +3,9 @@ import * as Location from 'expo-location';
 import { useTranslation } from 'react-i18next';
 import { fetchWeather, WeatherData } from '../services/weatherApi';
 import { useWeatherStore } from '../store/weatherStore';
-import { loadActiveAlerts } from '../services/alertsStorage';
-import { evaluateAlert, notifyTriggeredAlerts } from '../services/alertEngine';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { replanAlerts } from '../services/alertScheduler';
 
 const CACHE_DURATION = 30 * 60 * 1000;
-
-async function checkAndNotify(data: WeatherData) {
-  try {
-    const activeAlerts = await loadActiveAlerts();
-    const savedThresholds = await AsyncStorage.getItem('thresholds');
-    if (activeAlerts.length === 0 || !savedThresholds) return;
-
-    const thresholds = JSON.parse(savedThresholds);
-    const triggered = activeAlerts
-      .map((type) => evaluateAlert(type, thresholds[type], data.current))
-      .filter((e) => e.triggered);
-
-    await notifyTriggeredAlerts(triggered, { respectDoNotDisturb: true });
-  } catch (e) {
-    console.error('Error checking alert:', e);
-  }
-}
 
 export function useWeather() {
   const { t, i18n: i18nInstance } = useTranslation();
@@ -69,6 +50,7 @@ export function useWeather() {
       try {
         let latitude: number;
         let longitude: number;
+        let isGpsFetch = false;
 
         if (!forceGPS && isManualLocation && location) {
           // Usar coordenadas de la ciudad seleccionada manualmente
@@ -85,11 +67,15 @@ export function useWeather() {
           latitude = coords.coords.latitude;
           longitude = coords.coords.longitude;
           setLocation({ latitude, longitude });
+          isGpsFetch = true;
         }
 
         const data = await fetchWeather(latitude, longitude, units);
         setWeatherData(data);
-        await checkAndNotify(data);
+        // Las alertas están atadas al GPS: solo un fetch por GPS aporta datos nuevos al
+        // planificador. Con una ciudad manual se replanifica igualmente (por si cambió el
+        // idioma o las unidades), pero sobre el último dato de GPS conservado.
+        await replanAlerts(isGpsFetch ? { gpsData: { weatherData: data, units } } : {});
       } catch (err) {
         setError(t('errors.weatherFetchFailed'));
         console.error('Weather fetch error:', err);

@@ -28,6 +28,22 @@ interface WeatherSnapshot {
 
 let subscribed = false;
 
+/**
+ * Último tiempo obtenido por GPS, con las unidades en que se pidió. Lo usa el planificador de
+ * alertas cuando en pantalla hay una ciudad buscada/guardada: las alertas siguen atadas al GPS.
+ */
+export async function loadGpsSnapshot(): Promise<{ weatherData: WeatherData; units: Units } | null> {
+  try {
+    const raw = await AsyncStorage.getItem(SNAPSHOT_KEY);
+    if (!raw) return null;
+    const snap = JSON.parse(raw) as WeatherSnapshot;
+    if (snap.v !== SNAPSHOT_VERSION || !snap.weatherData) return null;
+    return { weatherData: snap.weatherData, units: snap.units };
+  } catch {
+    return null;
+  }
+}
+
 export async function hydrateWeatherStore(): Promise<void> {
   try {
     const [rawUnits, rawSnapshot] = await Promise.all([

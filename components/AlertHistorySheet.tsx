@@ -4,6 +4,7 @@ import { Typography, Spacing, Radius, Theme } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { getIntlLocale } from '../i18n';
 import { ALERT_TYPES } from '../constants/alertTypes';
+import { alertUnitLabel, formatAlertValue } from '../utils/alertUnits';
 import { AlertHistoryEntry, ALERT_HISTORY_FREE_LIMIT } from '../services/alertHistoryStorage';
 
 interface AlertHistorySheetProps {
@@ -49,14 +50,31 @@ export default function AlertHistorySheet({
                   dateStyle: 'medium',
                   timeStyle: 'short',
                 });
+                // Las entradas antiguas no llevan unidades (métrico) ni hora prevista
+                const entryUnits = entry.units ?? 'metric';
+                const valueText =
+                  entry.type === 'wind'
+                    ? `${entry.value} ${alertUnitLabel('wind', entryUnits)}`
+                    : `${entry.value}${alertUnitLabel(entry.type, entryUnits)}`;
+                const eventTime =
+                  entry.eventTime != null
+                    ? new Date(entry.eventTime).toLocaleString(getIntlLocale(i18n.language), {
+                        weekday: 'short',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                      })
+                    : null;
                 return (
                   <View key={`${entry.timestamp}-${index}`} style={s.entryRow}>
                     <Text style={s.entryEmoji}>{alertMeta.emoji}</Text>
                     <View style={s.entryInfo}>
                       <Text style={s.entryLabel}>{label}</Text>
                       <Text style={s.entryDetail}>
-                        {entry.value}{alertMeta.unit} · {t('alerts.history.thresholdLabel')}: {entry.threshold}{alertMeta.unit}
+                        {valueText} · {t('alerts.history.thresholdLabel')}: {formatAlertValue(entry.type, entry.threshold, entryUnits)}
                       </Text>
+                      {eventTime && (
+                        <Text style={s.entryDetail}>{t('alerts.history.forecastFor', { time: eventTime })}</Text>
+                      )}
                       <Text style={s.entryDate}>
                         {date}
                         {!entry.notified ? ` · ${t('alerts.history.silencedTag')}` : ''}

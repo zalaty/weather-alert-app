@@ -45,11 +45,12 @@
     "freeTierSubtitle": "Kostenlose Version: 1 aktive Warnung",
     "premiumTierSubtitle": "Premium: unbegrenzte Warnungen",
     "conditionActive": "⚠️ Bedingung derzeit aktiv",
+    "permission": { "message": "Benachrichtigungen sind deaktiviert", "openSettings": "Einstellungen öffnen" },
     "types": {
-      "rain": { "label": "Regen", "description": "Benachrichtigung bei Regenwahrscheinlichkeit über" },
-      "wind": { "label": "Starker Wind", "description": "Benachrichtigung bei Wind über" },
-      "temp_low": { "label": "Mindesttemperatur", "description": "Benachrichtigung bei Temperatur unter" },
-      "temp_high": { "label": "Höchsttemperatur", "description": "Benachrichtigung bei Temperatur über" }
+      "rain": { "label": "Regen", "description": "Vorwarnung bei Regenwahrscheinlichkeit über" },
+      "wind": { "label": "Starker Wind", "description": "Vorwarnung bei Wind über" },
+      "temp_low": { "label": "Mindesttemperatur", "description": "Vorwarnung bei Temperatur unter" },
+      "temp_high": { "label": "Höchsttemperatur", "description": "Vorwarnung bei Temperatur über" }
     },
     "premium": {
       "title": "Unbegrenzte Warnungen",
@@ -59,10 +60,12 @@
     "notifications": {
       "title": "⚠️ Warnung: {{label}}",
       "groupedTitle": "⚠️ {{count}} Warnungen ausgelöst",
-      "rainBody": "Regenwahrscheinlichkeit: {{value}}%",
-      "windBody": "Aktueller Wind: {{value}} km/h",
-      "tempLowBody": "Aktuelle Temperatur: {{value}}°C",
-      "tempHighBody": "Aktuelle Temperatur: {{value}}°C"
+      "rainForecast": "Regen um {{time}} erwartet ({{value}} %)",
+      "windForecast": "Wind von {{value}} um {{time}} erwartet",
+      "tempForecast": "Temperatur von {{value}} um {{time}} erwartet",
+      "rainNow": "Regenwahrscheinlichkeit aktuell: {{value}} %",
+      "windNow": "Wind aktuell: {{value}}",
+      "tempNow": "Temperatur aktuell: {{value}}"
     },
     "doNotDisturb": {
       "sectionTitle": "Nicht stören",
@@ -76,7 +79,8 @@
       "empty": "Es wurde noch keine Warnung ausgelöst",
       "thresholdLabel": "Schwellenwert",
       "silencedTag": "🔕 Nicht stören",
-      "limitedNotice": "Die letzten {{count}} werden angezeigt. Werde Premium, um den vollständigen Verlauf zu sehen."
+      "limitedNotice": "Die letzten {{count}} werden angezeigt. Werde Premium, um den vollständigen Verlauf zu sehen.",
+      "forecastFor": "Erwartet: {{time}}"
     }
   },
   "savedLocations": {
