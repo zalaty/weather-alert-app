@@ -361,7 +361,7 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - **i18n**: claves `alerts.notifications.{rain,wind,temp}{Forecast,Now}` y `alerts.history.forecastFor` en los 9 idiomas, descripciones reescritas para dejar claro que se avisa con antelación; se eliminan las 4 claves `*Body` antiguas. Formato nominal en de/tr y `%` antes del número en tr. Las traducciones de pt-BR, fr, de, it, pl y tr no están revisadas por un hablante nativo
 - **Tests**: primer runner del proyecto — `jest` + `jest-expo`, `npm test`. `__tests__/alertEngine.test.ts` cubre `planAlerts` (hoy, mañana cruzando medianoche, nada que avisar, inminente, hora en curso, los tres casos de "no molestar" incluida franja que cruza medianoche, imperiales, zona horaria de la ubicación ≠ dispositivo), la deduplicación, episodios continuos y previsión inestable. Workflow nuevo `.github/workflows/ci.yml`: `tsc --noEmit` + `npm test` en cada pull request (el de EAS no se ha tocado)
 - **Limitaciones conocidas (inherentes a no tener background fetch)**: solo se programa lo que cae en las 24 h siguientes al último fetch; si la app no se abre en más de un día no hay avisos, y el texto programado refleja la previsión de ese último fetch
-- Verificado: `tsc --noEmit` limpio, 29 tests en verde, bundle de Android compila. **Pendiente**: prueba manual en dispositivo (Expo Go)
+- Verificado: `tsc --noEmit` limpio, 30 tests en verde (en local y en el CI, que va en UTC: la zona horaria de los tests se fija en `jest.globalSetup.js`), bundle de Android compila. **Pendiente**: prueba manual en dispositivo (Expo Go)
 - `AGENTS.md` corregido: apuntaba a la documentación de Expo v55; el proyecto está en SDK 54
 
 ### Fase 7 — Widget de pantalla de inicio

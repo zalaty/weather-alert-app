@@ -48,12 +48,10 @@ function makeData(day0Midnight: number, patches: Record<number, HourPatch> = {},
 const MADRID_MIDNIGHT = Date.UTC(2026, 10, 11, 23, 0, 0);
 const madrid = (hour: number, minute = 0) => new Date(MADRID_MIDNIGHT + hour * HOUR + minute * MIN);
 
-const ORIGINAL_TZ = process.env.TZ;
-beforeEach(() => {
-  process.env.TZ = 'Europe/Madrid';
-});
-afterAll(() => {
-  process.env.TZ = ORIGINAL_TZ;
+// El "dispositivo" de los tests está en hora de Madrid (ver jest.globalSetup.js). Si la zona no
+// se hubiera aplicado, los tests de "no molestar" pasarían o fallarían por casualidad.
+it('la zona horaria del dispositivo de los tests es Europe/Madrid', () => {
+  expect(new Date(MADRID_MIDNIGHT).getHours()).toBe(0);
 });
 
 describe('planAlerts', () => {
@@ -212,21 +210,24 @@ describe('planAlerts', () => {
   });
 
   it('zona horaria de la ubicación distinta a la del dispositivo: manda el instante absoluto', () => {
-    // Ubicación: Tokio (UTC+9). Medianoche local del 12-nov = 15:00 UTC del 11-nov
+    // Ubicación: Tokio (UTC+9); dispositivo: Madrid (UTC+1). Medianoche de Tokio del 12-nov = 15:00 UTC del 11-nov
     const tokyoMidnight = Date.UTC(2026, 10, 11, 15, 0, 0);
-    const data = makeData(tokyoMidnight, { 17: { precipProb: 80 } }); // 17:00 de Tokio
+    const data = makeData(tokyoMidnight, { 17: { precipProb: 80 } }); // 17:00 de Tokio = 09:00 de Madrid
     const now = new Date(tokyoMidnight + 10 * HOUR);
 
-    const results = ['America/New_York', 'Asia/Tokyo', 'Pacific/Auckland'].map((tz) => {
-      process.env.TZ = tz;
-      return planAlerts(['rain'], THRESHOLDS, data, 'metric', now);
-    });
+    const [plan] = planAlerts(['rain'], THRESHOLDS, data, 'metric', now);
+    expect(plan.eventAt).toBe(Date.UTC(2026, 10, 12, 8, 0, 0)); // 17:00 JST = 08:00 UTC
+    expect(plan.fireAt).toBe(Date.UTC(2026, 10, 12, 7, 0, 0));
+    expect(plan.eventLocalTime).toBe('17:00:00'); // el texto usa la hora de la ubicación
 
-    for (const [plan] of results) {
-      expect(plan.eventAt).toBe(Date.UTC(2026, 10, 12, 8, 0, 0)); // 17:00 JST = 08:00 UTC
-      expect(plan.fireAt).toBe(Date.UTC(2026, 10, 12, 7, 0, 0));
-      expect(plan.eventLocalTime).toBe('17:00:00'); // hora de la ubicación, no del dispositivo
-    }
+    // Leído como hora del dispositivo, "17:00" sería otro instante (16:00 UTC): no se usa
+    expect(plan.eventAt).not.toBe(new Date(2026, 10, 12, 17, 0, 0).getTime());
+
+    // "No molestar" va en hora del DISPOSITIVO: el aviso (08:00 de Madrid) cae en una franja 07–09
+    // de Madrid, aunque en Tokio sean las 16:00
+    const morning: DoNotDisturbConfig = { enabled: true, startHour: 7, endHour: 9 };
+    const [withDnd] = planAlerts(['rain'], THRESHOLDS, data, 'metric', now, { doNotDisturb: morning });
+    expect(withDnd.fireAt).toBe(Date.UTC(2026, 10, 12, 6, 0, 0) - DND_ADVANCE_MINUTES * MIN); // 06:55 de Madrid
   });
 
   it('horas sin instante absoluto (snapshot antiguo): no son planificables', () => {

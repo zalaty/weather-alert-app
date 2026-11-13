@@ -55,6 +55,7 @@
     "preset": "jest-expo",
     "testMatch": [
       "**/__tests__/**/*.test.ts"
-    ]
+    ],
+    "globalSetup": "<rootDir>/jest.globalSetup.js"
   }
 }
