@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWeather } from '../../hooks/useWeather';
 import { useTheme } from '../../hooks/useTheme';
 import { useIsPremium } from '../../hooks/useIsPremium';
+import { useUnitLabels } from '../../hooks/useUnitLabels';
 import { Typography, Spacing, Radius, Theme } from '../../constants/theme';
 import { AirQuality, DailyWeather, HourlyWeather } from '../../services/weatherApi';
 import { getIntlLocale } from '../../i18n';
@@ -72,11 +73,11 @@ function AqiFullDetail({ airQuality, theme, s, t }: { airQuality: AirQuality; th
   );
 }
 
-function DaySecondary({ day, metric, theme, windDirs, t, s }: {
-  day: DailyWeather; metric: WeatherMetric; theme: Theme; windDirs: string[]; t: TFunction; s: any;
+function DaySecondary({ day, metric, theme, windDirs, windLabel, s }: {
+  day: DailyWeather; metric: WeatherMetric; theme: Theme; windDirs: string[]; windLabel: string; s: any;
 }) {
   if (metric === 'wind') {
-    return <Text style={s.windText}>💨 {day.windSpeed} km/h {getWindDirection(day.windDir, windDirs)}</Text>;
+    return <Text style={s.windText}>💨 {day.windSpeed} {windLabel} {getWindDirection(day.windDir, windDirs)}</Text>;
   }
   if (metric === 'air') {
     return <AqiMini aqiUs={day.airQuality?.aqiUs} theme={theme} s={s} />;
@@ -84,11 +85,11 @@ function DaySecondary({ day, metric, theme, windDirs, t, s }: {
   return <Text style={s.windText}>💧 {day.humidity}%</Text>;
 }
 
-function HourSecondary({ hour, metric, windDirs, feelsLikeAbbr, theme, s }: {
-  hour: HourlyWeather; metric: WeatherMetric; windDirs: string[]; feelsLikeAbbr: string; theme: Theme; s: any;
+function HourSecondary({ hour, metric, windDirs, windLabel, feelsLikeAbbr, theme, s }: {
+  hour: HourlyWeather; metric: WeatherMetric; windDirs: string[]; windLabel: string; feelsLikeAbbr: string; theme: Theme; s: any;
 }) {
   if (metric === 'wind') {
-    return <Text style={s.windText}>💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir, windDirs)}</Text>;
+    return <Text style={s.windText}>💨 {hour.windSpeed} {windLabel} {getWindDirection(hour.windDir, windDirs)}</Text>;
   }
   if (metric === 'air') {
     return <AqiMini aqiUs={hour.airQuality?.aqiUs} theme={theme} s={s} />;
@@ -101,6 +102,7 @@ function HourRow({ hour, metric, theme, s, t, windDirs }: {
 }) {
   const [expanded, setExpanded] = useState(false);
   const feelsLikeAbbr = t('forecast.feelsLikeAbbr');
+  const { wind: windLabel } = useUnitLabels();
 
   return (
     <View style={s.hourBlock}>
@@ -112,7 +114,7 @@ function HourRow({ hour, metric, theme, s, t, windDirs }: {
             <Text style={s.hourConditions}>{translateCondition(hour.conditions, t)}</Text>
             {hour.precipProb > 20 && <Text style={s.precipText}>🌂 {hour.precipProb}%</Text>}
           </View>
-          <HourSecondary hour={hour} metric={metric} windDirs={windDirs} feelsLikeAbbr={feelsLikeAbbr} theme={theme} s={s} />
+          <HourSecondary hour={hour} metric={metric} windDirs={windDirs} windLabel={windLabel} feelsLikeAbbr={feelsLikeAbbr} theme={theme} s={s} />
         </View>
         <Text style={s.hourTemp}>{hour.temp}°</Text>
       </TouchableOpacity>
@@ -120,7 +122,7 @@ function HourRow({ hour, metric, theme, s, t, windDirs }: {
       {expanded && (
         <View style={s.hourDetailPanel}>
           <View style={s.summaryRow}>
-            <Text style={s.summaryItem}>💨 {hour.windSpeed} km/h {getWindDirection(hour.windDir, windDirs)}</Text>
+            <Text style={s.summaryItem}>💨 {hour.windSpeed} {windLabel} {getWindDirection(hour.windDir, windDirs)}</Text>
             <Text style={s.summaryItem}>🌡️ {feelsLikeAbbr} {hour.feelsLike}°</Text>
             <Text style={s.summaryItem}>💧 {hour.humidity}%</Text>
             <Text style={s.summaryItem}>☀️ UV {hour.uvIndex}</Text>
@@ -137,6 +139,7 @@ function DayExpandable({ day, isToday, theme, metric }: { day: DailyWeather; isT
   const { t, i18n } = useTranslation();
   const s = makeStyles(theme);
   const windDirs = t('weather.windDirections', { returnObjects: true }) as string[];
+  const { wind: windLabel } = useUnitLabels();
 
   const visibleHours = isToday
     ? day.hours.slice(Math.max(0, getCurrentHourIndex(day.hours)))
@@ -147,7 +150,7 @@ function DayExpandable({ day, isToday, theme, metric }: { day: DailyWeather; isT
       <TouchableOpacity style={s.dayRow} onPress={() => setExpanded((v) => !v)} activeOpacity={0.7}>
         <View style={s.dayLeft}>
           <Text style={s.dayName}>{formatDay(day.date, t, i18n.language)}</Text>
-          <DaySecondary day={day} metric={metric} theme={theme} windDirs={windDirs} t={t} s={s} />
+          <DaySecondary day={day} metric={metric} theme={theme} windDirs={windDirs} windLabel={windLabel} s={s} />
         </View>
         <Text style={s.dayEmoji}>{getWeatherEmoji(day.icon)}</Text>
         <View style={s.dayRight}>

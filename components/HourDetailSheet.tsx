@@ -2,6 +2,7 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Typography, Spacing, Radius, Theme } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+import { useUnitLabels } from '../hooks/useUnitLabels';
 import { HourlyWeather } from '../services/weatherApi';
 import { getWeatherEmoji } from '../utils/weatherIcons';
 import { translateCondition } from '../utils/weatherConditions';
@@ -11,12 +12,11 @@ interface HourDetailSheetProps {
   visible: boolean;
   onClose: () => void;
   hour: HourlyWeather | null;
-  unitLabel: string;
-  windLabel: string;
 }
 
-export default function HourDetailSheet({ visible, onClose, hour, unitLabel, windLabel }: HourDetailSheetProps) {
+export default function HourDetailSheet({ visible, onClose, hour }: HourDetailSheetProps) {
   const { theme } = useTheme();
+  const { temp: unitLabel, wind: windLabel } = useUnitLabels();
   const { t } = useTranslation();
   const s = makeStyles(theme);
 

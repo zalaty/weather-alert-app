@@ -18,6 +18,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useWeather } from '../../hooks/useWeather';
 import { useTheme } from '../../hooks/useTheme';
 import { useIsPremium } from '../../hooks/useIsPremium';
+import { useUnitLabels } from '../../hooks/useUnitLabels';
 import { Typography, Spacing, Radius } from '../../constants/theme';
 import { searchCities, CityResult } from '../../services/weatherApi';
 import {
@@ -44,7 +45,6 @@ export default function HomeScreen() {
     isLoading,
     error,
     refresh,
-    units,
     isManualLocation,
     searchAndLoadCity,
     backToGPS,
@@ -90,8 +90,7 @@ export default function HomeScreen() {
     saveSavedLocations(savedLocations);
   }, [savedLocations, savedLocationsLoaded]);
 
-  const unitLabel = units === 'metric' ? '°C' : '°F';
-  const windLabel = units === 'metric' ? 'km/h' : 'mph';
+  const { temp: unitLabel, wind: windLabel } = useUnitLabels();
 
   const handleSearchChange = useCallback((text: string) => {
     setSearchQuery(text);
@@ -352,8 +351,6 @@ export default function HomeScreen() {
         visible={hourSheetVisible}
         onClose={() => setHourSheetVisible(false)}
         hour={selectedHour}
-        unitLabel={unitLabel}
-        windLabel={windLabel}
       />
     </SafeAreaView>
   );

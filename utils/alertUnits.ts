@@ -1,6 +1,7 @@
 import type { AlertType } from '../services/alertsStorage';
+import { getUnitLabels, Units } from './units';
 
-export type Units = 'metric' | 'us';
+export type { Units };
 
 // Los umbrales de las alertas se guardan SIEMPRE en métrico (%, km/h, °C). Este es el único
 // sitio donde se convierte entre sistemas: el motor compara en métrico y la UI/notificaciones
@@ -24,8 +25,8 @@ export function fromMetric(type: AlertType, value: number, units: Units): number
 
 export function alertUnitLabel(type: AlertType, units: Units): string {
   if (type === 'rain') return '%';
-  if (type === 'wind') return units === 'us' ? 'mph' : 'km/h';
-  return units === 'us' ? '°F' : '°C';
+  const labels = getUnitLabels(units);
+  return type === 'wind' ? labels.wind : labels.temp;
 }
 
 /** Número redondeado en unidades de visualización, sin sufijo */
