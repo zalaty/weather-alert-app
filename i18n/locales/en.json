@@ -1,6 +1,7 @@
 {
   "common": {
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "tabs": {
     "home": "Home",
@@ -91,43 +92,66 @@
   },
   "settings": {
     "title": "Settings",
-    "units": {
-      "sectionTitle": "Units",
-      "metricLabel": "Metric system"
+    "sections": {
+      "preferences": "Preferences",
+      "notifications": "Notifications",
+      "help": "Help"
     },
-    "temperature": {
-      "sectionTitle": "Temperature",
-      "celsius": "°C — Celsius",
-      "fahrenheit": "°F — Fahrenheit"
+    "units": {
+      "label": "Units",
+      "metricA11y": "Metric: degrees Celsius and kilometers per hour",
+      "imperialA11y": "Imperial: degrees Fahrenheit and miles per hour"
     },
     "language": {
-      "sectionTitle": "Language"
+      "label": "Language",
+      "automatic": "Automatic",
+      "automaticHint": "Device language: {{language}}"
     },
-    "about": {
-      "sectionTitle": "About",
-      "appLabel": "Avisa",
-      "version": "Version {{version}}",
-      "weatherDataLabel": "Weather data",
-      "weatherDataProvider": "Visual Crossing Weather API",
-      "autoUpdateLabel": "Auto refresh",
-      "autoUpdateDescription": "Every 30 minutes"
+    "appearance": {
+      "label": "Appearance",
+      "auto": "Auto",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "notifications": {
+      "label": "Notifications",
+      "on": "On",
+      "off": "Off",
+      "hint": "Opens system settings"
+    },
+    "help": {
+      "rate": "Rate Avisa",
+      "feedback": "Send feedback",
+      "privacy": "Privacy policy",
+      "restore": "Restore purchases",
+      "feedbackSubject": "Avisa feedback",
+      "feedbackBody": "Tell us what you'd like us to improve:",
+      "noMailTitle": "No email app found",
+      "noMailBody": "Write to us at {{email}}"
+    },
+    "premiumActive": {
+      "title": "Premium active",
+      "manage": "Manage subscription"
     },
     "premiumBanner": {
       "title": "Go Premium",
-      "description": "Unlimited alerts and custom thresholds",
+      "description": "Unlimited alerts, saved locations, air quality and rain radar",
       "cta": "View plans",
-      "restoreCta": "Restore purchases",
       "restoreSuccessTitle": "Purchase restored!",
       "restoreSuccessBody": "Your Premium subscription has been restored successfully.",
       "restoreNoneTitle": "Nothing to restore",
       "restoreNoneBody": "No previous purchases were found.",
       "restoreErrorTitle": "Couldn't restore purchases",
       "restoreErrorBody": "Something went wrong restoring your purchases. Please try again."
-    }
+    },
+    "a11y": {
+      "opensOutside": "Opens outside the app"
+    },
+    "footer": "Avisa {{version}} · Data: Visual Crossing"
   },
   "paywall": {
     "title": "Unlock Premium",
-    "subtitle": "Unlimited alerts, custom thresholds, and much more",
+    "subtitle": "Unlimited alerts, saved locations, air quality, rain radar and more",
     "unavailable": "No plans available right now. Please try again later.",
     "savings": "Save {{percent}}%",
     "disclaimer": "Subscription renews automatically. You can cancel anytime from Google Play.",

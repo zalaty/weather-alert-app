@@ -49,7 +49,8 @@ notifications → plan → dedupe per episode (`alertEpisodes` in AsyncStorage) 
 ids (`avisa-alert-*`) via `services/notifications.ts`, plus history and `alert_scheduled` analytics.
 Alerts are tied to GPS: the scheduler only uses GPS data (this session's last GPS fetch, else the
 persisted snapshot), never a searched/saved city. Thresholds are always stored in metric; all unit
-conversion lives in `utils/alertUnits.ts`. Hour instants come from `datetimeEpoch` (`hour.epoch`);
+conversion lives in `utils/alertUnits.ts`. Unit labels (°C/°F, km/h/mph, mm/in) come only from
+`utils/units.ts` (`useUnitLabels()` in components) — never hardcode them. Hour instants come from `datetimeEpoch` (`hour.epoch`);
 data without it (old snapshots) is not plannable.
 
 **State**: `store/weatherStore.ts` is a plain Zustand store with no persistence middleware.
@@ -71,8 +72,9 @@ normalized severity field). Shown free for everyone via `components/weather/Offi
 folder (CNG), so native Gradle changes must go through config plugins, not hand edits.
 
 **Theming**: `constants/theme.ts` exports `LightTheme`/`DarkTheme` objects plus `Typography`,
-`Spacing`, `Radius` scales; `hooks/useTheme.ts` picks light/dark from `useColorScheme()`. Dark mode follows the system
-(`userInterfaceStyle: "automatic"` + `expo-system-ui`, required on Android). Always take colors
+`Spacing`, `Radius` scales; `hooks/useTheme.ts` picks light/dark from the Settings preference
+(`services/appearance.ts`: auto/light/dark, persisted, hydrated before first render) and, in "auto", from
+`useColorScheme()` (`userInterfaceStyle: "automatic"` + `expo-system-ui`, required on Android). Always take colors
 from `theme` — the static `Colors` export is light-only and must not be used in UI (the tab bar
 did, and stayed white in dark mode). Every
 screen follows the same pattern: a `makeStyles(theme: Theme)` function returning
@@ -86,7 +88,7 @@ device locale to one of the three supported languages (LATAM region codes → `e
 for Spanish, `en` for English, `es` as ultimate fallback). `app/_layout.tsx` calls `initI18n()` and
 renders nothing until it resolves, so the correct language (persisted choice, else device
 detection) is known before first paint. Changing language via Settings
-(`setAppLanguage` in `i18n/index.ts`) persists to `AsyncStorage` and triggers a weather refetch,
+(`setAppLanguage` in `i18n/index.ts`; `setAutomaticLanguage` clears the saved choice) persists to `AsyncStorage` and triggers a weather refetch,
 because `services/weatherApi.ts` also passes the current language to the Visual Crossing (`lang=`)
 and Nominatim (`accept-language=`) requests — those two only distinguish `es`/`en`
 (`toApiLanguage()`), while the app's own UI strings/condition text distinguish all three locales.

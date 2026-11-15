@@ -1,6 +1,7 @@
 {
   "common": {
-    "cancel": "Annulla"
+    "cancel": "Annulla",
+    "close": "Chiudi"
   },
   "tabs": {
     "home": "Home",
@@ -91,43 +92,66 @@
   },
   "settings": {
     "title": "Impostazioni",
-    "units": {
-      "sectionTitle": "Unità",
-      "metricLabel": "Sistema metrico"
+    "sections": {
+      "preferences": "Preferenze",
+      "notifications": "Notifiche",
+      "help": "Assistenza"
     },
-    "temperature": {
-      "sectionTitle": "Temperatura",
-      "celsius": "°C — Celsius",
-      "fahrenheit": "°F — Fahrenheit"
+    "units": {
+      "label": "Unità",
+      "metricA11y": "Metrico: gradi Celsius e chilometri orari",
+      "imperialA11y": "Imperiale: gradi Fahrenheit e miglia orarie"
     },
     "language": {
-      "sectionTitle": "Lingua"
+      "label": "Lingua",
+      "automatic": "Automatica",
+      "automaticHint": "Lingua del dispositivo: {{language}}"
     },
-    "about": {
-      "sectionTitle": "Informazioni",
-      "appLabel": "Avisa",
-      "version": "Versione {{version}}",
-      "weatherDataLabel": "Dati meteo",
-      "weatherDataProvider": "Visual Crossing Weather API",
-      "autoUpdateLabel": "Aggiornamento automatico",
-      "autoUpdateDescription": "Ogni 30 minuti"
+    "appearance": {
+      "label": "Aspetto",
+      "auto": "Auto",
+      "light": "Chiaro",
+      "dark": "Scuro"
+    },
+    "notifications": {
+      "label": "Notifiche",
+      "on": "Attive",
+      "off": "Disattivate",
+      "hint": "Apre le impostazioni di sistema"
+    },
+    "help": {
+      "rate": "Valuta Avisa",
+      "feedback": "Invia un feedback",
+      "privacy": "Informativa sulla privacy",
+      "restore": "Ripristina acquisti",
+      "feedbackSubject": "Feedback su Avisa",
+      "feedbackBody": "Raccontaci cosa vorresti migliorare:",
+      "noMailTitle": "Nessuna app di posta",
+      "noMailBody": "Scrivici a {{email}}"
+    },
+    "premiumActive": {
+      "title": "Premium attivo",
+      "manage": "Gestisci abbonamento"
     },
     "premiumBanner": {
       "title": "Passa a Premium",
-      "description": "Avvisi illimitati e soglie personalizzate",
+      "description": "Avvisi illimitati, località salvate, qualità dell'aria e radar pioggia",
       "cta": "Vedi i piani",
-      "restoreCta": "Ripristina acquisti",
       "restoreSuccessTitle": "Acquisto ripristinato!",
       "restoreSuccessBody": "Il tuo abbonamento Premium è stato ripristinato con successo.",
       "restoreNoneTitle": "Niente da ripristinare",
       "restoreNoneBody": "Non è stato trovato nessun acquisto precedente.",
       "restoreErrorTitle": "Impossibile ripristinare gli acquisti",
       "restoreErrorBody": "Si è verificato un errore durante il ripristino degli acquisti. Riprova."
-    }
+    },
+    "a11y": {
+      "opensOutside": "Si apre fuori dall'app"
+    },
+    "footer": "Avisa {{version}} · Dati: Visual Crossing"
   },
   "paywall": {
     "title": "Sblocca Premium",
-    "subtitle": "Avvisi illimitati, soglie personalizzate e molto altro",
+    "subtitle": "Avvisi illimitati, località salvate, qualità dell'aria, radar pioggia e altro",
     "unavailable": "Nessun piano disponibile al momento. Riprova più tardi.",
     "savings": "Risparmia {{percent}}%",
     "disclaimer": "L'abbonamento si rinnova automaticamente. Puoi annullarlo in qualsiasi momento da Google Play.",

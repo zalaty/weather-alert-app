@@ -1,6 +1,7 @@
 {
   "common": {
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "close": "Schließen"
   },
   "tabs": {
     "home": "Start",
@@ -91,43 +92,66 @@
   },
   "settings": {
     "title": "Einstellungen",
-    "units": {
-      "sectionTitle": "Einheiten",
-      "metricLabel": "Metrisches System"
+    "sections": {
+      "preferences": "Präferenzen",
+      "notifications": "Benachrichtigungen",
+      "help": "Hilfe"
     },
-    "temperature": {
-      "sectionTitle": "Temperatur",
-      "celsius": "°C — Celsius",
-      "fahrenheit": "°F — Fahrenheit"
+    "units": {
+      "label": "Einheiten",
+      "metricA11y": "Metrisch: Grad Celsius und Kilometer pro Stunde",
+      "imperialA11y": "Imperial: Grad Fahrenheit und Meilen pro Stunde"
     },
     "language": {
-      "sectionTitle": "Sprache"
+      "label": "Sprache",
+      "automatic": "Automatisch",
+      "automaticHint": "Gerätesprache: {{language}}"
     },
-    "about": {
-      "sectionTitle": "Info",
-      "appLabel": "Avisa",
-      "version": "Version {{version}}",
-      "weatherDataLabel": "Wetterdaten",
-      "weatherDataProvider": "Visual Crossing Weather API",
-      "autoUpdateLabel": "Automatische Aktualisierung",
-      "autoUpdateDescription": "Alle 30 Minuten"
+    "appearance": {
+      "label": "Darstellung",
+      "auto": "Auto",
+      "light": "Hell",
+      "dark": "Dunkel"
+    },
+    "notifications": {
+      "label": "Benachrichtigungen",
+      "on": "Aktiviert",
+      "off": "Deaktiviert",
+      "hint": "Öffnet die Systemeinstellungen"
+    },
+    "help": {
+      "rate": "Avisa bewerten",
+      "feedback": "Feedback senden",
+      "privacy": "Datenschutzerklärung",
+      "restore": "Käufe wiederherstellen",
+      "feedbackSubject": "Feedback zu Avisa",
+      "feedbackBody": "Erzähl uns, was wir verbessern können:",
+      "noMailTitle": "Keine E-Mail-App gefunden",
+      "noMailBody": "Schreib uns an {{email}}"
+    },
+    "premiumActive": {
+      "title": "Premium aktiv",
+      "manage": "Abo verwalten"
     },
     "premiumBanner": {
       "title": "Werde Premium",
-      "description": "Unbegrenzte Warnungen und individuelle Schwellenwerte",
+      "description": "Unbegrenzte Warnungen, gespeicherte Orte, Luftqualität und Regenradar",
       "cta": "Pläne ansehen",
-      "restoreCta": "Käufe wiederherstellen",
       "restoreSuccessTitle": "Kauf wiederhergestellt!",
       "restoreSuccessBody": "Dein Premium-Abo wurde erfolgreich wiederhergestellt.",
       "restoreNoneTitle": "Nichts wiederherzustellen",
       "restoreNoneBody": "Es wurden keine früheren Käufe gefunden.",
       "restoreErrorTitle": "Käufe konnten nicht wiederhergestellt werden",
       "restoreErrorBody": "Beim Wiederherstellen deiner Käufe ist ein Fehler aufgetreten. Bitte versuche es erneut."
-    }
+    },
+    "a11y": {
+      "opensOutside": "Öffnet sich außerhalb der App"
+    },
+    "footer": "Avisa {{version}} · Daten: Visual Crossing"
   },
   "paywall": {
     "title": "Premium freischalten",
-    "subtitle": "Unbegrenzte Warnungen, individuelle Schwellenwerte und vieles mehr",
+    "subtitle": "Unbegrenzte Warnungen, gespeicherte Orte, Luftqualität, Regenradar und mehr",
     "unavailable": "Derzeit sind keine Pläne verfügbar. Bitte versuche es später erneut.",
     "savings": "Spare {{percent}} %",
     "disclaimer": "Das Abo verlängert sich automatisch. Du kannst es jederzeit über Google Play kündigen.",

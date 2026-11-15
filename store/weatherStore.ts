@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { WeatherData } from '../services/weatherApi';
+import type { Units } from '../utils/units';
 
 interface Location {
   latitude: number;
@@ -12,7 +13,7 @@ interface WeatherStore {
   location: Location | null;
   isLoading: boolean;
   error: string | null;
-  units: 'metric' | 'us';
+  units: Units;
   lastUpdated: number | null;
   isManualLocation: boolean;
   /** true si weatherData viene de la caché persistida y aún no se ha refrescado en esta sesión */
@@ -22,7 +23,7 @@ interface WeatherStore {
   setLocation: (location: Location, isManual?: boolean) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  toggleUnits: () => void;
+  setUnits: (units: Units) => void;
   hydrate: (snapshot: Partial<Pick<WeatherStore, 'units' | 'weatherData' | 'location' | 'lastUpdated'>>) => void;
   clearError: () => void;
   resetToGPS: () => void;
@@ -48,8 +49,7 @@ export const useWeatherStore = create<WeatherStore>((set) => ({
 
   setError: (error) => set({ error, isLoading: false }),
 
-  toggleUnits: () =>
-    set((state) => ({ units: state.units === 'metric' ? 'us' : 'metric' })),
+  setUnits: (units) => set({ units }),
 
   clearError: () => set({ error: null }),
 
