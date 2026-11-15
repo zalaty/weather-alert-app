@@ -39,6 +39,22 @@ const INTL_LOCALES: Record<SupportedLanguage, string> = {
   tr: 'tr-TR',
 };
 
+/** Autónimos: cada idioma se muestra en su propio idioma */
+export const LANGUAGE_NAMES: Record<SupportedLanguage, string> = {
+  es: 'Español',
+  'es-419': 'Español (Latinoamérica)',
+  en: 'English',
+  'pt-BR': 'Português (Brasil)',
+  fr: 'Français',
+  de: 'Deutsch',
+  it: 'Italiano',
+  pl: 'Polski',
+  tr: 'Türkçe',
+};
+
+/** 'auto' = sin elección guardada: se usa el idioma del dispositivo al arrancar */
+export type LanguagePreference = 'auto' | SupportedLanguage;
+
 export function isSupportedLanguage(value: string | null | undefined): value is SupportedLanguage {
   return !!value && (SUPPORTED_LANGUAGES as readonly string[]).includes(value);
 }
@@ -88,6 +104,11 @@ export function toApiLanguage(language: string): ApiLanguage {
 }
 
 let initPromise: Promise<void> | null = null;
+let languagePreference: LanguagePreference = 'auto';
+
+export function getLanguagePreference(): LanguagePreference {
+  return languagePreference;
+}
 
 export function initI18n(): Promise<void> {
   if (!initPromise) {
@@ -95,6 +116,7 @@ export function initI18n(): Promise<void> {
       let language: SupportedLanguage;
       try {
         const saved = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
+        languagePreference = isSupportedLanguage(saved) ? saved : 'auto';
         language = isSupportedLanguage(saved) ? saved : resolveDeviceLanguage();
       } catch {
         language = resolveDeviceLanguage();
@@ -122,12 +144,26 @@ export function initI18n(): Promise<void> {
 }
 
 export async function setAppLanguage(language: SupportedLanguage): Promise<void> {
+  languagePreference = language;
   await i18n.changeLanguage(language);
-  trackEvent('language_changed', { language });
+  trackEvent('language_changed', { language, automatic: false });
   try {
     await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, language);
   } catch (e) {
     console.error('Error saving language preference:', e);
+  }
+}
+
+/** Vuelve a seguir el idioma del dispositivo: borra la elección guardada */
+export async function setAutomaticLanguage(): Promise<void> {
+  languagePreference = 'auto';
+  const language = resolveDeviceLanguage();
+  if (i18n.language !== language) await i18n.changeLanguage(language);
+  trackEvent('language_changed', { language, automatic: true });
+  try {
+    await AsyncStorage.removeItem(LANGUAGE_STORAGE_KEY);
+  } catch (e) {
+    console.error('Error clearing language preference:', e);
   }
 }
 

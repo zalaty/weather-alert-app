@@ -1,6 +1,7 @@
 {
   "common": {
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "close": "Fermer"
   },
   "tabs": {
     "home": "Accueil",
@@ -91,43 +92,66 @@
   },
   "settings": {
     "title": "Paramètres",
-    "units": {
-      "sectionTitle": "Unités",
-      "metricLabel": "Système métrique"
+    "sections": {
+      "preferences": "Préférences",
+      "notifications": "Notifications",
+      "help": "Aide"
     },
-    "temperature": {
-      "sectionTitle": "Température",
-      "celsius": "°C — Celsius",
-      "fahrenheit": "°F — Fahrenheit"
+    "units": {
+      "label": "Unités",
+      "metricA11y": "Métrique : degrés Celsius et kilomètres par heure",
+      "imperialA11y": "Impérial : degrés Fahrenheit et miles par heure"
     },
     "language": {
-      "sectionTitle": "Langue"
+      "label": "Langue",
+      "automatic": "Automatique",
+      "automaticHint": "Langue de l'appareil : {{language}}"
     },
-    "about": {
-      "sectionTitle": "À propos",
-      "appLabel": "Avisa",
-      "version": "Version {{version}}",
-      "weatherDataLabel": "Données météo",
-      "weatherDataProvider": "Visual Crossing Weather API",
-      "autoUpdateLabel": "Actualisation automatique",
-      "autoUpdateDescription": "Toutes les 30 minutes"
+    "appearance": {
+      "label": "Apparence",
+      "auto": "Auto",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
+    "notifications": {
+      "label": "Notifications",
+      "on": "Activées",
+      "off": "Désactivées",
+      "hint": "Ouvre les réglages du système"
+    },
+    "help": {
+      "rate": "Noter Avisa",
+      "feedback": "Envoyer un commentaire",
+      "privacy": "Politique de confidentialité",
+      "restore": "Restaurer les achats",
+      "feedbackSubject": "Commentaires sur Avisa",
+      "feedbackBody": "Dites-nous ce que vous aimeriez améliorer :",
+      "noMailTitle": "Aucune application de messagerie",
+      "noMailBody": "Écrivez-nous à {{email}}"
+    },
+    "premiumActive": {
+      "title": "Premium actif",
+      "manage": "Gérer l'abonnement"
     },
     "premiumBanner": {
       "title": "Passez à Premium",
-      "description": "Alertes illimitées et seuils personnalisés",
+      "description": "Alertes illimitées, lieux enregistrés, qualité de l'air et radar de pluie",
       "cta": "Voir les offres",
-      "restoreCta": "Restaurer les achats",
       "restoreSuccessTitle": "Achat restauré !",
       "restoreSuccessBody": "Votre abonnement Premium a été restauré avec succès.",
       "restoreNoneTitle": "Rien à restaurer",
       "restoreNoneBody": "Aucun achat précédent n'a été trouvé.",
       "restoreErrorTitle": "Impossible de restaurer les achats",
       "restoreErrorBody": "Une erreur s'est produite lors de la restauration de vos achats. Veuillez réessayer."
-    }
+    },
+    "a11y": {
+      "opensOutside": "S'ouvre en dehors de l'application"
+    },
+    "footer": "Avisa {{version}} · Données : Visual Crossing"
   },
   "paywall": {
     "title": "Débloquez Premium",
-    "subtitle": "Alertes illimitées, seuils personnalisés et bien plus",
+    "subtitle": "Alertes illimitées, lieux enregistrés, qualité de l'air, radar de pluie et plus",
     "unavailable": "Aucune offre disponible pour le moment. Veuillez réessayer plus tard.",
     "savings": "Économisez {{percent}} %",
     "disclaimer": "L'abonnement se renouvelle automatiquement. Vous pouvez l'annuler à tout moment depuis Google Play.",

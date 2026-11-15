@@ -1,6 +1,7 @@
 {
   "common": {
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "close": "Fechar"
   },
   "tabs": {
     "home": "Início",
@@ -91,43 +92,66 @@
   },
   "settings": {
     "title": "Configurações",
-    "units": {
-      "sectionTitle": "Unidades",
-      "metricLabel": "Sistema métrico"
+    "sections": {
+      "preferences": "Preferências",
+      "notifications": "Notificações",
+      "help": "Ajuda"
     },
-    "temperature": {
-      "sectionTitle": "Temperatura",
-      "celsius": "°C — Celsius",
-      "fahrenheit": "°F — Fahrenheit"
+    "units": {
+      "label": "Unidades",
+      "metricA11y": "Métrico: graus Celsius e quilômetros por hora",
+      "imperialA11y": "Imperial: graus Fahrenheit e milhas por hora"
     },
     "language": {
-      "sectionTitle": "Idioma"
+      "label": "Idioma",
+      "automatic": "Automático",
+      "automaticHint": "Idioma do dispositivo: {{language}}"
     },
-    "about": {
-      "sectionTitle": "Sobre",
-      "appLabel": "Avisa",
-      "version": "Versão {{version}}",
-      "weatherDataLabel": "Dados meteorológicos",
-      "weatherDataProvider": "Visual Crossing Weather API",
-      "autoUpdateLabel": "Atualização automática",
-      "autoUpdateDescription": "A cada 30 minutos"
+    "appearance": {
+      "label": "Aparência",
+      "auto": "Auto",
+      "light": "Claro",
+      "dark": "Escuro"
+    },
+    "notifications": {
+      "label": "Notificações",
+      "on": "Ativadas",
+      "off": "Desativadas",
+      "hint": "Abre as configurações do sistema"
+    },
+    "help": {
+      "rate": "Avaliar o Avisa",
+      "feedback": "Enviar feedback",
+      "privacy": "Política de privacidade",
+      "restore": "Restaurar compras",
+      "feedbackSubject": "Feedback sobre o Avisa",
+      "feedbackBody": "Conte o que você gostaria de melhorar:",
+      "noMailTitle": "Nenhum app de e-mail",
+      "noMailBody": "Escreva para {{email}}"
+    },
+    "premiumActive": {
+      "title": "Premium ativo",
+      "manage": "Gerenciar assinatura"
     },
     "premiumBanner": {
       "title": "Seja Premium",
-      "description": "Alertas ilimitados e limites personalizados",
+      "description": "Alertas ilimitados, locais salvos, qualidade do ar e radar de chuva",
       "cta": "Ver planos",
-      "restoreCta": "Restaurar compras",
       "restoreSuccessTitle": "Compra restaurada!",
       "restoreSuccessBody": "Sua assinatura Premium foi restaurada com sucesso.",
       "restoreNoneTitle": "Nada para restaurar",
       "restoreNoneBody": "Nenhuma compra anterior foi encontrada.",
       "restoreErrorTitle": "Não foi possível restaurar",
       "restoreErrorBody": "Ocorreu um erro ao restaurar suas compras. Tente novamente."
-    }
+    },
+    "a11y": {
+      "opensOutside": "Abre fora do app"
+    },
+    "footer": "Avisa {{version}} · Dados: Visual Crossing"
   },
   "paywall": {
     "title": "Desbloqueie o Premium",
-    "subtitle": "Alertas ilimitados, limites personalizados e muito mais",
+    "subtitle": "Alertas ilimitados, locais salvos, qualidade do ar, radar de chuva e mais",
     "unavailable": "Nenhum plano disponível no momento. Tente novamente mais tarde.",
     "savings": "Economize {{percent}}%",
     "disclaimer": "A assinatura é renovada automaticamente. Você pode cancelá-la quando quiser pela Google Play.",
