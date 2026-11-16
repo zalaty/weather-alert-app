@@ -98,8 +98,10 @@ When adding user-facing text, add a key to all three files in `i18n/locales/`, n
 
 - The free tier only allows one active weather alert at a time (`app/(tabs)/alerts.tsx`,
   `isFreeTierFull`) — the rest of the UI (pricing banner, lock icons) assumes this constraint.
-- Icon/screenshot generation (`generate_icons.py`, `generate_store_assets.py`,
-  `resize_screenshots.py`) are one-off local scripts (Pillow), not part of the app build.
+- Icon/store-asset generation (`generate_icons.py`, `generate_store_assets.py`,
+  `generate_store_screenshots.py`) are local scripts (Pillow), not part of the app build. Store
+  headlines live in `store_captions.json`, the font in `assets/fonts/` (Inter Bold, OFL); output goes
+  to `dist-store-assets/` (gitignored). Workflow documented in `docs/WeatherApp_Proyecto.md`.
 - `react-native-purchases` (RevenueCat) is a real native module and does not initialize in Expo
   Go, so premium features can't be tested there through a real purchase. `hooks/useIsPremium.ts`
   has a dev-only bypass: set `EXPO_PUBLIC_DEBUG_FORCE_PREMIUM=true` in your local `.env` (gitignored)
