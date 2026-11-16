@@ -1,0 +1,122 @@
+{
+  "_comment": "Titulares de la ficha de Play Store. 'source' = subcarpeta de capturas en --raw (es/ o en/). Solo es-ES/es-419 están escritos por un hablante nativo; el resto, sin revisión nativa.",
+  "locales": {
+    "es-ES": {
+      "source": "es",
+      "feature": "Te aviso antes de que llueva",
+      "screenshots": {
+        "01_notification": "Te aviso 1 hora antes de que llueva",
+        "02_alerts": "Tú eliges cuándo avisarte",
+        "03_home": "El tiempo de un vistazo",
+        "04_forecast": "Por horas y por días",
+        "05_official": "Avisos oficiales de tu zona",
+        "06_radar": "Radar de lluvia y calidad del aire",
+        "07_dark": "Claro u oscuro"
+      }
+    },
+    "es-419": {
+      "source": "es",
+      "feature": "Te aviso antes de que llueva",
+      "screenshots": {
+        "01_notification": "Te aviso 1 hora antes de que llueva",
+        "02_alerts": "Tú eliges cuándo avisarte",
+        "03_home": "El clima de un vistazo",
+        "04_forecast": "Por horas y por días",
+        "05_official": "Avisos oficiales de tu zona",
+        "06_radar": "Radar de lluvia y calidad del aire",
+        "07_dark": "Claro u oscuro"
+      }
+    },
+    "en-US": {
+      "source": "en",
+      "feature": "Get warned before it rains",
+      "screenshots": {
+        "01_notification": "Rain alerts 1 hour ahead",
+        "02_alerts": "You choose when to be alerted",
+        "03_home": "Your weather at a glance",
+        "04_forecast": "Hour by hour, day by day",
+        "05_official": "Official warnings for your area",
+        "06_radar": "Rain radar and air quality",
+        "07_dark": "Light or dark"
+      }
+    },
+    "pt-BR": {
+      "source": "en",
+      "feature": "Eu te aviso antes de chover",
+      "screenshots": {
+        "01_notification": "Te aviso 1 hora antes da chuva",
+        "02_alerts": "Você escolhe quando ser avisado",
+        "03_home": "O tempo num piscar de olhos",
+        "04_forecast": "Hora a hora, dia a dia",
+        "05_official": "Alertas oficiais da sua região",
+        "06_radar": "Radar de chuva e qualidade do ar",
+        "07_dark": "Claro ou escuro"
+      }
+    },
+    "fr-FR": {
+      "source": "en",
+      "feature": "Prévenu avant la pluie",
+      "screenshots": {
+        "01_notification": "Alerte pluie 1 heure avant",
+        "02_alerts": "Vous choisissez quand être alerté",
+        "03_home": "La météo en un coup d'œil",
+        "04_forecast": "Heure par heure, jour par jour",
+        "05_official": "Alertes officielles près de chez vous",
+        "06_radar": "Radar de pluie et qualité de l'air",
+        "07_dark": "Clair ou sombre"
+      }
+    },
+    "de-DE": {
+      "source": "en",
+      "feature": "Gewarnt, bevor es regnet",
+      "screenshots": {
+        "01_notification": "Regenwarnung eine Stunde vorher",
+        "02_alerts": "Sie bestimmen, wann gewarnt wird",
+        "03_home": "Das Wetter auf einen Blick",
+        "04_forecast": "Stündlich und für jeden Tag",
+        "05_official": "Amtliche Warnungen für Ihre Region",
+        "06_radar": "Regenradar und Luftqualität",
+        "07_dark": "Hell oder dunkel"
+      }
+    },
+    "it-IT": {
+      "source": "en",
+      "feature": "Ti avviso prima che piova",
+      "screenshots": {
+        "01_notification": "Ti avviso 1 ora prima della pioggia",
+        "02_alerts": "Scegli tu quando essere avvisato",
+        "03_home": "Il meteo a colpo d'occhio",
+        "04_forecast": "Ora per ora, giorno per giorno",
+        "05_official": "Allerte ufficiali nella tua zona",
+        "06_radar": "Radar pioggia e qualità dell'aria",
+        "07_dark": "Chiaro o scuro"
+      }
+    },
+    "pl-PL": {
+      "source": "en",
+      "feature": "Ostrzegę cię przed deszczem",
+      "screenshots": {
+        "01_notification": "Ostrzegę cię godzinę przed deszczem",
+        "02_alerts": "Sam decydujesz, kiedy cię ostrzec",
+        "03_home": "Pogoda w jednym spojrzeniu",
+        "04_forecast": "Godzina po godzinie, dzień po dniu",
+        "05_official": "Oficjalne ostrzeżenia dla twojej okolicy",
+        "06_radar": "Radar opadów i jakość powietrza",
+        "07_dark": "Jasny lub ciemny"
+      }
+    },
+    "tr-TR": {
+      "source": "en",
+      "feature": "Yağmurdan önce sizi uyarırım",
+      "screenshots": {
+        "01_notification": "Yağmurdan 1 saat önce uyarı",
+        "02_alerts": "Uyarı zamanını siz seçin",
+        "03_home": "Hava durumu tek bakışta",
+        "04_forecast": "Saat saat, gün gün",
+        "05_official": "Bölgenizdeki resmi uyarılar",
+        "06_radar": "Yağmur radarı ve hava kalitesi",
+        "07_dark": "Açık veya koyu"
+      }
+    }
+  }
+}
