@@ -23,6 +23,8 @@
     "updateFailed": "Güncellenemedi",
     "warnings": {
       "label": "Resmi uyarı",
+      "count_one": "{{count}} resmi uyarı",
+      "count_other": "{{count}} resmi uyarı",
       "until": "Bitiş: {{time}}",
       "untilDay": "Bitiş: {{day}} {{time}}",
       "moreInfo": "Daha fazla bilgi"
@@ -214,7 +216,6 @@
         "o3": "Ozon (O₃)",
         "no2": "Azot dioksit (NO₂)"
       },
-      "euAqi": "Avrupa AQI: {{value}}",
       "noData": "Bu konum için hava kalitesi verisi yok",
       "cardTitle": "Hava kalitesi",
       "premiumHint": "Kilidi açmak için dokun"

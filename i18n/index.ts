@@ -3,6 +3,7 @@ import { getLocales } from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { trackEvent } from '../services/analytics';
+import { installPluralRulesIfMissing } from './pluralRules';
 
 import de from './locales/de.json';
 import en from './locales/en.json';
@@ -112,6 +113,8 @@ export function getLanguagePreference(): LanguagePreference {
 
 export function initI18n(): Promise<void> {
   if (!initPromise) {
+    // Antes de init: i18next cachea la regla de plural en cuanto la necesita
+    installPluralRulesIfMissing();
     initPromise = (async () => {
       let language: SupportedLanguage;
       try {

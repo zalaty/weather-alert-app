@@ -154,7 +154,7 @@ function DayExpandable({ day, isToday, theme, metric }: { day: DailyWeather; isT
         </View>
         <Text style={s.dayEmoji}>{getWeatherEmoji(day.icon)}</Text>
         <View style={s.dayRight}>
-          {day.precipProb > 20 && <Text style={s.dayPrecip}>💧{day.precipProb}%</Text>}
+          {day.precipProb > 20 && <Text style={s.dayPrecip}>🌂 {day.precipProb}%</Text>}
           <View style={s.tempRange}>
             <Text style={s.tempMax}>{day.tempMax}°</Text>
             <Text style={s.tempMin}>{day.tempMin}°</Text>

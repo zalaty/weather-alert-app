@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { useFocusEffect } from 'expo-router';
@@ -64,15 +65,15 @@ async function openUrl(primary: string, fallback?: string): Promise<boolean> {
 interface SettingsRowProps {
   label: string;
   value?: string;
-  /** '›' abre algo dentro de la app; '↗' sale de ella */
-  trailing?: '›' | '↗' | React.ReactNode;
+  /** 'chevron' abre algo dentro de la app; 'external' sale de ella */
+  trailing?: 'chevron' | 'external' | React.ReactNode;
   onPress: () => void;
   accessibilityHint?: string;
   disabled?: boolean;
   theme: Theme;
 }
 
-function SettingsRow({ label, value, trailing = '›', onPress, accessibilityHint, disabled, theme }: SettingsRowProps) {
+function SettingsRow({ label, value, trailing = 'chevron', onPress, accessibilityHint, disabled, theme }: SettingsRowProps) {
   const s = makeStyles(theme);
   return (
     <Pressable
@@ -87,8 +88,16 @@ function SettingsRow({ label, value, trailing = '›', onPress, accessibilityHin
     >
       <Text style={s.rowLabel}>{label}</Text>
       {value ? <Text style={s.rowValue}>{value}</Text> : null}
-      {typeof trailing === 'string' ? (
-        <Text style={s.rowTrailing} importantForAccessibility="no">{trailing}</Text>
+      {trailing === 'chevron' || trailing === 'external' ? (
+        // Iconos vectoriales: "↗"/"›" como texto se pintan como emoji de color en Android
+        <Ionicons
+          name={trailing === 'external' ? 'open-outline' : 'chevron-forward'}
+          size={18}
+          color={theme.textSecondary}
+          style={s.rowTrailing}
+          importantForAccessibility="no"
+          accessibilityElementsHidden
+        />
       ) : (
         trailing
       )}
@@ -222,7 +231,7 @@ export default function SettingsScreen() {
               theme={theme}
               label={t('settings.premiumActive.title')}
               value={t('settings.premiumActive.manage')}
-              trailing="↗"
+              trailing="external"
               onPress={handleManageSubscription}
               accessibilityHint={t('settings.a11y.opensOutside')}
             />
@@ -289,7 +298,7 @@ export default function SettingsScreen() {
               theme={theme}
               label={t('settings.notifications.label')}
               value={notificationsValue}
-              trailing="↗"
+              trailing="external"
               onPress={() => Linking.openSettings()}
               accessibilityHint={t('settings.notifications.hint')}
             />
@@ -299,11 +308,11 @@ export default function SettingsScreen() {
         <View style={s.section}>
           <SectionTitle theme={theme} title={t('settings.sections.help')} />
           <View style={s.card}>
-            <SettingsRow theme={theme} label={t('settings.help.rate')} trailing="↗" onPress={handleRateApp} accessibilityHint={t('settings.a11y.opensOutside')} />
+            <SettingsRow theme={theme} label={t('settings.help.rate')} trailing="external" onPress={handleRateApp} accessibilityHint={t('settings.a11y.opensOutside')} />
             <View style={s.divider} />
-            <SettingsRow theme={theme} label={t('settings.help.feedback')} trailing="↗" onPress={handleFeedback} accessibilityHint={t('settings.a11y.opensOutside')} />
+            <SettingsRow theme={theme} label={t('settings.help.feedback')} trailing="external" onPress={handleFeedback} accessibilityHint={t('settings.a11y.opensOutside')} />
             <View style={s.divider} />
-            <SettingsRow theme={theme} label={t('settings.help.privacy')} trailing="↗" onPress={() => openUrl(PRIVACY_POLICY_URL)} accessibilityHint={t('settings.a11y.opensOutside')} />
+            <SettingsRow theme={theme} label={t('settings.help.privacy')} trailing="external" onPress={() => openUrl(PRIVACY_POLICY_URL)} accessibilityHint={t('settings.a11y.opensOutside')} />
             {!isPremium && (
               <>
                 <View style={s.divider} />
@@ -312,7 +321,7 @@ export default function SettingsScreen() {
                   label={t('settings.help.restore')}
                   onPress={handleRestore}
                   disabled={restoring}
-                  trailing={restoring ? <ActivityIndicator size="small" color={theme.textSecondary} /> : '›'}
+                  trailing={restoring ? <ActivityIndicator size="small" color={theme.textSecondary} /> : 'chevron'}
                 />
               </>
             )}
@@ -353,7 +362,7 @@ function makeStyles(theme: Theme) {
     rowLabel: { flexGrow: 1, flexShrink: 1, fontSize: Typography.md, fontWeight: Typography.medium, color: theme.textPrimary },
     // Etiqueta y valor encogen y saltan de línea por dentro: un texto largo (de, pl) no se recorta
     rowValue: { flexShrink: 1, maxWidth: '55%', fontSize: Typography.sm, color: theme.textSecondary, textAlign: 'right' },
-    rowTrailing: { fontSize: Typography.lg, color: theme.textSecondary, width: 16, textAlign: 'center' },
+    rowTrailing: { width: 18, textAlign: 'center' },
     controlBlock: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.md, gap: Spacing.sm },
     controlLabel: { fontSize: Typography.md, fontWeight: Typography.medium, color: theme.textPrimary },
     divider: { height: StyleSheet.hairlineWidth, backgroundColor: theme.border, marginHorizontal: Spacing.md },

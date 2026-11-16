@@ -23,12 +23,14 @@
     "updateFailed": "Aktualisierung fehlgeschlagen",
     "warnings": {
       "label": "Amtliche Warnung",
+      "count_one": "{{count}} amtliche Warnung",
+      "count_other": "{{count}} amtliche Warnungen",
       "until": "Bis {{time}} Uhr",
       "untilDay": "Bis {{day}}, {{time}} Uhr",
       "moreInfo": "Mehr Infos"
     },
     "stats": {
-      "humidity": "Luftfeuchtigkeit",
+      "humidity": "Feuchte",
       "wind": "Wind",
       "rain": "Regen",
       "uv": "UV"
@@ -214,7 +216,6 @@
         "o3": "Ozon (O₃)",
         "no2": "Stickstoffdioxid (NO₂)"
       },
-      "euAqi": "Europäischer AQI: {{value}}",
       "noData": "Keine Luftqualitätsdaten für diesen Ort verfügbar",
       "cardTitle": "Luftqualität",
       "premiumHint": "Zum Freischalten tippen"

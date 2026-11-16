@@ -5,7 +5,8 @@ const BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/r
 
 export interface AirQuality {
   aqiUs: number;
-  aqiEu: number;
+  /** No se muestra: la app usa solo la escala de EE. UU. Opcional porque no siempre viene */
+  aqiEu?: number;
   pm2_5: number;
   pm10: number;
   o3: number;
@@ -185,7 +186,7 @@ function parseAirQuality(raw: any): AirQuality | undefined {
   if (raw.aqius == null) return undefined;
   return {
     aqiUs: Math.round(raw.aqius),
-    aqiEu: Math.round(raw.aqieur ?? 0),
+    aqiEu: raw.aqieur == null ? undefined : Math.round(raw.aqieur),
     pm2_5: raw.pm2p5 ?? 0,
     pm10: raw.pm10 ?? 0,
     o3: raw.o3 ?? 0,
@@ -263,7 +264,7 @@ function parseWeatherData(raw: any, cityName: string): WeatherData {
     current: {
       temp: Math.round(current.temp),
       feelsLike: Math.round(current.feelslike),
-      humidity: current.humidity,
+      humidity: Math.round(current.humidity ?? 0),
       windSpeed: Math.round(current.windspeed),
       windDir: current.winddir,
       precipProb: current.precipprob ?? 0,
