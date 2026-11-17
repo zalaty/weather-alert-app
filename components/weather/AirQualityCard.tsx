@@ -28,10 +28,11 @@ export default function AirQualityCard({ airQuality, isPremium, onRequestPaywall
     ? t(`weatherDetails.airQuality.categories.${aqiCategory}`)
     : t('weatherDetails.airQuality.cardTitle');
 
+  // Una sola escala (EE. UU.) en toda la app: número, categoría y color salen de aqiUs.
   const subtitle = !isPremium
     ? t('weatherDetails.airQuality.premiumHint')
     : airQuality
-      ? t('weatherDetails.airQuality.euAqi', { value: airQuality.aqiEu })
+      ? null
       : t('weatherDetails.airQuality.noData');
 
   return (
@@ -53,7 +54,7 @@ export default function AirQualityCard({ airQuality, isPremium, onRequestPaywall
         {isPremium && aqiCategory && (
           <Text style={s.recommendation}>{t(`weatherDetails.airQuality.recommendations.${aqiCategory}`)}</Text>
         )}
-        <Text style={[s.subtitle, !isPremium && s.subtitleHint]}>{subtitle}</Text>
+        {subtitle && <Text style={[s.subtitle, !isPremium && s.subtitleHint]}>{subtitle}</Text>}
       </View>
     </TouchableOpacity>
   );

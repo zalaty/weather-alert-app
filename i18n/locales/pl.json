@@ -23,6 +23,10 @@
     "updateFailed": "Nie udało się zaktualizować",
     "warnings": {
       "label": "Oficjalne ostrzeżenie",
+      "count_one": "{{count}} oficjalne ostrzeżenie",
+      "count_few": "{{count}} oficjalne ostrzeżenia",
+      "count_many": "{{count}} oficjalnych ostrzeżeń",
+      "count_other": "{{count}} oficjalnego ostrzeżenia",
       "until": "Do {{time}}",
       "untilDay": "Do: {{day}}, {{time}}",
       "moreInfo": "Więcej informacji"
@@ -214,7 +218,6 @@
         "o3": "Ozon (O₃)",
         "no2": "Dwutlenek azotu (NO₂)"
       },
-      "euAqi": "Europejski AQI: {{value}}",
       "noData": "Brak danych o jakości powietrza dla tej lokalizacji",
       "cardTitle": "Jakość powietrza",
       "premiumHint": "Dotknij, aby odblokować"

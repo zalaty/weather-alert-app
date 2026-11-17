@@ -20,6 +20,7 @@ import { getIntlLocale } from '../../i18n';
 import { getWindDirection } from '../../utils/wind';
 import { getWeatherEmoji } from '../../utils/weatherIcons';
 import { translateCondition } from '../../utils/weatherConditions';
+import { formatSunTime } from '../../utils/time';
 import { getAqiCategory, getAqiSeverity, getAqiSeverityIcon } from '../../utils/airQuality';
 import { trackEvent } from '../../services/analytics';
 import MetricSelector, { WeatherMetric } from '../../components/weather/MetricSelector';
@@ -36,7 +37,6 @@ function formatDay(dateStr: string, t: TFunction, language: string): string {
 }
 
 function formatHour(timeStr: string): string { return timeStr.substring(0, 5); }
-function formatSunTime(timeStr: string): string { return timeStr ? timeStr.substring(0, 5) : '--'; }
 
 function getCurrentHourIndex(hours: HourlyWeather[]): number {
   const currentHour = new Date().getHours();
@@ -154,7 +154,7 @@ function DayExpandable({ day, isToday, theme, metric }: { day: DailyWeather; isT
         </View>
         <Text style={s.dayEmoji}>{getWeatherEmoji(day.icon)}</Text>
         <View style={s.dayRight}>
-          {day.precipProb > 20 && <Text style={s.dayPrecip}>💧{day.precipProb}%</Text>}
+          {day.precipProb > 20 && <Text style={s.dayPrecip}>🌂 {day.precipProb}%</Text>}
           <View style={s.tempRange}>
             <Text style={s.tempMax}>{day.tempMax}°</Text>
             <Text style={s.tempMin}>{day.tempMin}°</Text>

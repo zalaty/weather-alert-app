@@ -38,6 +38,9 @@ import { getWeatherGradient } from '../../utils/weatherGradient';
 import { getWeatherEmoji } from '../../utils/weatherIcons';
 import { getWindDirection } from '../../utils/wind';
 import { HourlyWeather } from '../../services/weatherApi';
+import { pickCurrentHour } from '../../utils/currentHour';
+import { formatSunTime } from '../../utils/time';
+import { isRedundantDescription } from '../../utils/weatherConditions';
 
 export default function HomeScreen() {
   const {
@@ -200,6 +203,13 @@ export default function HomeScreen() {
         : t('home.updatedHoursAgo', { count: Math.floor(minutesAgo / 60) });
   const windDirs = t('weather.windDirections', { returnObjects: true }) as string[];
 
+  // currentConditions.precipprob suele venir vacío: la lluvia y el AQI salen de la hora en curso
+  // de la previsión (la misma que muestra Previsión), con el valor actual como respaldo.
+  const currentHour = pickCurrentHour(daily[0]?.hours, now);
+  const rainProb = currentHour?.precipProb ?? current.precipProb;
+  const airQuality = currentHour?.airQuality ?? current.airQuality;
+  const showDescription = !!current.description && !isRedundantDescription(current.description, current.conditions);
+
   return (
     <SafeAreaView style={s.container}>
       {showSearch ? (
@@ -275,27 +285,27 @@ export default function HomeScreen() {
             <Text style={s.tempText}>{current.temp}{unitLabel}</Text>
             <Text style={s.conditionsText}>{current.conditions}</Text>
             <Text style={s.feelsLikeText}>{t('home.feelsLike', { value: current.feelsLike, unit: unitLabel })}</Text>
-            <Text style={s.descriptionText}>{current.description}</Text>
+            {showDescription && <Text style={s.descriptionText}>{current.description}</Text>}
           </LinearGradient>
 
           <View style={s.statsRow}>
             {[
-              { emoji: '💧', value: `${current.humidity}%`, label: t('home.stats.humidity') },
+              { emoji: '💧', value: `${Math.round(current.humidity)}%`, label: t('home.stats.humidity') },
               { emoji: '💨', value: `${current.windSpeed} ${windLabel}`, sub: getWindDirection(current.windDir, windDirs), label: t('home.stats.wind') },
-              { emoji: '🌂', value: `${current.precipProb}%`, label: t('home.stats.rain') },
+              { emoji: '🌂', value: `${Math.round(rainProb)}%`, label: t('home.stats.rain') },
               { emoji: '🔆', value: `${current.uvIndex}`, label: t('home.stats.uv') },
             ].map((stat) => (
               <View key={stat.label} style={s.statCard}>
                 <Text style={s.statEmoji}>{stat.emoji}</Text>
                 <Text style={s.statValue}>{stat.value}</Text>
                 {stat.sub && <Text style={s.statSub}>{stat.sub}</Text>}
-                <Text style={s.statLabel}>{stat.label}</Text>
+                <Text style={s.statLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{stat.label}</Text>
               </View>
             ))}
           </View>
 
           <AirQualityCard
-            airQuality={current.airQuality}
+            airQuality={airQuality}
             isPremium={isPremium}
             onRequestPaywall={handleRequestAirQualityPaywall}
           />
@@ -315,7 +325,7 @@ export default function HomeScreen() {
                     <Text style={s.hourTime}>{hour.time.substring(0, 5)}</Text>
                     <Text style={s.hourEmoji}>{getWeatherEmoji(hour.icon)}</Text>
                     <Text style={s.hourTemp}>{hour.temp}{unitLabel}</Text>
-                    {hour.precipProb > 20 && <Text style={s.hourPrecip}>{hour.precipProb}%</Text>}
+                    {hour.precipProb > 20 && <Text style={s.hourPrecip}>🌂 {hour.precipProb}%</Text>}
                   </TouchableOpacity>
                 ))}
             </ScrollView>
@@ -325,12 +335,12 @@ export default function HomeScreen() {
             <View style={s.sunCard}>
               <Text style={s.sunEmoji}>🌅</Text>
               <Text style={s.sunLabel}>{t('home.sunrise')}</Text>
-              <Text style={s.sunTime}>{current.sunrise}</Text>
+              <Text style={s.sunTime}>{formatSunTime(current.sunrise)}</Text>
             </View>
             <View style={s.sunCard}>
               <Text style={s.sunEmoji}>🌇</Text>
               <Text style={s.sunLabel}>{t('home.sunset')}</Text>
-              <Text style={s.sunTime}>{current.sunset}</Text>
+              <Text style={s.sunTime}>{formatSunTime(current.sunset)}</Text>
             </View>
           </View>
         </ScrollView>

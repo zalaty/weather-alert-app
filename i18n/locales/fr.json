@@ -23,6 +23,8 @@
     "updateFailed": "Échec de la mise à jour",
     "warnings": {
       "label": "Alerte officielle",
+      "count_one": "{{count}} alerte officielle",
+      "count_other": "{{count}} alertes officielles",
       "until": "Jusqu'à {{time}}",
       "untilDay": "Jusqu'à {{day}}, {{time}}",
       "moreInfo": "Plus d'infos"
@@ -214,7 +216,6 @@
         "o3": "Ozone (O₃)",
         "no2": "Dioxyde d'azote (NO₂)"
       },
-      "euAqi": "Indice européen : {{value}}",
       "noData": "Aucune donnée de qualité de l'air pour cet endroit",
       "cardTitle": "Qualité de l'air",
       "premiumHint": "Touchez pour débloquer"
