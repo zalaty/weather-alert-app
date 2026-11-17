@@ -39,6 +39,7 @@ import { getWeatherEmoji } from '../../utils/weatherIcons';
 import { getWindDirection } from '../../utils/wind';
 import { HourlyWeather } from '../../services/weatherApi';
 import { pickCurrentHour } from '../../utils/currentHour';
+import { formatSunTime } from '../../utils/time';
 import { isRedundantDescription } from '../../utils/weatherConditions';
 
 export default function HomeScreen() {
@@ -334,12 +335,12 @@ export default function HomeScreen() {
             <View style={s.sunCard}>
               <Text style={s.sunEmoji}>🌅</Text>
               <Text style={s.sunLabel}>{t('home.sunrise')}</Text>
-              <Text style={s.sunTime}>{current.sunrise}</Text>
+              <Text style={s.sunTime}>{formatSunTime(current.sunrise)}</Text>
             </View>
             <View style={s.sunCard}>
               <Text style={s.sunEmoji}>🌇</Text>
               <Text style={s.sunLabel}>{t('home.sunset')}</Text>
-              <Text style={s.sunTime}>{current.sunset}</Text>
+              <Text style={s.sunTime}>{formatSunTime(current.sunset)}</Text>
             </View>
           </View>
         </ScrollView>

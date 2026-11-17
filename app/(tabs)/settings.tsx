@@ -12,7 +12,6 @@ import {
   View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import { useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -44,8 +43,10 @@ import type { Units } from '../../utils/units';
 import Paywall from '../../components/Paywall';
 import LanguageSheet from '../../components/LanguageSheet';
 import SegmentedControl from '../../components/ui/SegmentedControl';
+import { getAppVersionLabel } from '../../utils/appVersion';
 
-const APP_VERSION = Constants.expoConfig?.version ?? '';
+// "1.4.1 (28)" en un build real; solo la versión en Expo Go
+const APP_VERSION = getAppVersionLabel();
 
 async function openUrl(primary: string, fallback?: string): Promise<boolean> {
   try {

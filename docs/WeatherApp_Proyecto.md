@@ -365,7 +365,8 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - Verificado: `tsc --noEmit` limpio, 30 tests en verde (en local y en el CI, que va en UTC: la zona horaria de los tests se fija en `jest.globalSetup.js`), bundle de Android compila. **Pendiente**: prueba manual en dispositivo (Expo Go)
 - `AGENTS.md` corregido: apuntaba a la documentación de Expo v55; el proyecto está en SDK 54
 
-### Unidades unificadas + rediseño de Ajustes 🔶 IMPLEMENTADO, pendiente de prueba en dispositivo (2026-11-15)
+### Release 1.4.0 — Unidades unificadas + rediseño de Ajustes ✅ PUBLICADA EN PRODUCCIÓN (build 27, 2026-11-17)
+- **Publicada en producción el 2026-11-17 como build 27 SIN los arreglos visuales de la PR #19**: el build se compiló desde `master` antes de fusionarla. Esos arreglos salen en la **1.4.1** (sección siguiente)
 - **Versión 1.4.0** (`app.json`, 2026-11-15): contiene solo este bloque (PR #18: unidades en Previsión y rediseño de Ajustes). Las alertas con antelación (PR #17) ya salieron en la 1.3.0. El `versionCode` lo sigue incrementando EAS en remoto (`appVersionSource: remote` + `autoIncrement`), no se toca a mano
 - **Bug de unidades en Previsión**: `forecast.tsx` mostraba "km/h" fijo (3 sitios: viento de día, de hora y panel expandido) aunque el dato llegara en mph. Ahora hay un único origen: `utils/units.ts` (`getUnitLabels(units) → { temp, wind, precip }`) + hook `hooks/useUnitLabels.ts`, usado en Previsión, Home (antes calculaba `unitLabel`/`windLabel` a mano) y `HourDetailSheet` (ya no recibe las etiquetas por props). `alertUnitLabel` de `utils/alertUnits.ts` también tira de ahí. En las listas compactas de Previsión la temperatura sigue como `°` sin letra (decisión consciente). `precip` (mm/in) existe en el helper pero hoy ninguna pantalla muestra cantidad de lluvia, solo probabilidad. Eliminado el campo `unit` de `constants/alertTypes.ts`, que nadie leía
 - **Ajustes reorganizado**: banner premium (sin "umbrales personalizados", que son gratis; mismo arreglo en el subtítulo del paywall) o, si ya es premium, fila "Premium activo · Gestionar suscripción" (`managementURL` de RevenueCat, con la página de suscripciones de Google Play como respaldo) → **Preferencias** (unidades en un solo segmentado "°C · km/h | °F · mph", sustituye al interruptor "Sistema métrico" + sección "Temperatura", que eran dos controles para el mismo estado; idioma en hoja inferior `components/LanguageSheet.tsx`; apariencia Auto/Claro/Oscuro) → **Notificaciones** (estado del permiso, abre los ajustes del sistema, se refresca al volver a la app) → **Ayuda** (valorar en Play Store, comentarios por email con versión de app, sistema y modelo vía `expo-device`, política de privacidad, restaurar compras solo si no es premium) → pie "Avisa {versión} · Datos: Visual Crossing". Eliminada la tarjeta "Acerca de" y la fila "Actualización automática: cada 30 minutos", que no era cierta (es una caché de 30 min, no un refresco automático)
@@ -376,8 +377,13 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - **i18n**: claves nuevas bajo `settings.*` (`sections`, `units`, `language`, `appearance`, `notifications`, `help`, `premiumActive`, `a11y`, `footer`) y `common.close` en los 9 idiomas; eliminadas `settings.units.{sectionTitle,metricLabel}`, `settings.temperature.*`, `settings.about.*`, `settings.language.sectionTitle` y `settings.premiumBanner.restoreCta`. Traducciones de pt-BR, fr, de, it, pl y tr sin revisar por hablante nativo
 - Verificado: `tsc --noEmit` limpio, 36 tests en verde (nuevo `__tests__/units.test.ts`), bundle de Android compila. **Pendiente**: prueba manual en dispositivo; la apariencia fijada (splash, barra de navegación) y "Valorar" (`market://`) solo se pueden comprobar del todo en un build real
 
-### Arreglos visuales 1.4.0 🔶 IMPLEMENTADO, pendiente de prueba en dispositivo (2026-11-16)
-- Build nuevo de la **misma 1.4.0** (sin tocar `app.json`; el `versionCode` lo pone EAS). Rama `arreglos-visuales-140`
+### Release 1.4.1 — Arreglos visuales 🔶 BUILD LANZADO, pendiente de prueba en dispositivo (2026-11-17)
+- **Versión 1.4.1** (`app.json`). Planteada como un build nuevo de la 1.4.0, pero la 1.4.0 (build 27) salió a producción sin estos arreglos (la PR #19 seguía abierta), así que se publican como **1.4.1** (patch). Rama `arreglos-visuales-140`, actualizada con `master` (PR #20) antes de fusionar
+- Incluye además (2026-11-17):
+  - **Pie de Ajustes con versión y build**: "Avisa 1.4.1 (28) · Datos: Visual Crossing", vía `expo-application` (`nativeApplicationVersion` + `nativeBuildVersion`). En Expo Go (`Constants.executionEnvironment === StoreClient`) solo la versión de `app.json`, porque los valores nativos serían los de Expo Go. Lógica en `utils/appVersion.ts` (`formatAppVersion`, con test). El email de "Enviar comentarios" lleva la misma etiqueta
+  - **Amanecer y atardecer en Inicio** como HH:MM (salían "08:03:59"): `formatSunTime` se saca de `forecast.tsx` a `utils/time.ts` y lo usan las dos pantallas
+  - **Builds solo bajo demanda**: el workflow de EAS ya no compila en cada push a `master` (ver "Cómo lanzar un build" más abajo)
+  - Regla nueva en `CLAUDE.md`: todo build para Internal testing o producción lleva versión nueva en `app.json` (patch para arreglos, minor para funciones) y su entrada en este doc
 - **Humedad**: `current.humidity` llegaba sin redondear ("98.9%"). Se redondea en `weatherApi.ts` y también al pintar en Inicio (cubre el snapshot guardado por versiones anteriores hasta el primer refetch)
 - **Iconos coherentes**: 💧 = humedad, 🌂 = probabilidad de lluvia en toda la app. Corregida la cabecera del día de Previsión (usaba 💧 para la lluvia) y añadido 🌂 al % de las tarjetas "Próximas horas" de Inicio
 - **Etiquetas de las tarjetas de Inicio**: `numberOfLines={1}` + `adjustsFontSizeToFit` + `minimumFontScale={0.7}`. Medido con Roboto a 11 sp sobre los 60 dp útiles de cada tarjeta a 360 dp: todas caben al 100 % salvo "Luftfeuchtigkeit" (77 dp, se quedaría en 8,6 sp y bajo el mínimo con la fuente del sistema agrandada) → en `de` la etiqueta pasa a **"Feuchte"** (también en `HourDetailSheet`, que usa la misma clave). La más justa del resto es "Wilgotność" (55 dp)
@@ -388,7 +394,20 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - **Avisos oficiales agrupados**: con 2 o más, una sola tarjeta "N avisos oficiales" con el color del nivel más alto (`parseWarnings` ya los ordena por gravedad) y los nombres de los avisos; al desplegarla aparece cada aviso, a su vez desplegable. Con 1 aviso, sin cambios. `official_warning_expanded` lleva `grouped: true` al desplegar el resumen. Clave nueva `home.warnings.count_{one,other}` en los 9 idiomas, con `_few`/`_many` en polaco (sin revisión nativa en pt-BR, fr, de, it, pl, tr)
 - **Plurales en Hermes**: i18next calcula el sufijo con `Intl.PluralRules`; si el motor no lo trae, cae a una regla que solo conoce one/other y el polaco saldría mal. `i18n/pluralRules.ts` instala un polyfill mínimo (sin dependencias) **solo si falta**, con las reglas CLDR de los 9 idiomas; `__tests__/pluralRules.test.ts` lo compara con el `Intl.PluralRules` real de Node (0–200 y decimales)
 - Limitación preexistente detectada, no corregida (fuera de alcance): Inicio ("Próximas horas") y Previsión eligen la primera hora a mostrar con la hora del **dispositivo**; con una ciudad buscada en otra zona horaria la lista empieza en la hora equivocada. `pickCurrentHour` serviría para arreglarlo
-- Verificado: `tsc --noEmit` limpio, 79 tests en verde, bundle de Android compila. **Pendiente**: prueba manual en dispositivo
+- Verificado: `tsc --noEmit` limpio, 86 tests en verde (nuevo `__tests__/appVersion.test.ts`), bundle de Android compila. **Pendiente**: prueba manual en dispositivo del build de la 1.4.1
+
+### 🛠️ Cómo lanzar un build de EAS (desde 2026-11-17)
+- `.github/workflows/eas-build.yml` **ya no se ejecuta en cada push a `master`** (antes cada merge generaba un build y era fácil que uno saliera sin los cambios esperados, como el 27). Ahora se lanza:
+  1. **Con un tag de versión** (lo normal): subir la versión en `app.json`, fusionar en `master`, y desde `master` actualizado:
+     ```bash
+     git checkout master && git pull
+     git tag v1.4.1          # el mismo número que "version" en app.json
+     git push origin v1.4.1
+     ```
+     El workflow comprueba que el tag coincide con `app.json` y falla si no (evita compilar `v1.4.2` con un `app.json` que aún dice 1.4.1)
+  2. **A mano**: GitHub → Actions → "EAS Build Android" → *Run workflow* → rama `master`. Útil para repetir un build que falló sin crear otro tag
+- El `versionCode` lo sigue poniendo EAS (`autoIncrement`); la versión visible (`version`) la decide `app.json`
+- El progreso se ve en GitHub Actions y en expo.dev → proyecto → Builds. Al terminar, el `.aab` se sube a mano a Play Console (Internal testing → producción)
 
 ### Material de Play Store regenerado 🔶 SCRIPTS LISTOS, faltan las capturas reales (2026-11-16)
 - Sin cambios en la app ni nueva versión. Rama `material-tienda`

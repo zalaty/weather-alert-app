@@ -23,9 +23,16 @@ After any `npx expo install` or other dependency change, run `rm -rf .expo` befo
 `npx expo start` — otherwise Metro can throw a false `Asset not found: assets/images/icon.png`
 error from a stale `.expo` cache.
 
-EAS build (Android, production) runs on push to `master` via
-`.github/workflows/eas-build.yml`, using `npm install --legacy-peer-deps` and
-`eas build --platform android --profile production`.
+EAS build (Android, production) runs via `.github/workflows/eas-build.yml` **only** when a `v*`
+tag is pushed (e.g. `git tag v1.4.1 && git push origin v1.4.1`) or when triggered by hand
+(`workflow_dispatch`) — **not** on every push to `master`. With a tag, the workflow fails unless
+it matches `app.json`'s `version`. It uses `npm install --legacy-peer-deps` and
+`eas build --platform android --profile production`; EAS sets `versionCode` (`autoIncrement`).
+
+**Release rule**: every build that goes to Internal testing or production carries a **new
+`version` in `app.json`** — patch (1.4.0 → 1.4.1) for fixes, minor (1.4 → 1.5.0) for features —
+and its own entry in `docs/WeatherApp_Proyecto.md`. Never rebuild an already-shipped version
+number.
 
 ## Architecture
 
