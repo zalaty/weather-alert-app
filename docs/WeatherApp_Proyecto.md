@@ -390,6 +390,31 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - Limitación preexistente detectada, no corregida (fuera de alcance): Inicio ("Próximas horas") y Previsión eligen la primera hora a mostrar con la hora del **dispositivo**; con una ciudad buscada en otra zona horaria la lista empieza en la hora equivocada. `pickCurrentHour` serviría para arreglarlo
 - Verificado: `tsc --noEmit` limpio, 79 tests en verde, bundle de Android compila. **Pendiente**: prueba manual en dispositivo
 
+### Material de Play Store regenerado 🔶 SCRIPTS LISTOS, faltan las capturas reales (2026-11-16)
+- Sin cambios en la app ni nueva versión. Rama `material-tienda`
+- **Auditoría previa**: `resize_screenshots.py` tenía rutas absolutas a `~/Descargas` y capturas de iPhone de mayo con la interfaz antigua; `generate_store_assets.py` dibujaba a mano el icono antiguo y un feature graphic con **barras blancas en lugar de texto**. Nada de `assets/store_screenshots/` lo leía la app ni el build. Eliminados con `git rm`: `assets/store_screenshots/` (incluidas `tablet_7`/`tablet_10`, que no se usan), `resize_screenshots.py` y `assets/feature-graphic.png` (sustituido por uno por idioma)
+- **Scripts** (Pillow, en la raíz, fuera del build):
+  - `generate_store_screenshots.py --raw <carpeta>`: 7 capturas 1080x1920 por idioma con degradado azul de la marca, titular arriba (Inter Bold 80 px, máx. 2 líneas) y la captura debajo con esquinas redondeadas y sombra suave, sin marco de dispositivo. Después genera el feature graphic y ejecuta la comprobación final
+  - `generate_store_assets.py`: `assets/store-icon.png` (512x512, PNG de 32 bits **opaco**, sin esquinas propias —Play aplica la máscara—, a partir de `assets/icon.png` sobre el `backgroundColor` del adaptive icon de `app.json`, `#E6F4FE`) y feature graphic 1024x500 por idioma (icono a la izquierda, titular a la derecha). Contiene también las utilidades comunes y la comprobación
+- **Titulares** en `store_captions.json` (por idioma: `source` = carpeta de capturas, `feature` y los 7 de las capturas). es-ES/es-419 son los definidos por David (es-419 usa "El clima de un vistazo"); **los de en-US, pt-BR, fr-FR, de-DE, it-IT, pl-PL y tr-TR están sin revisión nativa**. Tratamiento igual que en la app (vous en fr, siz en tr, Sie en de). Dos se acortaron porque no cabían: pl feature "Ostrzegę cię przed deszczem" y tr 02 "Uyarı zamanını siz seçin"
+- **Si un titular no cabe en 2 líneas el script falla** antes de escribir nada, indicando idioma, imagen y ancho de cada palabra; nunca recorta ni reduce la fuente. Se reparte en 2 líneas lo más equilibradas posible
+- **Fuente**: `assets/fonts/Inter-Bold.ttf` + `OFL.txt` (Inter, SIL OFL 1.1), sacada con `npm pack @expo-google-fonts/inter` en una carpeta temporal, sin añadir dependencias. Verificado que renderiza ñ, ß, ł, ż, ś, ć, ğ, ı, İ, ş, ő, ű, ç, ã, œ. La app no la importa (no entra en el bundle)
+- **Salida** en `dist-store-assets/<locale>/` (`01_notification.png` … `07_dark.png` + `feature-graphic.png`), en `.gitignore`. No se versionan ni las imágenes generadas ni las capturas originales
+
+**Cómo hacer las capturas**
+1. En un Android (o emulador) en vertical; vale 720x1280, 1080x2400 o similar. Con datos reales y bonitos: un día con lluvia prevista y, para la 05, una zona con avisos oficiales activos
+2. App en español para `es/` y en inglés para `en/`, en modo claro salvo la 07 (modo oscuro). Usuario premium para la 06 (radar/AQI) (`EXPO_PUBLIC_DEBUG_FORCE_PREMIUM` solo en Expo Go)
+3. Nombres exactos: `01_notification` (notificación de alerta desplegada), `02_alerts` (pantalla Alertas), `03_home` (Inicio), `04_forecast` (Previsión), `05_official` (Inicio con avisos oficiales), `06_radar` (radar o calidad del aire), `07_dark` (cualquier pantalla en oscuro), en `.png`
+4. Estructura: `<carpeta>/es/*.png` y `<carpeta>/en/*.png`. Fuera del repo (p. ej. `~/capturas-avisa`)
+
+**Cómo regenerar**
+- Todo (9 idiomas): `python3 generate_store_screenshots.py --raw ~/capturas-avisa`
+- **Previsualizar un solo idioma**: `python3 generate_store_screenshots.py --raw ~/capturas-avisa --locale de-DE` (repetible: `--locale de-DE --locale fr-FR`) y abrir `dist-store-assets/de-DE/`
+- Solo icono + feature graphics (no necesita capturas): `python3 generate_store_assets.py` (admite `--locale` y `--no-icon`)
+- La barra de estado se recorta por defecto 32 dp (densidad estimada con 360 dp de ancho: 64 px a 720, 96 px a 1080). Si asoma o se come contenido: `--status-bar-dp 40` o `--crop-top 120` (píxeles exactos); `--crop-bottom N` para la barra de navegación de 3 botones
+- Comprobación automática al final: 7 capturas 1080x1920 PNG < 8 MB y 1 feature graphic 1024x500 < 15 MB por idioma, `store-icon.png` 512x512 opaco. Si algo falla el script sale con código 1 y lista los problemas
+- Probado con capturas sintéticas a 720x1280 y 1080x2400 (63 capturas + 9 feature graphics, ~0,2-0,3 MB cada una, ~40 s en total)
+
 ### Fase 7 — Widget de pantalla de inicio
 - Se deja para más adelante por ser más laborioso en nativo Android/iOS
 - Mejor decidir prioridad real una vez haya datos de analytics (Fase 2)
