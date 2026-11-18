@@ -32,6 +32,7 @@ SCREENSHOT_KEYS = [
     '01_notification', '02_alerts', '03_home', '04_forecast', '05_official', '06_radar', '07_dark',
 ]
 SCREENSHOT_SIZE = (1080, 1920)
+MIN_SCREENSHOTS = 2  # mínimo de Play por ficha; las capturas que falten se omiten
 FEATURE_SIZE = (1024, 500)
 FEATURE_NAME = 'feature-graphic.png'
 MAX_SCREENSHOT_BYTES = 8 * 1024 * 1024
@@ -180,18 +181,21 @@ def make_feature_graphic(locale: str, text: str) -> Path:
 def verify(locales: list, expect_screenshots: bool = True) -> bool:
     """Comprueba tamaños, formato y peso de lo generado e imprime un resumen. Devuelve True si todo es válido."""
     problems = []
-    print('\nComprobación de dist-store-assets/')
+    total_images = 0
+    print('\nComprobación de dist-store-assets/  (capturas: válidas/generadas)')
     print(f'{"idioma":<8} {"capturas":>9} {"feature":>8} {"mayor captura":>14}')
     for locale in locales:
         folder = OUT_DIR / locale
         shots_ok = 0
+        shots_found = 0
         biggest = 0
         if expect_screenshots:
+            # Las capturas son opcionales: se comprueban las que existan (como mínimo MIN_SCREENSHOTS)
             for key in SCREENSHOT_KEYS:
                 path = folder / f'{key}.png'
                 if not path.exists():
-                    problems.append(f'{locale}: falta {path.name}')
                     continue
+                shots_found += 1
                 size = path.stat().st_size
                 biggest = max(biggest, size)
                 with Image.open(path) as im:
@@ -217,7 +221,10 @@ def verify(locales: list, expect_screenshots: bool = True) -> bool:
                     problems.append(f'{locale}/{FEATURE_NAME}: {fg.stat().st_size / 1e6:.1f} MB (máx. 15 MB)')
                 else:
                     fg_ok = True
-        shots_col = f'{shots_ok}/{len(SCREENSHOT_KEYS)}' if expect_screenshots else '-'
+        if expect_screenshots and shots_found < MIN_SCREENSHOTS:
+            problems.append(f'{locale}: {shots_found} captura(s), Play pide al menos {MIN_SCREENSHOTS}')
+        total_images += (shots_ok if expect_screenshots else 0) + (1 if fg_ok else 0)
+        shots_col = f'{shots_ok}/{shots_found}' if expect_screenshots else '-'
         big_col = f'{biggest / 1e6:.2f} MB' if expect_screenshots else '-'
         print(f'{locale:<8} {shots_col:>9} {"ok" if fg_ok else "ERROR":>8} {big_col:>14}')
 
@@ -234,8 +241,7 @@ def verify(locales: list, expect_screenshots: bool = True) -> bool:
         for p in problems:
             print(f'  - {p}')
         return False
-    total = len(locales) * ((len(SCREENSHOT_KEYS) if expect_screenshots else 0) + 1)
-    print(f'\nTodo correcto: {total} imágenes en {len(locales)} idioma(s).')
+    print(f'\nTodo correcto: {total_images} imágenes en {len(locales)} idioma(s).')
     return True
 
 

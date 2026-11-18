@@ -9,8 +9,12 @@ Uso (desde la raíz del repo, requiere Pillow):
 es/; el resto de idiomas, en/. Se aceptan capturas de cualquier resolución vertical (720x1280,
 1080x2400...): se recorta la barra de estado y se escalan para encajar.
 
-Salida en dist-store-assets/<locale>/ (ignorado por git). Si algún titular no cabe en 2 líneas el
-script falla antes de generar nada, sin recortar ni reducir la fuente.
+Las capturas son opcionales: la que falta se omite con un aviso (ℹ️). Son errores, y no se genera
+nada: que falte un titular en store_captions.json, que un titular no quepa en 2 líneas, o que un
+idioma se quede con menos de 2 capturas (el mínimo de Play).
+
+Salida en dist-store-assets/<locale>/ (ignorado por git). Antes de generar un idioma se borran sus
+capturas anteriores, para que no se cuele una que ya no existe en --raw.
 """
 import argparse
 import sys
@@ -19,7 +23,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 from generate_store_assets import (
-    OUT_DIR, ROOT, SCREENSHOT_KEYS, SCREENSHOT_SIZE, TEXT_COLOR, StoreAssetError,
+    MIN_SCREENSHOTS, OUT_DIR, ROOT, SCREENSHOT_KEYS, SCREENSHOT_SIZE, TEXT_COLOR, StoreAssetError,
     load_captions, load_font, make_feature_graphic, check_feature_caption, paste_with_shadow,
     select_locales, split_into_lines, verify, vertical_gradient,
 )
@@ -92,10 +96,11 @@ def main() -> int:
         locales = select_locales(captions, args.locale)
         raw_dir = args.raw.expanduser().resolve()
 
-        # 1) Validar todo antes de escribir nada: capturas presentes y titulares que caben
+        # 1) Validar todo antes de escribir nada. Los 7 titulares tienen que existir y caber aunque
+        #    falte su captura (así store_captions.json está siempre completo); las capturas son opcionales.
         font = load_font(HEADLINE_SIZE)
         max_width = SCREENSHOT_SIZE[0] - SIDE_MARGIN * 2
-        errors, plan = [], {}
+        errors, notes, plan = [], [], {}
         for locale in locales:
             entry = captions[locale]
             texts = entry['screenshots']
@@ -103,21 +108,31 @@ def main() -> int:
             if missing_keys:
                 errors.append(f'{locale}: faltan titulares en store_captions.json: {", ".join(missing_keys)}')
                 continue
+            plan[locale] = []
             for key in SCREENSHOT_KEYS:
-                raw = find_raw(raw_dir, entry['source'], key)
-                if raw is None:
-                    errors.append(f'falta {raw_dir / entry["source"] / key}.png (para {locale})')
                 try:
-                    plan[(locale, key)] = (raw, split_into_lines(texts[key], font, max_width, f'{locale} / {key}'))
+                    lines = split_into_lines(texts[key], font, max_width, f'{locale} / {key}')
                 except StoreAssetError as e:
                     errors.append(str(e))
+                    continue
+                raw = find_raw(raw_dir, entry['source'], key)
+                if raw is None:
+                    notes.append(f'ℹ️ {locale}: sin {key}, se omite')
+                else:
+                    plan[locale].append((key, raw, lines))
+            if len(plan[locale]) < MIN_SCREENSHOTS:
+                errors.append(
+                    f'{locale}: solo {len(plan[locale])} captura(s) en {raw_dir / entry["source"]}; '
+                    f'Play pide al menos {MIN_SCREENSHOTS}'
+                )
             if not args.skip_feature:
                 try:
                     check_feature_caption(locale, entry['feature'])
                 except StoreAssetError as e:
                     errors.append(str(e))
+        for note in notes:
+            print(note)
         if errors:
-            # Una captura que falta se repite en todos los idiomas que la usan: sin duplicados
             raise StoreAssetError('no se ha generado nada:\n  - ' + '\n  - '.join(dict.fromkeys(errors)))
 
         # 2) Generar
@@ -125,15 +140,16 @@ def main() -> int:
         for locale in locales:
             out_dir = OUT_DIR / locale
             out_dir.mkdir(parents=True, exist_ok=True)
-            for key in SCREENSHOT_KEYS:
-                raw, lines = plan[(locale, key)]
+            for key in SCREENSHOT_KEYS:  # fuera las de una ejecución anterior
+                (out_dir / f'{key}.png').unlink(missing_ok=True)
+            for key, raw, lines in plan[locale]:
                 if raw not in cache:
                     with Image.open(raw) as im:
                         cropped, top = crop_status_bar(im.copy(), args.crop_top, args.status_bar_dp, args.crop_bottom)
                     cache[raw] = cropped
                     print(f'   {raw.relative_to(raw_dir)}: {im.width}x{im.height}, recortados {top}px arriba')
                 compose(cache[raw], lines).save(out_dir / f'{key}.png', optimize=True)
-            print(f'✅ {out_dir.relative_to(ROOT)}/ — 7 capturas')
+            print(f'✅ {out_dir.relative_to(ROOT)}/ — {len(plan[locale])} capturas')
             if not args.skip_feature:
                 make_feature_graphic(locale, captions[locale]['feature'])
                 print(f'✅ {out_dir.relative_to(ROOT)}/feature-graphic.png')
