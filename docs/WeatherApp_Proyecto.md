@@ -419,6 +419,23 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - **Si un titular no cabe en 2 líneas el script falla** antes de escribir nada, indicando idioma, imagen y ancho de cada palabra; nunca recorta ni reduce la fuente. Se reparte en 2 líneas lo más equilibradas posible
 - **Fuente**: `assets/fonts/Inter-Bold.ttf` + `OFL.txt` (Inter, SIL OFL 1.1), sacada con `npm pack @expo-google-fonts/inter` en una carpeta temporal, sin añadir dependencias. Verificado que renderiza ñ, ß, ł, ż, ś, ć, ğ, ı, İ, ş, ő, ű, ç, ã, œ. La app no la importa (no entra en el bundle)
 - **Salida** en `dist-store-assets/<locale>/` (`01_notification.png` … `07_dark.png` + `feature-graphic.png`), en `.gitignore`. No se versionan ni las imágenes generadas ni las capturas originales
+- **Capturas opcionales (2026-11-18)**: una captura que falta en `--raw` ya no aborta: se omite con un aviso (`ℹ️ es-ES: sin 02_alerts, se omite`). Siguen siendo error (y no se genera nada): que falte un titular en `store_captions.json` (los 7 deben existir aunque no haya captura), que un titular no quepa en 2 líneas, y —nuevo— que un idioma se quede con **menos de 2 capturas** (mínimo de Play). Antes de generar cada idioma se borran sus capturas anteriores de `dist-store-assets/`, para que no se suba por error una de otra ejecución. El resumen final cuenta las capturas reales de cada idioma (válidas/generadas) y la comprobación de tamaños pasa sobre las que existan
+- **Titular de la 01 cambiado (2026-11-18)**: la notificación real dice "Probabilidad de lluvia ahora: 94 %", y "Te aviso 1 hora antes de que llueva" la contradecía. Ahora: es-ES/es-419 "Alertas de lluvia, viento, frío y calor", en-US "Rain, wind, cold and heat alerts", de-DE "Warnungen bei Regen und Wind", fr-FR "Alertes pluie, vent, froid et chaleur", it-IT "Allerte pioggia, vento, freddo e caldo", pl-PL "Alerty: deszcz, wiatr, mróz, upał", pt-BR "Alertas de chuva, vento, frio e calor", tr-TR "Yağmur, rüzgâr, soğuk ve sıcak uyarıları". Los 9 caben en 2 líneas sin acortar (traducciones definidas por David; sin revisión nativa salvo es)
+
+**Capturas disponibles (2026-11-18)** — por eso unas fichas llevan 6 capturas y otras 4:
+
+| Captura | `es/` (es-ES, es-419) | `en/` (en-US, pt-BR, fr-FR, de-DE, it-IT, pl-PL, tr-TR) |
+|---|---|---|
+| 01_notification | ✅ | ✅ |
+| 02_alerts | ❌ falta | ✅ |
+| 03_home | ✅ | ✅ |
+| 04_forecast | ✅ | ✅ |
+| 05_official | ✅ | ❌ falta |
+| 06_radar | ✅ | ❌ falta |
+| 07_dark | ✅ | ❌ falta |
+| **Total por ficha** | **6** | **4** |
+
+- Para completar: `es/02_alerts.png` (pantalla Alertas con la app en español) y `en/05_official.png`, `en/06_radar.png`, `en/07_dark.png` (app en inglés). Basta con añadirlas a la carpeta y volver a ejecutar el script
 
 **Cómo hacer las capturas**
 1. En un Android (o emulador) en vertical; vale 720x1280, 1080x2400 o similar. Con datos reales y bonitos: un día con lluvia prevista y, para la 05, una zona con avisos oficiales activos
@@ -431,7 +448,7 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - **Previsualizar un solo idioma**: `python3 generate_store_screenshots.py --raw ~/capturas-avisa --locale de-DE` (repetible: `--locale de-DE --locale fr-FR`) y abrir `dist-store-assets/de-DE/`
 - Solo icono + feature graphics (no necesita capturas): `python3 generate_store_assets.py` (admite `--locale` y `--no-icon`)
 - La barra de estado se recorta por defecto 32 dp (densidad estimada con 360 dp de ancho: 64 px a 720, 96 px a 1080). Si asoma o se come contenido: `--status-bar-dp 40` o `--crop-top 120` (píxeles exactos); `--crop-bottom N` para la barra de navegación de 3 botones
-- Comprobación automática al final: 7 capturas 1080x1920 PNG < 8 MB y 1 feature graphic 1024x500 < 15 MB por idioma, `store-icon.png` 512x512 opaco. Si algo falla el script sale con código 1 y lista los problemas
+- Comprobación automática al final: entre 2 y 7 capturas 1080x1920 PNG < 8 MB (las que haya) y 1 feature graphic 1024x500 < 15 MB por idioma, `store-icon.png` 512x512 opaco. Si algo falla el script sale con código 1 y lista los problemas
 - Probado con capturas sintéticas a 720x1280 y 1080x2400 (63 capturas + 9 feature graphics, ~0,2-0,3 MB cada una, ~40 s en total)
 
 ### Fase 7 — Widget de pantalla de inicio
