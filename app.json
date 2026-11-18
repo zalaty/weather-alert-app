@@ -3,7 +3,7 @@
     "name": "Avisa",
     "slug": "weather-alert-app",
     "scheme": "weatheralert",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -53,7 +53,8 @@
           }
         }
       ],
-      "./plugins/withOkHttpVersion"
+      "./plugins/withOkHttpVersion",
+      "./plugins/withOptionalHardwareFeatures"
     ],
     "extra": {
       "router": {},
