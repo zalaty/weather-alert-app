@@ -75,8 +75,20 @@ yellow/orange/red level from keywords in the source-language text (Visual Crossi
 normalized severity field). Shown free for everyone via `components/weather/OfficialWarningsCard.tsx`.
 
 **Android build tweaks**: `plugins/withOkHttpVersion.js` (local config plugin) forces OkHttp
-4.12.1 for the eMudhra CA revocation — without it Gradle resolves 4.12.0. There is no `android/`
-folder (CNG), so native Gradle changes must go through config plugins, not hand edits.
+4.12.1 for the eMudhra CA revocation — without it Gradle resolves 4.12.0.
+`plugins/withOptionalHardwareFeatures.js` declares `android.hardware.screen.portrait`,
+`android.hardware.location` and `android.hardware.location.gps` as `required="false"`: Play blocked
+1.4.1 because `"orientation": "portrait"` and the location permissions make those features
+implicitly *required*, restricting device availability. Keep `"orientation": "portrait"` (the app
+must not rotate); `android.hardware.touchscreen` is deliberately not declared. There is no `android/`
+folder (CNG), so native Gradle/manifest changes must go through config plugins, not hand edits.
+
+**Before publishing, any change to orientation or permissions** (in `app.json` or from a new
+native library) can add implicit required `uses-feature` entries that restrict which devices can
+install the app. Review the manifest first: run `npx expo prebuild --platform android --no-install`
+in a temporary copy of the repo (symlink `node_modules`, never in the repo itself) and check
+`<uses-feature>`, permissions and `screenOrientation` in `android/app/src/main/AndroidManifest.xml`;
+then confirm the supported devices in Play Console for the uploaded AAB.
 
 **Theming**: `constants/theme.ts` exports `LightTheme`/`DarkTheme` objects plus `Typography`,
 `Spacing`, `Radius` scales; `hooks/useTheme.ts` picks light/dark from the Settings preference

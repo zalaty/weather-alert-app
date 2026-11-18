@@ -377,7 +377,8 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - **i18n**: claves nuevas bajo `settings.*` (`sections`, `units`, `language`, `appearance`, `notifications`, `help`, `premiumActive`, `a11y`, `footer`) y `common.close` en los 9 idiomas; eliminadas `settings.units.{sectionTitle,metricLabel}`, `settings.temperature.*`, `settings.about.*`, `settings.language.sectionTitle` y `settings.premiumBanner.restoreCta`. Traducciones de pt-BR, fr, de, it, pl y tr sin revisar por hablante nativo
 - Verificado: `tsc --noEmit` limpio, 36 tests en verde (nuevo `__tests__/units.test.ts`), bundle de Android compila. **Pendiente**: prueba manual en dispositivo; la apariencia fijada (splash, barra de navegación) y "Valorar" (`market://`) solo se pueden comprobar del todo en un build real
 
-### Release 1.4.1 — Arreglos visuales 🔶 BUILD LANZADO, pendiente de prueba en dispositivo (2026-11-17)
+### Release 1.4.1 — Arreglos visuales ⛔ SE QUEDA EN INTERNAL TESTING (build 28, 2026-11-17)
+- **No llega a producción**: Play bloqueó su promoción por las hardware features obligatorias (ver 1.4.2). Su contenido sale íntegro en la **1.4.2**
 - **Versión 1.4.1** (`app.json`). Planteada como un build nuevo de la 1.4.0, pero la 1.4.0 (build 27) salió a producción sin estos arreglos (la PR #19 seguía abierta), así que se publican como **1.4.1** (patch). Rama `arreglos-visuales-140`, actualizada con `master` (PR #20) antes de fusionar
 - Incluye además (2026-11-17):
   - **Pie de Ajustes con versión y build**: "Avisa 1.4.1 (28) · Datos: Visual Crossing", vía `expo-application` (`nativeApplicationVersion` + `nativeBuildVersion`). En Expo Go (`Constants.executionEnvironment === StoreClient`) solo la versión de `app.json`, porque los valores nativos serían los de Expo Go. Lógica en `utils/appVersion.ts` (`formatAppVersion`, con test). El email de "Enviar comentarios" lleva la misma etiqueta
@@ -396,6 +397,19 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
 - Limitación preexistente detectada, no corregida (fuera de alcance): Inicio ("Próximas horas") y Previsión eligen la primera hora a mostrar con la hora del **dispositivo**; con una ciudad buscada en otra zona horaria la lista empieza en la hora equivocada. `pickCurrentHour` serviría para arreglarlo
 - Verificado: `tsc --noEmit` limpio, 86 tests en verde (nuevo `__tests__/appVersion.test.ts`), bundle de Android compila. **Pendiente**: prueba manual en dispositivo del build de la 1.4.1
 
+### Release 1.4.2 — Hardware features opcionales 🔶 BUILD LANZADO (2026-11-18)
+- **Motivo**: Google Play bloqueó la promoción a producción de la 1.4.1 (28): *"Required hardware feature declarations are restricting your app's availability — android.hardware.screen.portrait affects Phone, Tablet, Desktop, and Android XR users"*
+- **Auditoría** (`npx expo prebuild` en una carpeta temporal): el `AndroidManifest.xml` generado **no declaraba ningún `<uses-feature>`**. Las features que bloquean son **implícitas**, deducidas por Play/aapt y todas obligatorias:
+  - `android.hardware.screen.portrait` ← `android:screenOrientation="portrait"` (de `"orientation": "portrait"` en `app.json`)
+  - `android.hardware.location` ← `ACCESS_FINE_LOCATION`/`ACCESS_COARSE_LOCATION` (`location.gps`/`location.network` solo serían implícitas con targetSdk ≤ 20)
+  - `android.hardware.touchscreen` ← Play la supone en toda app que no la declare
+  - Ningún manifiesto de librería en `node_modules` declara `<uses-feature>`. Las dependencias de Maven (play-services-location, billing) y el manifiesto fusionado final no se pudieron revisar en local (sin SDK de Android ni Java); se confirma en Play Console al subir el AAB
+- **Arreglo**: config plugin `plugins/withOptionalHardwareFeatures.js` (`withAndroidManifest`, mismo patrón que `withOkHttpVersion.js`, registrado en `plugins` de `app.json`) que declara con `android:required="false"`: `android.hardware.screen.portrait`, `android.hardware.location` y `android.hardware.location.gps` (esta última aunque hoy no sea implícita: cubre un cambio futuro). Idempotente (si ya existe la entrada, la fuerza a `false`). La ubicación es opcional de verdad: sin GPS la app funciona buscando ciudades por nombre
+- **Se mantiene `"orientation": "portrait"`**: la app no rota. `required="false"` solo indica que no hace falta un dispositivo que *soporte* vertical
+- **`android.hardware.touchscreen` NO se declara** (decisión de David, 2026-11-18): sigue siendo obligatoria por defecto
+- **Versión 1.4.2** (patch): la 1.4.1 (28) se queda en Internal testing, y no se quieren dos builds con el mismo nombre de versión. Contiene todo lo de la 1.4.1 más este arreglo
+- Verificado: prebuild ejecutado dos veces seguidas → el manifiesto contiene exactamente las 3 entradas `<uses-feature ... android:required="false"/>` (sin duplicados) y el activity sigue con `android:screenOrientation="portrait"`; `tsc --noEmit` limpio y tests en verde. **Pendiente**: confirmar en Play Console (al subir el AAB) que desaparece el bloqueo y que no queda ninguna otra feature obligatoria inesperada
+
 ### 🛠️ Cómo lanzar un build de EAS (desde 2026-11-17)
 - `.github/workflows/eas-build.yml` **ya no se ejecuta en cada push a `master`** (antes cada merge generaba un build y era fácil que uno saliera sin los cambios esperados, como el 27). Ahora se lanza:
   1. **Con un tag de versión** (lo normal): subir la versión en `app.json`, fusionar en `master`, y desde `master` actualizado:
@@ -408,6 +422,7 @@ Orden de implementación acordado, pensado para minimizar retrabajo (features ba
   2. **A mano**: GitHub → Actions → "EAS Build Android" → *Run workflow* → rama `master`. Útil para repetir un build que falló sin crear otro tag
 - El `versionCode` lo sigue poniendo EAS (`autoIncrement`); la versión visible (`version`) la decide `app.json`
 - El progreso se ve en GitHub Actions y en expo.dev → proyecto → Builds. Al terminar, el `.aab` se sube a mano a Play Console (Internal testing → producción)
+- **Antes de publicar, si el build cambia la orientación o los permisos** (en `app.json` o por una librería nueva): revisar el manifiesto, porque pueden aparecer `uses-feature` obligatorios implícitos que restringen dispositivos (lo que bloqueó la 1.4.1). Cómo: `npx expo prebuild --platform android --no-install` en una copia temporal del repo (con `node_modules` enlazado) y revisar `<uses-feature>`, permisos y `screenOrientation` en `android/app/src/main/AndroidManifest.xml`; después, en Play Console, la pestaña de dispositivos admitidos del AAB subido
 
 ### Material de Play Store regenerado 🔶 SCRIPTS LISTOS, faltan las capturas reales (2026-11-16)
 - Sin cambios en la app ni nueva versión. Rama `material-tienda`
