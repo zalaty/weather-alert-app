@@ -10,7 +10,7 @@
         "03_home": "El tiempo de un vistazo",
         "04_forecast": "Por horas y por días",
         "05_official": "Avisos oficiales de tu zona",
-        "06_radar": "Radar de lluvia y calidad del aire",
+        "06_radar": "Radar de lluvia en directo",
         "07_dark": "Claro u oscuro"
       }
     },
@@ -23,7 +23,7 @@
         "03_home": "El clima de un vistazo",
         "04_forecast": "Por horas y por días",
         "05_official": "Avisos oficiales de tu zona",
-        "06_radar": "Radar de lluvia y calidad del aire",
+        "06_radar": "Radar de lluvia en vivo",
         "07_dark": "Claro u oscuro"
       }
     },
